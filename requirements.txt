@@ -1,0 +1,11 @@
+# Fish Audio SDK
+fish-audio-sdk>=2025.6.3
+
+# 環境変数管理
+python-dotenv>=1.0.0
+
+# 音源分離（オプション）
+# demucs>=4.0.0  # 高精度音源分離
+
+# YouTube音声ダウンロード（オプション）
+# yt-dlp>=2023.0.0  # YouTubeダウンローダー
