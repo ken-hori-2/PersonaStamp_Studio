@@ -8,7 +8,11 @@ python-dotenv>=1.0.0
 streamlit>=1.28.0
 
 # 音声認識（文字起こし）
-openai-whisper>=20231117
+openai-whisper>=20231117  # Whisper音声認識モデル
+
+# 音源分離（オプション）
+# demucs>=4.0.0  # 高精度音源分離
+
 
 # Whisperの依存関係（PyTorch - Streamlit Cloud用にCPU版を指定）
 torch>=2.0.0
@@ -16,3 +20,11 @@ torch>=2.0.0
 
 # 数値計算（Whisperの依存関係として必要）
 numpy>=1.24.0
+
+# YouTube音声ダウンロード（オプション）
+# yt-dlp>=2023.0.0  # YouTubeダウンローダー
+
+# 注意: ffmpegはシステムレベルでインストールが必要です
+# macOS: brew install ffmpeg
+# Ubuntu/Debian: sudo apt install ffmpeg
+# Windows: https://ffmpeg.org/download.html からダウンロード

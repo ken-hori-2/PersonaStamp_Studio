@@ -159,6 +159,14 @@ app/
 ### Whisperが動作しない
 
 - `openai-whisper`パッケージがインストールされているか確認
+- **`ffmpeg`がシステムにインストールされているか確認**（必須）
+  - **ローカル環境の場合:**
+    - macOS: `brew install ffmpeg`
+    - Ubuntu/Debian: `sudo apt install ffmpeg`
+    - Windows: [ffmpeg公式サイト](https://ffmpeg.org/download.html)からダウンロード
+  - **Streamlit Cloudの場合:**
+    - `.streamlit/packages.txt`ファイルに`ffmpeg`が記載されていることを確認してください
+    - このファイルが存在しない場合は、プロジェクトルートに`.streamlit/packages.txt`を作成し、`ffmpeg`と記載してください
 - 初回実行時はインターネット接続が必要です
 
 ### 生成された音声がダウンロードできない
