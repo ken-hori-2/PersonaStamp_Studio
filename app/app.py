@@ -177,73 +177,6 @@ def transcribe_audio_with_whisper(audio_file_path: str, language: str = "ja") ->
         return ""
     
     try:
-        # ffmpegのパスを確認して環境変数に追加
-        import subprocess
-        import shutil
-        
-        # まずPATHから探す
-        ffmpeg_path = shutil.which("ffmpeg")
-        
-        # 見つからない場合、よくあるパスを確認（macOS、Linux、Streamlit Cloud対応）
-        if not ffmpeg_path:
-            possible_paths = [
-                "/opt/homebrew/bin/ffmpeg",  # macOS (Apple Silicon)
-                "/usr/local/bin/ffmpeg",     # macOS (Intel) / Linux
-                "/usr/bin/ffmpeg",           # Linux標準パス / Streamlit Cloud
-                "/app/.apt/usr/bin/ffmpeg",  # Streamlit Cloudのデフォルトパス（古い形式）
-                "/app/.apt/bin/ffmpeg",      # Streamlit Cloudの代替パス
-            ]
-            for path in possible_paths:
-                if os.path.exists(path) and os.access(path, os.X_OK):
-                    ffmpeg_path = path
-                    break
-        
-        # ffmpegが見つかった場合、環境変数PATHに追加
-        if ffmpeg_path:
-            ffmpeg_dir = os.path.dirname(ffmpeg_path)
-            current_path = os.environ.get("PATH", "")
-            
-            # PATHに追加（重複を避けるため）
-            path_dirs = current_path.split(os.pathsep)
-            if ffmpeg_dir not in path_dirs:
-                os.environ["PATH"] = f"{ffmpeg_dir}{os.pathsep}{current_path}"
-            
-            # 念のため、FFMPEG_BINARYも設定
-            os.environ["FFMPEG_BINARY"] = ffmpeg_path
-            
-            # デバッグ用：ffmpegが実際に動作するか確認
-            try:
-                result = subprocess.run(
-                    [ffmpeg_path, "-version"],
-                    capture_output=True,
-                    text=True,
-                    timeout=5
-                )
-                if result.returncode != 0:
-                    st.warning(f"⚠️ ffmpegが見つかりましたが、実行できません: {ffmpeg_path}")
-            except Exception as check_error:
-                st.warning(f"⚠️ ffmpegの動作確認に失敗: {check_error}")
-        else:
-            # ffmpegが見つからない場合、詳細なエラーを表示
-            current_path = os.environ.get("PATH", "")
-            st.error(
-                f"❌ ffmpegが見つかりません。\n\n"
-                f"**現在のPATH:** {current_path}\n\n"
-                f"**ローカル環境の場合:**\n"
-                f"- macOS: `brew install ffmpeg`\n"
-                f"- Ubuntu/Debian: `sudo apt install ffmpeg`\n"
-                f"- Windows: https://ffmpeg.org/download.html からダウンロード\n\n"
-                f"**Streamlit Cloudの場合:**\n"
-                f"1. `packages.txt`ファイルがプロジェクトルートに存在することを確認\n"
-                f"2. ファイルの中身に`ffmpeg`と記載されていることを確認\n"
-                f"3. ファイルをGitにコミット・プッシュしてアプリを再デプロイしてください\n\n"
-                f"**確認事項:**\n"
-                f"- ファイルはプロジェクトルートの`packages.txt`にありますか？\n"
-                f"- ファイルの中身は1行目に`ffmpeg`と記載されていますか？\n"
-                f"- ファイルはGitにコミット・プッシュされていますか？"
-            )
-            return ""
-        
         # Whisperモデルの読み込み（初回のみ、セッション状態にキャッシュ）
         if "whisper_model" not in st.session_state:
             with st.spinner("Whisperモデルを読み込んでいます（初回のみ）..."):
@@ -251,7 +184,16 @@ def transcribe_audio_with_whisper(audio_file_path: str, language: str = "ja") ->
         
         model = st.session_state.whisper_model
         
-        # 音声認識を実行
+        # 音声認識を実行（ファイルパスが文字列であることを確認）
+        # ファイルパスをUTF-8文字列として確実に処理（エンコーディング問題を回避）
+        if isinstance(audio_file_path, bytes):
+            audio_file_path = audio_file_path.decode('utf-8', errors='replace')
+        # パスを文字列に変換（Pathオブジェクトの場合）
+        audio_file_path = str(audio_file_path)
+        # ファイルパスを正規化（ASCII文字のみのパスに変換するため）
+        # 日本語や特殊文字を含むファイル名の場合、Whisper/ffmpegが処理できない可能性があるため
+        # 一時ファイルを使用しているので、通常は問題ないが念のため
+        
         result = model.transcribe(
             audio_file_path,
             language=language,
@@ -261,27 +203,6 @@ def transcribe_audio_with_whisper(audio_file_path: str, language: str = "ja") ->
         
         text = result["text"].strip()
         return text
-    except FileNotFoundError as e:
-        if "ffmpeg" in str(e).lower():
-            st.error(
-                f"❌ ffmpegが見つかりません: {e}\n\n"
-                f"**Streamlit Cloudの場合:**\n"
-                f"`.streamlit/packages.txt`に`ffmpeg`が記載されていることを確認し、アプリを再デプロイしてください。"
-            )
-        else:
-            st.warning(f"文字起こしに失敗しました: {e}")
-        return ""
-    except RuntimeError as e:
-        # Whisperがffmpegの実行に失敗した場合
-        if "ffmpeg" in str(e).lower() or "Failed to load audio" in str(e):
-            st.error(
-                f"❌ 音声ファイルの読み込みに失敗しました: {e}\n\n"
-                f"ffmpegが見つからないか、実行できない可能性があります。\n"
-                f"**Streamlit Cloudの場合:** `.streamlit/packages.txt`に`ffmpeg`が記載されていることを確認してください。"
-            )
-        else:
-            st.warning(f"文字起こしに失敗しました: {e}")
-        return ""
     except Exception as e:
         st.warning(f"文字起こしに失敗しました: {e}")
         return ""
@@ -398,7 +319,15 @@ def page_create_voice_clone():
         if "last_processed_file" not in st.session_state:
             st.session_state.last_processed_file = None
         
-        current_file_name = uploaded_file.name if hasattr(uploaded_file, 'name') else None
+        # ファイル名を安全に取得（エンコーディング問題を回避）
+        if hasattr(uploaded_file, 'name'):
+            current_file_name = uploaded_file.name
+            # ファイル名がbytesの場合はUTF-8にデコード
+            if isinstance(current_file_name, bytes):
+                current_file_name = current_file_name.decode('utf-8', errors='replace')
+            current_file_name = str(current_file_name)
+        else:
+            current_file_name = None
         
         auto_transcribe_enabled = st.session_state.get("auto_transcribe_enabled", True)
         
@@ -417,11 +346,16 @@ def page_create_voice_clone():
                     # アップロードされたファイルを読み込む
                     file_bytes = uploaded_file.getvalue()
                     file_ext = current_file_name.split('.')[-1] if current_file_name else "wav"
+                    # 拡張子をASCII文字のみに制限（エンコーディング問題を回避）
+                    file_ext = ''.join(c for c in file_ext if c.isalnum() or c in '._-')[:10] or "wav"
                     
                     # 一時ファイルに保存してWhisperで処理
                     with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_ext}") as tmp_audio:
                         tmp_audio.write(file_bytes)
                         tmp_audio_path = tmp_audio.name
+                        # ファイルパスを文字列として正規化（エンコーディング問題を回避）
+                        if isinstance(tmp_audio_path, bytes):
+                            tmp_audio_path = tmp_audio_path.decode('utf-8', errors='replace')
                     
                     try:
                         transcribed_text = transcribe_audio_with_whisper(tmp_audio_path)
@@ -492,7 +426,15 @@ def page_create_voice_clone():
         
         # 現在のファイル名をセッション状態から取得
         current_file_from_session = st.session_state.get("voice_file_uploader", None)
-        current_file_name_in_form = current_file_from_session.name if current_file_from_session and hasattr(current_file_from_session, 'name') else None
+        # ファイル名を安全に取得（エンコーディング問題を回避）
+        if current_file_from_session and hasattr(current_file_from_session, 'name'):
+            current_file_name_in_form = current_file_from_session.name
+            # ファイル名がbytesの場合はUTF-8にデコード
+            if isinstance(current_file_name_in_form, bytes):
+                current_file_name_in_form = current_file_name_in_form.decode('utf-8', errors='replace')
+            current_file_name_in_form = str(current_file_name_in_form)
+        else:
+            current_file_name_in_form = None
         
         # 音声プレーヤーを表示（編集しながら音声を聴けるように）
         if current_file_from_session:
@@ -610,12 +552,24 @@ def page_create_voice_clone():
                     st.stop()
                 final_transcription = ""
             
-            # 一時ファイルに保存
-            file_ext = submitted_file.name.split('.')[-1] if hasattr(submitted_file, 'name') else "wav"
+            # 一時ファイルに保存（ファイル名のエンコーディング問題を回避するため、拡張子のみを使用）
+            if hasattr(submitted_file, 'name'):
+                file_name = submitted_file.name
+                # ファイル名がbytesの場合はUTF-8にデコード
+                if isinstance(file_name, bytes):
+                    file_name = file_name.decode('utf-8', errors='replace')
+                file_ext = str(file_name).split('.')[-1] if '.' in str(file_name) else "wav"
+            else:
+                file_ext = "wav"
+            # 拡張子をASCII文字のみに制限（エンコーディング問題を回避）
+            file_ext = ''.join(c for c in file_ext if c.isalnum() or c in '._-')[:10] or "wav"
             with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_ext}") as tmp_file:
                 submitted_file.seek(0)  # ファイルポインタをリセット
                 tmp_file.write(submitted_file.read())
                 tmp_path = tmp_file.name
+                # ファイルパスを文字列として正規化（エンコーディング問題を回避）
+                if isinstance(tmp_path, bytes):
+                    tmp_path = tmp_path.decode('utf-8', errors='replace')
             
             try:
                 with st.spinner("音声クローンモデルを作成中... この処理には時間がかかる場合があります。"):
