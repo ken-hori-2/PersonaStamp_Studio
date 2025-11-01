@@ -4,8 +4,15 @@ fish-audio-sdk>=2025.6.3
 # 環境変数管理
 python-dotenv>=1.0.0
 
-# 音源分離（オプション）
-# demucs>=4.0.0  # 高精度音源分離
+# Web UI
+streamlit>=1.28.0
 
-# YouTube音声ダウンロード（オプション）
-# yt-dlp>=2023.0.0  # YouTubeダウンローダー
+# 音声認識（文字起こし）
+openai-whisper>=20231117
+
+# Whisperの依存関係（PyTorch - Streamlit Cloud用にCPU版を指定）
+torch>=2.0.0
+# torchaudio>=2.0.0
+
+# 数値計算（Whisperの依存関係として必要）
+numpy>=1.24.0
