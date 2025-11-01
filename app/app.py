@@ -18,7 +18,7 @@ try:
 except ImportError:
     WHISPER_AVAILABLE = False
 
-# 既存のモジュールをインポート（streamlit_appフォルダ内のカスタマイズ版を使用）
+# 既存のモジュールをインポート（appフォルダ内のカスタマイズ版を使用）
 from create_voice_clone import create_voice_clone_model, list_existing_models
 from generate_tts import generate_tts, load_model_id_from_file, check_api_credit
 

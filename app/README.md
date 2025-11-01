@@ -47,9 +47,9 @@ Fish Audio SDKを使用した音声クローン作成とテキスト読み上げ
 
 ## 💻 起動方法
 
-```bash
-streamlit run streamlit_app/app.py
-```
+    ```bash
+    streamlit run app/app.py
+    ```
 
 ブラウザで `http://localhost:8501` が自動的に開きます。
 
@@ -97,11 +97,11 @@ streamlit run streamlit_app/app.py
 ## 📁 ファイル構成
 
 ```
-streamlit_app/
+app/
 ├── app.py                    # メインのStreamlitアプリケーション
 ├── create_voice_clone.py     # 音声クローンモデル作成機能
 ├── generate_tts.py           # TTS生成機能
-├── whisper_sst.py            # Whisper音声認識機能
+├── whisper_sst.py            # Whisper音声認識機能（現在はapp.py内に統合）
 ├── models.json               # モデル情報の永続化ストレージ
 └── README.md                 # このファイル
 ```
@@ -110,7 +110,7 @@ streamlit_app/
 
 ### モデル情報の保存場所
 
-モデル情報は `streamlit_app/models.json` に保存されます。
+モデル情報は `app/models.json` に保存されます。
 
 ```json
 {

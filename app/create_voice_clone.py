@@ -127,7 +127,7 @@ if __name__ == "__main__":
     print("=== Fish Audio 音声クローンモデル作成 ===\n")
     
     # 音声ファイルのパス
-    AUDIO_FILE = os.path.join(os.path.dirname(__file__), "..", "examples", "sample_voice_aya.m4a")
+    AUDIO_FILE = os.path.join(os.path.dirname(__file__), "..", "examples", "sample_voice.wav")
     
     # モデルの設定
     MODEL_TITLE = "Sample Voice Clone"
