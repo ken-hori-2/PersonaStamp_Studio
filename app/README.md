@@ -165,8 +165,8 @@ app/
     - Ubuntu/Debian: `sudo apt install ffmpeg`
     - Windows: [ffmpeg公式サイト](https://ffmpeg.org/download.html)からダウンロード
   - **Streamlit Cloudの場合:**
-    - `.streamlit/packages.txt`ファイルに`ffmpeg`が記載されていることを確認してください
-    - このファイルが存在しない場合は、プロジェクトルートに`.streamlit/packages.txt`を作成し、`ffmpeg`と記載してください
+    - **プロジェクトルート**に`packages.txt`ファイルを作成し、`ffmpeg`と記載してください（`.streamlit`フォルダ内ではありません）
+    - ファイルをGitにコミット・プッシュすると、Streamlit Cloudが自動的に再デプロイします
 - 初回実行時はインターネット接続が必要です
 
 ### 生成された音声がダウンロードできない

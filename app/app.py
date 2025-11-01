@@ -177,6 +177,73 @@ def transcribe_audio_with_whisper(audio_file_path: str, language: str = "ja") ->
         return ""
     
     try:
+        # ffmpegのパスを確認して環境変数に追加
+        import subprocess
+        import shutil
+        
+        # まずPATHから探す
+        ffmpeg_path = shutil.which("ffmpeg")
+        
+        # 見つからない場合、よくあるパスを確認（macOS、Linux、Streamlit Cloud対応）
+        if not ffmpeg_path:
+            possible_paths = [
+                "/opt/homebrew/bin/ffmpeg",  # macOS (Apple Silicon)
+                "/usr/local/bin/ffmpeg",     # macOS (Intel) / Linux
+                "/usr/bin/ffmpeg",           # Linux標準パス / Streamlit Cloud
+                "/app/.apt/usr/bin/ffmpeg",  # Streamlit Cloudのデフォルトパス（古い形式）
+                "/app/.apt/bin/ffmpeg",      # Streamlit Cloudの代替パス
+            ]
+            for path in possible_paths:
+                if os.path.exists(path) and os.access(path, os.X_OK):
+                    ffmpeg_path = path
+                    break
+        
+        # ffmpegが見つかった場合、環境変数PATHに追加
+        if ffmpeg_path:
+            ffmpeg_dir = os.path.dirname(ffmpeg_path)
+            current_path = os.environ.get("PATH", "")
+            
+            # PATHに追加（重複を避けるため）
+            path_dirs = current_path.split(os.pathsep)
+            if ffmpeg_dir not in path_dirs:
+                os.environ["PATH"] = f"{ffmpeg_dir}{os.pathsep}{current_path}"
+            
+            # 念のため、FFMPEG_BINARYも設定
+            os.environ["FFMPEG_BINARY"] = ffmpeg_path
+            
+            # デバッグ用：ffmpegが実際に動作するか確認
+            try:
+                result = subprocess.run(
+                    [ffmpeg_path, "-version"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                if result.returncode != 0:
+                    st.warning(f"⚠️ ffmpegが見つかりましたが、実行できません: {ffmpeg_path}")
+            except Exception as check_error:
+                st.warning(f"⚠️ ffmpegの動作確認に失敗: {check_error}")
+        else:
+            # ffmpegが見つからない場合、詳細なエラーを表示
+            current_path = os.environ.get("PATH", "")
+            st.error(
+                f"❌ ffmpegが見つかりません。\n\n"
+                f"**現在のPATH:** {current_path}\n\n"
+                f"**ローカル環境の場合:**\n"
+                f"- macOS: `brew install ffmpeg`\n"
+                f"- Ubuntu/Debian: `sudo apt install ffmpeg`\n"
+                f"- Windows: https://ffmpeg.org/download.html からダウンロード\n\n"
+                f"**Streamlit Cloudの場合:**\n"
+                f"1. `packages.txt`ファイルがプロジェクトルートに存在することを確認\n"
+                f"2. ファイルの中身に`ffmpeg`と記載されていることを確認\n"
+                f"3. ファイルをGitにコミット・プッシュしてアプリを再デプロイしてください\n\n"
+                f"**確認事項:**\n"
+                f"- ファイルはプロジェクトルートの`packages.txt`にありますか？\n"
+                f"- ファイルの中身は1行目に`ffmpeg`と記載されていますか？\n"
+                f"- ファイルはGitにコミット・プッシュされていますか？"
+            )
+            return ""
+        
         # Whisperモデルの読み込み（初回のみ、セッション状態にキャッシュ）
         if "whisper_model" not in st.session_state:
             with st.spinner("Whisperモデルを読み込んでいます（初回のみ）..."):
@@ -194,6 +261,27 @@ def transcribe_audio_with_whisper(audio_file_path: str, language: str = "ja") ->
         
         text = result["text"].strip()
         return text
+    except FileNotFoundError as e:
+        if "ffmpeg" in str(e).lower():
+            st.error(
+                f"❌ ffmpegが見つかりません: {e}\n\n"
+                f"**Streamlit Cloudの場合:**\n"
+                f"`.streamlit/packages.txt`に`ffmpeg`が記載されていることを確認し、アプリを再デプロイしてください。"
+            )
+        else:
+            st.warning(f"文字起こしに失敗しました: {e}")
+        return ""
+    except RuntimeError as e:
+        # Whisperがffmpegの実行に失敗した場合
+        if "ffmpeg" in str(e).lower() or "Failed to load audio" in str(e):
+            st.error(
+                f"❌ 音声ファイルの読み込みに失敗しました: {e}\n\n"
+                f"ffmpegが見つからないか、実行できない可能性があります。\n"
+                f"**Streamlit Cloudの場合:** `.streamlit/packages.txt`に`ffmpeg`が記載されていることを確認してください。"
+            )
+        else:
+            st.warning(f"文字起こしに失敗しました: {e}")
+        return ""
     except Exception as e:
         st.warning(f"文字起こしに失敗しました: {e}")
         return ""
