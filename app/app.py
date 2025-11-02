@@ -942,12 +942,21 @@ def page_generate_tts():
             }
             audio_mime = mime_map.get(st.session_state.tts_format, "audio/wav")
             
-            # 音声プレーヤー（エラーハンドリング付き）
-            try:
-                st.audio(st.session_state.tts_audio_bytes, format=audio_mime)
-            except Exception as audio_error:
-                st.error(f"❌ 音声の再生に失敗しました: {audio_error}")
-                st.info("💡 スマホでは大きなファイルの再生に時間がかかる場合があります。ダウンロードボタンからファイルをダウンロードして、デバイスのメディアプレーヤーで再生してください。")
+            # 音声プレーヤー（スマホ対応：ファイルサイズが大きい場合は表示しない）
+            # スマホブラウザではdata URIのサイズ制限（通常2-5MB）があるため、
+            # 大きいファイルは直接再生できない可能性がある
+            MAX_AUDIO_SIZE_FOR_PLAYER_MB = 5  # 5MB以下のみプレーヤーを表示
+            
+            if audio_size_mb <= MAX_AUDIO_SIZE_FOR_PLAYER_MB:
+                # ファイルサイズが小さい場合のみ音声プレーヤーを表示
+                try:
+                    st.audio(st.session_state.tts_audio_bytes, format=audio_mime)
+                except Exception as audio_error:
+                    st.warning(f"⚠️ 音声の再生に失敗しました。ダウンロードボタンからファイルをダウンロードして、デバイスのメディアプレーヤーで再生してください。")
+                    st.caption(f"エラー詳細: {str(audio_error)[:100]}")
+            else:
+                # ファイルサイズが大きい場合は、ダウンロードのみ提供
+                st.info(f"📱 この音声ファイルは大きいため（{audio_size_mb:.1f}MB）、ブラウザ内での再生はサポートされていません。ダウンロードボタンからファイルをダウンロードして、デバイスのメディアプレーヤーで再生してください。")
             
             # ダウンロードボタン（フォームの外なので使用可能、エラーハンドリング付き）
             try:
