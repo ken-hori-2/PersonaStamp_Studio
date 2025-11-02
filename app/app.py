@@ -953,32 +953,73 @@ def page_generate_tts():
             # ファイル名に特殊文字が含まれている場合、安全な名前に変換
             safe_file_name = "".join(c for c in file_name if c.isalnum() or c in "._-") or f"tts_output.{st.session_state.tts_format}"
             
-            # 音声プレーヤー（スマホ対応：base64エンコードでdata URIとして提供）
-            # スマホブラウザでは`st.audio()`がバイトデータを正しく処理できない場合があるため、
-            # base64エンコードしたdata URIを使用するHTMLのaudioタグを直接使用
+            # 音声プレーヤー（スマホ対応：JavaScriptでBlob URLを作成）
+            # スマホブラウザでは`st.audio()`やbase64 data URIが正しく処理できない場合があるため、
+            # JavaScriptでBlob URLを作成してaudioタグに設定する方法を使用
             MAX_AUDIO_SIZE_FOR_PLAYER_MB = 5  # 5MB以下は再生を試みる
             
             if audio_size_mb <= MAX_AUDIO_SIZE_FOR_PLAYER_MB:
-                # base64エンコードしてdata URIとして提供（スマホ対応）
+                # JavaScriptでBlob URLを作成してaudioタグに設定（スマホ対応）
                 try:
                     import base64
+                    # base64エンコード（JavaScriptで使用するため）
                     b64_data = base64.b64encode(st.session_state.tts_audio_bytes).decode()
-                    data_uri = f"data:{audio_mime};base64,{b64_data}"
                     
-                    # HTMLのaudioタグを直接使用（スマホでも動作する）
+                    # ユニークなIDを生成（複数のaudioタグがある場合の競合を防ぐ）
+                    import hashlib
+                    audio_id = hashlib.md5(st.session_state.tts_audio_bytes[:100]).hexdigest()[:8]
+                    
+                    # JavaScriptを使用してBlob URLを作成し、audioタグに設定
                     st.markdown(
                         f'''
-                        <audio controls style="width: 100%; max-width: 100%;">
-                            <source src="{data_uri}" type="{audio_mime}">
-                            お使いのブラウザは音声再生に対応していません。
-                        </audio>
+                        <div id="audio-container-{audio_id}">
+                            <audio id="audio-player-{audio_id}" controls style="width: 100%; max-width: 100%;">
+                                お使いのブラウザは音声再生に対応していません。
+                            </audio>
+                        </div>
+                        <script>
+                            (function() {{
+                                const base64Data = "{b64_data}";
+                                const mimeType = "{audio_mime}";
+                                const audioId = "audio-player-{audio_id}";
+                                
+                                try {{
+                                    // base64デコードしてバイナリデータに変換
+                                    const binaryString = atob(base64Data);
+                                    const bytes = new Uint8Array(binaryString.length);
+                                    for (let i = 0; i < binaryString.length; i++) {{
+                                        bytes[i] = binaryString.charCodeAt(i);
+                                    }}
+                                    
+                                    // Blobを作成
+                                    const blob = new Blob([bytes], {{ type: mimeType }});
+                                    
+                                    // Blob URLを作成してaudioタグに設定
+                                    const blobUrl = URL.createObjectURL(blob);
+                                    const audioElement = document.getElementById(audioId);
+                                    if (audioElement) {{
+                                        audioElement.src = blobUrl;
+                                        // ページがアンロードされたときにBlob URLを解放
+                                        window.addEventListener("beforeunload", function() {{
+                                            URL.revokeObjectURL(blobUrl);
+                                        }});
+                                    }}
+                                }} catch (error) {{
+                                    console.error("音声プレーヤーの初期化エラー:", error);
+                                    const container = document.getElementById("audio-container-{audio_id}");
+                                    if (container) {{
+                                        container.innerHTML = '<p style="color: #ff6b6b;">⚠️ 音声の再生に失敗しました。ダウンロードボタンからファイルをダウンロードしてください。</p>';
+                                    }}
+                                }}
+                            }})();
+                        </script>
                         ''',
                         unsafe_allow_html=True
                     )
                     st.caption("💡 再生できない場合は、ダウンロードボタンからファイルをダウンロードしてください。")
                     
                 except Exception as audio_error:
-                    # base64エンコードに失敗した場合は、通常の`st.audio()`を試す
+                    # JavaScript/Blob URL方式に失敗した場合は、通常の`st.audio()`を試す
                     try:
                         st.audio(st.session_state.tts_audio_bytes, format=audio_mime)
                         st.caption("💡 スマホで再生できない場合は、ダウンロードボタンからファイルをダウンロードしてください。")
