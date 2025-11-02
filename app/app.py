@@ -870,12 +870,25 @@ def page_generate_tts():
                     )
                 
                 # 音声ファイルを読み込んでセッション状態に保存
-                with open(output_file, "rb") as f:
-                    audio_bytes = f.read()
+                try:
+                    with open(output_file, "rb") as f:
+                        audio_bytes = f.read()
+                    
+                    # ファイルサイズを確認
+                    file_size_mb = len(audio_bytes) / (1024 * 1024)
+                    
+                    st.session_state.tts_output_file = output_file
+                    st.session_state.tts_audio_bytes = audio_bytes
+                    st.session_state.tts_format = format
+                    
+                    if file_size_mb > 10:
+                        st.warning(f"⚠️ 生成された音声ファイルが大きいです（{file_size_mb:.1f}MB）。スマホでは読み込みに時間がかかる場合があります。")
                 
-                st.session_state.tts_output_file = output_file
-                st.session_state.tts_audio_bytes = audio_bytes
-                st.session_state.tts_format = format
+                except Exception as file_error:
+                    st.error(f"❌ 音声ファイルの読み込みに失敗しました: {file_error}")
+                    st.session_state.tts_output_file = None
+                    st.session_state.tts_audio_bytes = None
+                    raise
                 
                 # 選択されたモデル情報を保存
                 if selected_model_id:
@@ -914,16 +927,51 @@ def page_generate_tts():
         st.markdown("---")
         st.subheader("🎵 生成された音声")
         
-        st.audio(st.session_state.tts_audio_bytes, format=f"audio/{st.session_state.tts_format}")
+        try:
+            # ファイルサイズを確認（スマホ対応のため）
+            audio_size_mb = len(st.session_state.tts_audio_bytes) / (1024 * 1024)
+            if audio_size_mb > 10:
+                st.warning(f"⚠️ 音声ファイルが大きいため（{audio_size_mb:.1f}MB）、スマホでは読み込みに時間がかかる場合があります。")
+            
+            # MIMEタイプのマッピング（スマホ対応）
+            mime_map = {
+                "wav": "audio/wav",
+                "mp3": "audio/mpeg",
+                "opus": "audio/opus",
+                "pcm": "audio/pcm"
+            }
+            audio_mime = mime_map.get(st.session_state.tts_format, "audio/wav")
+            
+            # 音声プレーヤー（エラーハンドリング付き）
+            try:
+                st.audio(st.session_state.tts_audio_bytes, format=audio_mime)
+            except Exception as audio_error:
+                st.error(f"❌ 音声の再生に失敗しました: {audio_error}")
+                st.info("💡 スマホでは大きなファイルの再生に時間がかかる場合があります。ダウンロードボタンからファイルをダウンロードして、デバイスのメディアプレーヤーで再生してください。")
+            
+            # ダウンロードボタン（フォームの外なので使用可能、エラーハンドリング付き）
+            try:
+                file_name = Path(st.session_state.tts_output_file).name
+                # ファイル名に特殊文字が含まれている場合、安全な名前に変換
+                safe_file_name = "".join(c for c in file_name if c.isalnum() or c in "._-") or f"tts_output.{st.session_state.tts_format}"
+                
+                st.download_button(
+                    label=f"📥 音声ファイルをダウンロード ({audio_size_mb:.1f}MB)",
+                    data=st.session_state.tts_audio_bytes,
+                    file_name=safe_file_name,
+                    mime=audio_mime,
+                    use_container_width=True
+                )
+            except Exception as download_error:
+                st.error(f"❌ ダウンロードボタンの生成に失敗しました: {download_error}")
+                # フォールバック: ファイルパスを表示して手動ダウンロードを案内
+                st.info(f"💡 ファイルが大きすぎる可能性があります。ファイルパス: `{st.session_state.tts_output_file}`")
         
-        # ダウンロードボタン（フォームの外なので使用可能）
-        st.download_button(
-            label="📥 音声ファイルをダウンロード",
-            data=st.session_state.tts_audio_bytes,
-            file_name=Path(st.session_state.tts_output_file).name,
-            mime=f"audio/{st.session_state.tts_format}",
-            use_container_width=True
-        )
+        except Exception as e:
+            st.error(f"❌ 音声の表示に失敗しました: {e}")
+            import traceback
+            with st.expander("詳細なエラー情報"):
+                st.code(traceback.format_exc())
 
 def main():
     """メイン関数"""
