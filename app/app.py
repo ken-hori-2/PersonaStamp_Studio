@@ -923,14 +923,14 @@ def page_generate_tts():
                     st.code(traceback.format_exc())
     
     # フォームの外で結果を表示（ダウンロードボタンを含む）
-    if st.session_state.tts_output_file and os.path.exists(st.session_state.tts_output_file):
+    # スマホ対応：セッション状態のデータを優先的に使用（ファイルアクセスは不確実なため）
+    if st.session_state.tts_audio_bytes and len(st.session_state.tts_audio_bytes) > 0:
         st.markdown("---")
         st.subheader("🎵 生成された音声")
         
         try:
-            # ファイルから直接サイズを取得（セッション状態のデータではなく）
-            file_size = os.path.getsize(st.session_state.tts_output_file)
-            audio_size_mb = file_size / (1024 * 1024)
+            # セッション状態のデータからサイズを取得（最も確実）
+            audio_size_mb = len(st.session_state.tts_audio_bytes) / (1024 * 1024)
             
             if audio_size_mb > 10:
                 st.warning(f"⚠️ 音声ファイルが大きいため（{audio_size_mb:.1f}MB）、スマホでは読み込みに時間がかかる場合があります。")
@@ -944,73 +944,78 @@ def page_generate_tts():
             }
             audio_mime = mime_map.get(st.session_state.tts_format, "audio/wav")
             
-            # 音声プレーヤー（PCでのみ表示、スマホでは常にダウンロードのみ）
-            # スマホブラウザではdata URIのサイズ制限やセッション状態の制限により、
-            # 再生やダウンロードができない場合があるため、PCでのみプレーヤーを表示
-            MAX_AUDIO_SIZE_FOR_PLAYER_MB = 0.5  # 0.5MB以下のみプレーヤーを表示（非常に小さいファイルのみ）
+            # ファイル名の取得
+            if st.session_state.tts_output_file:
+                file_name = Path(st.session_state.tts_output_file).name
+            else:
+                file_name = f"tts_output.{st.session_state.tts_format}"
             
-            # プレーヤーを表示（小さなファイルのみ、セッション状態のデータを使用）
-            if audio_size_mb <= MAX_AUDIO_SIZE_FOR_PLAYER_MB and st.session_state.tts_audio_bytes:
+            # ファイル名に特殊文字が含まれている場合、安全な名前に変換
+            safe_file_name = "".join(c for c in file_name if c.isalnum() or c in "._-") or f"tts_output.{st.session_state.tts_format}"
+            
+            # 音声プレーヤー（スマホでも再生できるように、セッション状態のデータを使用）
+            # スマホブラウザでも動作するように、小さいファイルは常に再生を試みる
+            MAX_AUDIO_SIZE_FOR_PLAYER_MB = 5  # 5MB以下は再生を試みる
+            
+            if audio_size_mb <= MAX_AUDIO_SIZE_FOR_PLAYER_MB:
+                # 音声プレーヤーを表示（スマホでも再生できるように）
                 try:
                     st.audio(st.session_state.tts_audio_bytes, format=audio_mime)
                     st.caption("💡 スマホで再生できない場合は、ダウンロードボタンからファイルをダウンロードしてください。")
                 except Exception as audio_error:
                     st.warning(f"⚠️ 音声の再生に失敗しました。ダウンロードボタンからファイルをダウンロードして、デバイスのメディアプレーヤーで再生してください。")
-                    st.caption(f"エラー詳細: {str(audio_error)[:100]}")
+                    st.caption(f"エラー詳細: {str(audio_error)[:200]}")
             else:
-                # ファイルサイズが大きい、またはスマホでの問題を避けるため、ダウンロードのみ提供
-                st.info(f"📱 音声ファイル（{audio_size_mb:.1f}MB）はダウンロードボタンからダウンロードして、デバイスのメディアプレーヤーで再生してください。スマホブラウザでの直接再生はサポートされていません。")
+                # ファイルサイズが大きい場合は、ダウンロードのみ提供
+                st.info(f"📱 音声ファイル（{audio_size_mb:.1f}MB）は大きいため、ブラウザ内での再生はサポートされていません。ダウンロードボタンからダウンロードして、デバイスのメディアプレーヤーで再生してください。")
             
-            # ダウンロードボタン（スマホ対応：都度ファイルから読み込む）
-            # セッション状態のデータではなく、ファイルから直接読み込むことで、
-            # スマホでのダウンロード問題を回避（セッション状態のデータが破損している可能性があるため）
+            # ダウンロードボタン（セッション状態のデータを使用 - スマホ対応）
             try:
-                file_name = Path(st.session_state.tts_output_file).name
-                # ファイル名に特殊文字が含まれている場合、安全な名前に変換
-                safe_file_name = "".join(c for c in file_name if c.isalnum() or c in "._-") or f"tts_output.{st.session_state.tts_format}"
-                
-                # ファイルから直接データを読み込む（セッション状態ではなく）
-                # これにより、スマホでのダウンロード時のデータ破損を防ぐ
-                try:
-                    with open(st.session_state.tts_output_file, "rb") as f:
-                        fresh_audio_data = f.read()
-                    
-                    # データサイズを確認
-                    if len(fresh_audio_data) == 0:
-                        st.error("❌ ファイルが空です。")
-                    elif len(fresh_audio_data) != file_size:
-                        st.warning(f"⚠️ データサイズが一致しません。ファイル: {file_size} bytes, 読み込み: {len(fresh_audio_data)} bytes")
-                    
-                    # ダウンロードボタンを表示（ファイルから読み込んだ新鮮なデータを使用）
-                    st.download_button(
-                        label=f"📥 音声ファイルをダウンロード ({audio_size_mb:.1f}MB)",
-                        data=fresh_audio_data,
-                        file_name=safe_file_name,
-                        mime=audio_mime,
-                        use_container_width=True,
-                        help="ファイルから直接読み込んだデータを使用します。スマホでも確実に動作します。"
-                    )
-                    
-                except Exception as read_error:
-                    st.error(f"❌ ファイルの読み込みに失敗しました: {read_error}")
-                    # フォールバック: セッション状態のデータを試す
-                    if st.session_state.tts_audio_bytes and len(st.session_state.tts_audio_bytes) > 0:
-                        st.warning("⚠️ ファイルからの読み込みに失敗しました。セッション状態のデータを使用します。")
-                        st.download_button(
-                            label=f"📥 音声ファイルをダウンロード (フォールバック) ({audio_size_mb:.1f}MB)",
-                            data=st.session_state.tts_audio_bytes,
-                            file_name=safe_file_name,
-                            mime=audio_mime,
-                            use_container_width=True
-                        )
-                    else:
-                        raise
+                # まず通常のダウンロードボタンを試す
+                st.download_button(
+                    label=f"📥 音声ファイルをダウンロード ({audio_size_mb:.1f}MB)",
+                    data=st.session_state.tts_audio_bytes,
+                    file_name=safe_file_name,
+                    mime=audio_mime,
+                    use_container_width=True,
+                    help="セッション状態から直接データをダウンロードします。スマホでも動作します。"
+                )
                 
             except Exception as download_error:
                 st.error(f"❌ ダウンロードボタンの生成に失敗しました: {download_error}")
-                import traceback
-                with st.expander("詳細なエラー情報"):
-                    st.code(traceback.format_exc())
+                
+                # フォールバック1: base64エンコードしたdata URIリンクを提供（小さいファイルの場合）
+                if audio_size_mb < 3:  # 3MB以下の場合のみbase64を試す
+                    try:
+                        import base64
+                        b64_data = base64.b64encode(st.session_state.tts_audio_bytes).decode()
+                        data_uri = f"data:{audio_mime};base64,{b64_data}"
+                        
+                        st.markdown(
+                            f'''
+                            <a href="{data_uri}" download="{safe_file_name}" 
+                               style="padding: 0.75rem 1.5rem; background-color: #262730; color: #fafafa; 
+                                      text-decoration: none; border-radius: 6px; display: inline-block;
+                                      font-weight: 500; border: 1px solid #3d3d3d;"
+                               onmouseover="this.style.backgroundColor='#3d3d3d'"
+                               onmouseout="this.style.backgroundColor='#262730'">
+                               📥 代替ダウンロードリンク ({audio_size_mb:.1f}MB)
+                            </a>
+                            ''',
+                            unsafe_allow_html=True
+                        )
+                        st.caption("💡 上記のリンクを長押しして「リンク先をダウンロード」を選択してください。")
+                    except Exception as base64_error:
+                        st.error(f"❌ base64エンコードも失敗しました: {base64_error}")
+                        import traceback
+                        with st.expander("詳細なエラー情報"):
+                            st.code(traceback.format_exc())
+                else:
+                    # ファイルが大きすぎる場合
+                    st.info(f"💡 ファイルが大きすぎるため（{audio_size_mb:.1f}MB）、代替ダウンロード方法も使用できません。ページを再読み込みして、再度生成してください。")
+                    import traceback
+                    with st.expander("詳細なエラー情報"):
+                        st.code(traceback.format_exc())
         
         except Exception as e:
             st.error(f"❌ 音声の表示に失敗しました: {e}")
@@ -1019,23 +1024,28 @@ def page_generate_tts():
                 st.code(traceback.format_exc())
     
     elif st.session_state.tts_output_file:
-        # ファイルパスはあるが、ファイルが存在しない場合
-        st.error(f"❌ 音声ファイルが見つかりません: {st.session_state.tts_output_file}")
-        st.session_state.tts_output_file = None
-        st.session_state.tts_audio_bytes = None
-
-def _read_audio_file_for_download(file_path: str) -> bytes:
-    """ダウンロード用にファイルから音声データを読み込む（スマホ対応）"""
-    try:
-        if os.path.exists(file_path):
-            with open(file_path, "rb") as f:
-                return f.read()
-        else:
-            st.error(f"❌ ファイルが見つかりません: {file_path}")
-            return b""
-    except Exception as e:
-        st.error(f"❌ ファイルの読み込みに失敗しました: {e}")
-        return b""
+        # ファイルパスはあるが、セッション状態のデータがない場合
+        # ファイルから読み込んでセッション状態に保存を試みる
+        try:
+            if os.path.exists(st.session_state.tts_output_file):
+                with open(st.session_state.tts_output_file, "rb") as f:
+                    audio_bytes = f.read()
+                
+                if len(audio_bytes) > 0:
+                    st.session_state.tts_audio_bytes = audio_bytes
+                    st.rerun()  # データが読み込めたので再レンダリング
+                else:
+                    st.error(f"❌ 音声ファイルが空です: {st.session_state.tts_output_file}")
+                    st.session_state.tts_output_file = None
+            else:
+                st.error(f"❌ 音声ファイルが見つかりません: {st.session_state.tts_output_file}")
+                st.session_state.tts_output_file = None
+        except Exception as load_error:
+            st.error(f"❌ 音声ファイルの読み込みに失敗しました: {load_error}")
+            import traceback
+            with st.expander("詳細なエラー情報"):
+                st.code(traceback.format_exc())
+            st.session_state.tts_output_file = None
 
 def main():
     """メイン関数"""
