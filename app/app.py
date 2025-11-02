@@ -970,6 +970,7 @@ def page_generate_tts():
                     audio_id = hashlib.md5(st.session_state.tts_audio_bytes[:100]).hexdigest()[:8]
                     
                     # JavaScriptを使用してBlob URLを作成し、audioタグに設定
+                    # Streamlitの動的コンテンツ更新に対応するため、DOMが読み込まれた後に実行
                     st.markdown(
                         f'''
                         <div id="audio-container-{audio_id}">
@@ -979,38 +980,77 @@ def page_generate_tts():
                         </div>
                         <script>
                             (function() {{
-                                const base64Data = "{b64_data}";
-                                const mimeType = "{audio_mime}";
-                                const audioId = "audio-player-{audio_id}";
-                                
-                                try {{
-                                    // base64デコードしてバイナリデータに変換
-                                    const binaryString = atob(base64Data);
-                                    const bytes = new Uint8Array(binaryString.length);
-                                    for (let i = 0; i < binaryString.length; i++) {{
-                                        bytes[i] = binaryString.charCodeAt(i);
+                                function initAudioPlayer() {{
+                                    const base64Data = "{b64_data}";
+                                    const mimeType = "{audio_mime}";
+                                    const audioId = "audio-player-{audio_id}";
+                                    
+                                    // 要素が存在するか確認
+                                    const audioElement = document.getElementById(audioId);
+                                    if (!audioElement) {{
+                                        // 要素がまだ存在しない場合は、少し待って再試行
+                                        setTimeout(initAudioPlayer, 100);
+                                        return;
                                     }}
                                     
-                                    // Blobを作成
-                                    const blob = new Blob([bytes], {{ type: mimeType }});
+                                    // 既に設定済みの場合はスキップ
+                                    if (audioElement.src && audioElement.src.startsWith('blob:')) {{
+                                        return;
+                                    }}
                                     
-                                    // Blob URLを作成してaudioタグに設定
-                                    const blobUrl = URL.createObjectURL(blob);
-                                    const audioElement = document.getElementById(audioId);
-                                    if (audioElement) {{
+                                    try {{
+                                        // base64デコードしてバイナリデータに変換
+                                        const binaryString = atob(base64Data);
+                                        const bytes = new Uint8Array(binaryString.length);
+                                        for (let i = 0; i < binaryString.length; i++) {{
+                                            bytes[i] = binaryString.charCodeAt(i);
+                                        }}
+                                        
+                                        // Blobを作成
+                                        const blob = new Blob([bytes], {{ type: mimeType }});
+                                        
+                                        // Blob URLを作成してaudioタグに設定
+                                        const blobUrl = URL.createObjectURL(blob);
                                         audioElement.src = blobUrl;
+                                        
+                                        // 音声メタデータの読み込みを待つ
+                                        audioElement.addEventListener('loadedmetadata', function() {{
+                                            console.log('音声メタデータが読み込まれました:', audioElement.duration);
+                                        }}, {{ once: true }});
+                                        
+                                        // エラーハンドリング
+                                        audioElement.addEventListener('error', function(e) {{
+                                            console.error('音声読み込みエラー:', e);
+                                            const container = document.getElementById("audio-container-{audio_id}");
+                                            if (container) {{
+                                                container.innerHTML = '<p style="color: #ff6b6b;">⚠️ 音声の読み込みに失敗しました。ダウンロードボタンからファイルをダウンロードしてください。</p>';
+                                            }}
+                                        }}, {{ once: true }});
+                                        
                                         // ページがアンロードされたときにBlob URLを解放
                                         window.addEventListener("beforeunload", function() {{
                                             URL.revokeObjectURL(blobUrl);
-                                        }});
-                                    }}
-                                }} catch (error) {{
-                                    console.error("音声プレーヤーの初期化エラー:", error);
-                                    const container = document.getElementById("audio-container-{audio_id}");
-                                    if (container) {{
-                                        container.innerHTML = '<p style="color: #ff6b6b;">⚠️ 音声の再生に失敗しました。ダウンロードボタンからファイルをダウンロードしてください。</p>';
+                                        }}, {{ once: true }});
+                                        
+                                    }} catch (error) {{
+                                        console.error("音声プレーヤーの初期化エラー:", error);
+                                        const container = document.getElementById("audio-container-{audio_id}");
+                                        if (container) {{
+                                            container.innerHTML = '<p style="color: #ff6b6b;">⚠️ 音声の再生に失敗しました。ダウンロードボタンからファイルをダウンロードしてください。</p>';
+                                        }}
                                     }}
                                 }}
+                                
+                                // DOMが読み込まれた後に実行（複数の方法で確実に実行）
+                                if (document.readyState === 'loading') {{
+                                    document.addEventListener('DOMContentLoaded', initAudioPlayer);
+                                }} else {{
+                                    // DOMが既に読み込まれている場合は即座に実行
+                                    initAudioPlayer();
+                                }}
+                                
+                                // Streamlitの動的更新にも対応
+                                setTimeout(initAudioPlayer, 200);
                             }})();
                         </script>
                         ''',
