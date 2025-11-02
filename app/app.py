@@ -79,7 +79,7 @@ def init_session_state():
         st.session_state.tts_audio_bytes = None
     
     if "tts_format" not in st.session_state:
-        st.session_state.tts_format = "wav"
+        st.session_state.tts_format = "mp3"  # スマホブラウザ対応のためデフォルトをMP3に変更
 
 def get_models_json_path() -> Path:
     """models.jsonファイルのパスを取得"""
@@ -826,8 +826,9 @@ def page_generate_tts():
         with col2:
             format = st.selectbox(
                 "出力形式",
-                ["wav", "mp3", "opus", "pcm"],
-                help="出力音声ファイルの形式"
+                ["mp3", "wav", "opus", "pcm"],
+                index=0,  # MP3をデフォルトに
+                help="出力音声ファイルの形式（スマホではMP3推奨、WAVは一部のスマホブラウザで再生できない場合があります）"
             )
             
             speed = st.slider(
