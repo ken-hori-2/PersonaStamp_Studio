@@ -953,39 +953,65 @@ def page_generate_tts():
             # ファイル名に特殊文字が含まれている場合、安全な名前に変換
             safe_file_name = "".join(c for c in file_name if c.isalnum() or c in "._-") or f"tts_output.{st.session_state.tts_format}"
             
-            # 音声プレーヤー（スマホでも再生できるように、セッション状態のデータを使用）
-            # スマホブラウザでも動作するように、小さいファイルは常に再生を試みる
+            # 音声プレーヤー（スマホ対応：base64エンコードでdata URIとして提供）
+            # スマホブラウザでは`st.audio()`がバイトデータを正しく処理できない場合があるため、
+            # base64エンコードしたdata URIを使用するHTMLのaudioタグを直接使用
             MAX_AUDIO_SIZE_FOR_PLAYER_MB = 5  # 5MB以下は再生を試みる
             
             if audio_size_mb <= MAX_AUDIO_SIZE_FOR_PLAYER_MB:
-                # 音声プレーヤーを表示（スマホでも再生できるように）
+                # base64エンコードしてdata URIとして提供（スマホ対応）
                 try:
-                    st.audio(st.session_state.tts_audio_bytes, format=audio_mime)
-                    st.caption("💡 スマホで再生できない場合は、ダウンロードボタンからファイルをダウンロードしてください。")
+                    import base64
+                    b64_data = base64.b64encode(st.session_state.tts_audio_bytes).decode()
+                    data_uri = f"data:{audio_mime};base64,{b64_data}"
+                    
+                    # HTMLのaudioタグを直接使用（スマホでも動作する）
+                    st.markdown(
+                        f'''
+                        <audio controls style="width: 100%; max-width: 100%;">
+                            <source src="{data_uri}" type="{audio_mime}">
+                            お使いのブラウザは音声再生に対応していません。
+                        </audio>
+                        ''',
+                        unsafe_allow_html=True
+                    )
+                    st.caption("💡 再生できない場合は、ダウンロードボタンからファイルをダウンロードしてください。")
+                    
                 except Exception as audio_error:
-                    st.warning(f"⚠️ 音声の再生に失敗しました。ダウンロードボタンからファイルをダウンロードして、デバイスのメディアプレーヤーで再生してください。")
-                    st.caption(f"エラー詳細: {str(audio_error)[:200]}")
+                    # base64エンコードに失敗した場合は、通常の`st.audio()`を試す
+                    try:
+                        st.audio(st.session_state.tts_audio_bytes, format=audio_mime)
+                        st.caption("💡 スマホで再生できない場合は、ダウンロードボタンからファイルをダウンロードしてください。")
+                    except Exception as st_audio_error:
+                        st.warning(f"⚠️ 音声の再生に失敗しました。ダウンロードボタンからファイルをダウンロードして、デバイスのメディアプレーヤーで再生してください。")
+                        st.caption(f"エラー詳細: {str(st_audio_error)[:200]}")
             else:
                 # ファイルサイズが大きい場合は、ダウンロードのみ提供
                 st.info(f"📱 音声ファイル（{audio_size_mb:.1f}MB）は大きいため、ブラウザ内での再生はサポートされていません。ダウンロードボタンからダウンロードして、デバイスのメディアプレーヤーで再生してください。")
             
-            # ダウンロードボタン（セッション状態のデータを使用 - スマホ対応）
-            try:
-                # まず通常のダウンロードボタンを試す
-                st.download_button(
-                    label=f"📥 音声ファイルをダウンロード ({audio_size_mb:.1f}MB)",
-                    data=st.session_state.tts_audio_bytes,
-                    file_name=safe_file_name,
-                    mime=audio_mime,
-                    use_container_width=True,
-                    help="セッション状態から直接データをダウンロードします。スマホでも動作します。"
-                )
-                
-            except Exception as download_error:
-                st.error(f"❌ ダウンロードボタンの生成に失敗しました: {download_error}")
-                
-                # フォールバック1: base64エンコードしたdata URIリンクを提供（小さいファイルの場合）
-                if audio_size_mb < 3:  # 3MB以下の場合のみbase64を試す
+            # ダウンロードボタン（スマホ対応：複数の方法を提供）
+            # スマホでは`st.download_button()`が正しく動作しない場合があるため、
+            # base64エンコードしたdata URIリンクも並行して提供
+            
+            col_download1, col_download2 = st.columns([1, 1])
+            
+            with col_download1:
+                # 通常のダウンロードボタン（PCで動作）
+                try:
+                    st.download_button(
+                        label=f"📥 ダウンロード ({audio_size_mb:.1f}MB)",
+                        data=st.session_state.tts_audio_bytes,
+                        file_name=safe_file_name,
+                        mime=audio_mime,
+                        use_container_width=True,
+                        help="PCではこちらを使用してください。"
+                    )
+                except Exception as download_error:
+                    st.error(f"❌ ダウンロードボタンの生成に失敗: {str(download_error)[:50]}")
+            
+            with col_download2:
+                # スマホ用：base64エンコードしたdata URIリンク（5MB以下）
+                if audio_size_mb <= 5:
                     try:
                         import base64
                         b64_data = base64.b64encode(st.session_state.tts_audio_bytes).decode()
@@ -994,28 +1020,19 @@ def page_generate_tts():
                         st.markdown(
                             f'''
                             <a href="{data_uri}" download="{safe_file_name}" 
-                               style="padding: 0.75rem 1.5rem; background-color: #262730; color: #fafafa; 
-                                      text-decoration: none; border-radius: 6px; display: inline-block;
-                                      font-weight: 500; border: 1px solid #3d3d3d;"
-                               onmouseover="this.style.backgroundColor='#3d3d3d'"
-                               onmouseout="this.style.backgroundColor='#262730'">
-                               📥 代替ダウンロードリンク ({audio_size_mb:.1f}MB)
+                               style="padding: 0.75rem 1rem; background-color: #262730; color: #fafafa; 
+                                      text-decoration: none; border-radius: 6px; display: block; text-align: center;
+                                      font-weight: 500; border: 1px solid #3d3d3d; width: 100%;">
+                               📱 スマホ用ダウンロード
                             </a>
                             ''',
                             unsafe_allow_html=True
                         )
-                        st.caption("💡 上記のリンクを長押しして「リンク先をダウンロード」を選択してください。")
+                        st.caption("💡 スマホではこちらをタップ")
                     except Exception as base64_error:
-                        st.error(f"❌ base64エンコードも失敗しました: {base64_error}")
-                        import traceback
-                        with st.expander("詳細なエラー情報"):
-                            st.code(traceback.format_exc())
+                        st.error(f"❌ base64エンコード失敗")
                 else:
-                    # ファイルが大きすぎる場合
-                    st.info(f"💡 ファイルが大きすぎるため（{audio_size_mb:.1f}MB）、代替ダウンロード方法も使用できません。ページを再読み込みして、再度生成してください。")
-                    import traceback
-                    with st.expander("詳細なエラー情報"):
-                        st.code(traceback.format_exc())
+                    st.info("📱 ファイルが大きすぎます")
         
         except Exception as e:
             st.error(f"❌ 音声の表示に失敗しました: {e}")
