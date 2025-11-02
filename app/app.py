@@ -942,39 +942,68 @@ def page_generate_tts():
             }
             audio_mime = mime_map.get(st.session_state.tts_format, "audio/wav")
             
-            # 音声プレーヤー（スマホ対応：ファイルサイズが大きい場合は表示しない）
-            # スマホブラウザではdata URIのサイズ制限（通常2-5MB）があるため、
-            # 大きいファイルは直接再生できない可能性がある
-            MAX_AUDIO_SIZE_FOR_PLAYER_MB = 5  # 5MB以下のみプレーヤーを表示
+            # 音声プレーヤー（PCでのみ表示、スマホでは常にダウンロードのみ）
+            # スマホブラウザではdata URIのサイズ制限やセッション状態の制限により、
+            # 再生やダウンロードができない場合があるため、PCでのみプレーヤーを表示
+            # 注: Streamlitではユーザーエージェント検出が難しいため、ファイルサイズで判断
+            # スマホでは一般的に小さいファイルでも問題が発生する可能性があるため、
+            # より保守的な閾値を設定
             
+            MAX_AUDIO_SIZE_FOR_PLAYER_MB = 0.5  # 0.5MB以下のみプレーヤーを表示（非常に小さいファイルのみ）
+            
+            # プレーヤーを表示（小さなファイルのみ）
             if audio_size_mb <= MAX_AUDIO_SIZE_FOR_PLAYER_MB:
-                # ファイルサイズが小さい場合のみ音声プレーヤーを表示
                 try:
                     st.audio(st.session_state.tts_audio_bytes, format=audio_mime)
+                    st.caption("💡 スマホで再生できない場合は、ダウンロードボタンからファイルをダウンロードしてください。")
                 except Exception as audio_error:
                     st.warning(f"⚠️ 音声の再生に失敗しました。ダウンロードボタンからファイルをダウンロードして、デバイスのメディアプレーヤーで再生してください。")
                     st.caption(f"エラー詳細: {str(audio_error)[:100]}")
             else:
-                # ファイルサイズが大きい場合は、ダウンロードのみ提供
-                st.info(f"📱 この音声ファイルは大きいため（{audio_size_mb:.1f}MB）、ブラウザ内での再生はサポートされていません。ダウンロードボタンからファイルをダウンロードして、デバイスのメディアプレーヤーで再生してください。")
+                # ファイルサイズが大きい、またはスマホでの問題を避けるため、ダウンロードのみ提供
+                st.info(f"📱 音声ファイル（{audio_size_mb:.1f}MB）はダウンロードボタンからダウンロードして、デバイスのメディアプレーヤーで再生してください。スマホブラウザでの直接再生はサポートされていません。")
             
             # ダウンロードボタン（フォームの外なので使用可能、エラーハンドリング付き）
+            # スマホでのダウンロード問題に対応するため、データの型とサイズを確認
             try:
                 file_name = Path(st.session_state.tts_output_file).name
                 # ファイル名に特殊文字が含まれている場合、安全な名前に変換
                 safe_file_name = "".join(c for c in file_name if c.isalnum() or c in "._-") or f"tts_output.{st.session_state.tts_format}"
                 
-                st.download_button(
-                    label=f"📥 音声ファイルをダウンロード ({audio_size_mb:.1f}MB)",
-                    data=st.session_state.tts_audio_bytes,
-                    file_name=safe_file_name,
-                    mime=audio_mime,
-                    use_container_width=True
-                )
+                # データが正しい型であることを確認
+                if not isinstance(st.session_state.tts_audio_bytes, bytes):
+                    st.error(f"❌ 音声データの型が正しくありません: {type(st.session_state.tts_audio_bytes)}")
+                    st.session_state.tts_audio_bytes = None
+                else:
+                    # ダウンロードボタンを表示（エラーハンドリング強化）
+                    try:
+                        st.download_button(
+                            label=f"📥 音声ファイルをダウンロード ({audio_size_mb:.1f}MB)",
+                            data=st.session_state.tts_audio_bytes,
+                            file_name=safe_file_name,
+                            mime=audio_mime,
+                            use_container_width=True,
+                            help="スマホでダウンロードできない場合は、ページを再読み込みしてから再度お試しください。"
+                        )
+                    except Exception as button_error:
+                        st.error(f"❌ ダウンロードボタンの生成に失敗しました: {button_error}")
+                        st.info(f"💡 ファイルサイズ: {audio_size_mb:.1f}MB。ページを再読み込みしてから再度お試しください。")
+                        
+                        # フォールバック: base64エンコードを試す（小さいファイルの場合）
+                        if audio_size_mb < 2:
+                            try:
+                                import base64
+                                b64_data = base64.b64encode(st.session_state.tts_audio_bytes).decode()
+                                data_uri = f"data:{audio_mime};base64,{b64_data}"
+                                st.markdown(f'<a href="{data_uri}" download="{safe_file_name}" style="padding: 0.5rem 1rem; background-color: #262730; color: white; text-decoration: none; border-radius: 6px; display: inline-block;">📥 代替ダウンロードリンク</a>', unsafe_allow_html=True)
+                            except Exception as fallback_error:
+                                st.caption(f"代替方法も失敗: {fallback_error}")
+                                
             except Exception as download_error:
                 st.error(f"❌ ダウンロードボタンの生成に失敗しました: {download_error}")
-                # フォールバック: ファイルパスを表示して手動ダウンロードを案内
-                st.info(f"💡 ファイルが大きすぎる可能性があります。ファイルパス: `{st.session_state.tts_output_file}`")
+                import traceback
+                with st.expander("詳細なエラー情報"):
+                    st.code(traceback.format_exc())
         
         except Exception as e:
             st.error(f"❌ 音声の表示に失敗しました: {e}")
