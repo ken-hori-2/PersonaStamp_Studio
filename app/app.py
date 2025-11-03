@@ -882,8 +882,6 @@ def page_generate_tts():
                     st.session_state.tts_audio_bytes = audio_bytes
                     st.session_state.tts_format = format
                     
-                    if file_size_mb > 10:
-                        st.warning(f"⚠️ 生成された音声ファイルが大きいです（{file_size_mb:.1f}MB）。スマホでは読み込みに時間がかかる場合があります。")
                 
                 except Exception as file_error:
                     st.error(f"❌ 音声ファイルの読み込みに失敗しました: {file_error}")
@@ -930,20 +928,17 @@ def page_generate_tts():
         st.subheader("🎵 生成された音声")
         
         try:
-            # セッション状態のデータからサイズを取得（最も確実）
+            # セッション状態のデータからサイズを取得
             audio_size_mb = len(st.session_state.tts_audio_bytes) / (1024 * 1024)
             
-            if audio_size_mb > 10:
-                st.warning(f"⚠️ 音声ファイルが大きいため（{audio_size_mb:.1f}MB）、スマホでは読み込みに時間がかかる場合があります。")
-            
-            # MIMEタイプのマッピング（スマホ対応）
+            # MIMEタイプのマッピング
             mime_map = {
                 "wav": "audio/wav",
                 "mp3": "audio/mpeg",
                 "opus": "audio/opus",
                 "pcm": "audio/pcm"
             }
-            audio_mime = mime_map.get(st.session_state.tts_format, "audio/wav")
+            audio_mime = mime_map.get(st.session_state.tts_format, "audio/mpeg")
             
             # ファイル名の取得
             if st.session_state.tts_output_file:
@@ -954,168 +949,22 @@ def page_generate_tts():
             # ファイル名に特殊文字が含まれている場合、安全な名前に変換
             safe_file_name = "".join(c for c in file_name if c.isalnum() or c in "._-") or f"tts_output.{st.session_state.tts_format}"
             
-            # 音声プレーヤー（PCとスマホで異なる方法を使用）
-            # PCでは`st.audio()`が動作するため、まずそれを試す
-            # スマホではJavaScriptでBlob URLを作成する方法を併用
-            MAX_AUDIO_SIZE_FOR_PLAYER_MB = 5  # 5MB以下は再生を試みる
+            # 音声プレーヤー（MP3形式のため、スマホでも通常通り動作）
+            try:
+                st.audio(st.session_state.tts_audio_bytes, format=audio_mime)
+                st.caption("💡 再生できない場合は、ダウンロードボタンからファイルをダウンロードしてください。")
+            except Exception as audio_error:
+                st.warning(f"⚠️ 音声の再生に失敗しました。ダウンロードボタンからファイルをダウンロードして、デバイスのメディアプレーヤーで再生してください。")
+                st.caption(f"エラー詳細: {str(audio_error)[:200]}")
             
-            if audio_size_mb <= MAX_AUDIO_SIZE_FOR_PLAYER_MB:
-                # まず通常の`st.audio()`を試す（PCでは通常これで動作）
-                try:
-                    st.audio(st.session_state.tts_audio_bytes, format=audio_mime)
-                    st.caption("💡 再生できない場合は、ダウンロードボタンからファイルをダウンロードしてください。")
-                except Exception as st_audio_error:
-                    # `st.audio()`に失敗した場合、JavaScriptでBlob URLを作成（スマホ対応）
-                    try:
-                        import base64
-                        # base64エンコード（JavaScriptで使用するため）
-                        b64_data = base64.b64encode(st.session_state.tts_audio_bytes).decode()
-                        
-                        # ユニークなIDを生成（複数のaudioタグがある場合の競合を防ぐ）
-                        import hashlib
-                        audio_id = hashlib.md5(st.session_state.tts_audio_bytes[:100]).hexdigest()[:8]
-                        
-                        # JavaScriptを使用してBlob URLを作成し、audioタグに設定
-                        # Streamlitの動的コンテンツ更新に対応するため、DOMが読み込まれた後に実行
-                        st.markdown(
-                            f'''
-                            <div id="audio-container-{audio_id}">
-                                <audio id="audio-player-{audio_id}" controls style="width: 100%; max-width: 100%;">
-                                    お使いのブラウザは音声再生に対応していません。
-                                </audio>
-                            </div>
-                            <script>
-                                (function() {{
-                                    function initAudioPlayer() {{
-                                        const base64Data = "{b64_data}";
-                                        const mimeType = "{audio_mime}";
-                                        const audioId = "audio-player-{audio_id}";
-                                        
-                                        // 要素が存在するか確認
-                                        const audioElement = document.getElementById(audioId);
-                                        if (!audioElement) {{
-                                            // 要素がまだ存在しない場合は、少し待って再試行
-                                            setTimeout(initAudioPlayer, 100);
-                                            return;
-                                        }}
-                                        
-                                        // 既に設定済みの場合はスキップ
-                                        if (audioElement.src && audioElement.src.startsWith('blob:')) {{
-                                            return;
-                                        }}
-                                        
-                                        try {{
-                                            // base64デコードしてバイナリデータに変換
-                                            const binaryString = atob(base64Data);
-                                            const bytes = new Uint8Array(binaryString.length);
-                                            for (let i = 0; i < binaryString.length; i++) {{
-                                                bytes[i] = binaryString.charCodeAt(i);
-                                            }}
-                                            
-                                            // Blobを作成
-                                            const blob = new Blob([bytes], {{ type: mimeType }});
-                                            
-                                            // Blob URLを作成してaudioタグに設定
-                                            const blobUrl = URL.createObjectURL(blob);
-                                            audioElement.src = blobUrl;
-                                            
-                                            // 音声メタデータの読み込みを待つ
-                                            audioElement.addEventListener('loadedmetadata', function() {{
-                                                console.log('音声メタデータが読み込まれました:', audioElement.duration);
-                                            }}, {{ once: true }});
-                                            
-                                            // エラーハンドリング
-                                            audioElement.addEventListener('error', function(e) {{
-                                                console.error('音声読み込みエラー:', e);
-                                                const container = document.getElementById("audio-container-{audio_id}");
-                                                if (container) {{
-                                                    container.innerHTML = '<p style="color: #ff6b6b;">⚠️ 音声の読み込みに失敗しました。ダウンロードボタンからファイルをダウンロードしてください。</p>';
-                                                }}
-                                            }}, {{ once: true }});
-                                            
-                                            // ページがアンロードされたときにBlob URLを解放
-                                            window.addEventListener("beforeunload", function() {{
-                                                URL.revokeObjectURL(blobUrl);
-                                            }}, {{ once: true }});
-                                            
-                                        }} catch (error) {{
-                                            console.error("音声プレーヤーの初期化エラー:", error);
-                                            const container = document.getElementById("audio-container-{audio_id}");
-                                            if (container) {{
-                                                container.innerHTML = '<p style="color: #ff6b6b;">⚠️ 音声の再生に失敗しました。ダウンロードボタンからファイルをダウンロードしてください。</p>';
-                                            }}
-                                        }}
-                                    }}
-                                    
-                                    // DOMが読み込まれた後に実行（複数の方法で確実に実行）
-                                    if (document.readyState === 'loading') {{
-                                        document.addEventListener('DOMContentLoaded', initAudioPlayer);
-                                    }} else {{
-                                        // DOMが既に読み込まれている場合は即座に実行
-                                        initAudioPlayer();
-                                    }}
-                                    
-                                    // Streamlitの動的更新にも対応
-                                    setTimeout(initAudioPlayer, 200);
-                                }})();
-                            </script>
-                            ''',
-                            unsafe_allow_html=True
-                        )
-                        st.caption("💡 再生できない場合は、ダウンロードボタンからファイルをダウンロードしてください。")
-                        
-                    except Exception as js_error:
-                        # すべての方法に失敗した場合
-                        st.warning(f"⚠️ 音声の再生に失敗しました。ダウンロードボタンからファイルをダウンロードして、デバイスのメディアプレーヤーで再生してください。")
-                        st.caption(f"エラー詳細: {str(st_audio_error)[:200]}")
-            else:
-                # ファイルサイズが大きい場合は、ダウンロードのみ提供
-                st.info(f"📱 音声ファイル（{audio_size_mb:.1f}MB）は大きいため、ブラウザ内での再生はサポートされていません。ダウンロードボタンからダウンロードして、デバイスのメディアプレーヤーで再生してください。")
-            
-            # ダウンロードボタン（スマホ対応：複数の方法を提供）
-            # スマホでは`st.download_button()`が正しく動作しない場合があるため、
-            # base64エンコードしたdata URIリンクも並行して提供
-            
-            col_download1, col_download2 = st.columns([1, 1])
-            
-            with col_download1:
-                # 通常のダウンロードボタン（PCで動作）
-                try:
-                    st.download_button(
-                        label=f"📥 ダウンロード ({audio_size_mb:.1f}MB)",
-                        data=st.session_state.tts_audio_bytes,
-                        file_name=safe_file_name,
-                        mime=audio_mime,
-                        use_container_width=True,
-                        help="PCではこちらを使用してください。"
-                    )
-                except Exception as download_error:
-                    st.error(f"❌ ダウンロードボタンの生成に失敗: {str(download_error)[:50]}")
-            
-            with col_download2:
-                # スマホ用：base64エンコードしたdata URIリンク（5MB以下）
-                if audio_size_mb <= 5:
-                    try:
-                        import base64
-                        b64_data = base64.b64encode(st.session_state.tts_audio_bytes).decode()
-                        data_uri = f"data:{audio_mime};base64,{b64_data}"
-                        
-                        st.markdown(
-                            f'''
-                            <a href="{data_uri}" download="{safe_file_name}" 
-                               style="padding: 0.75rem 1rem; background-color: #262730; color: #fafafa; 
-                                      text-decoration: none; border-radius: 6px; display: block; text-align: center;
-                                      font-weight: 500; border: 1px solid #3d3d3d; width: 100%;">
-                               📱 スマホ用ダウンロード
-                            </a>
-                            ''',
-                            unsafe_allow_html=True
-                        )
-                        st.caption("💡 スマホではこちらをタップ")
-                    except Exception as base64_error:
-                        st.error(f"❌ base64エンコード失敗")
-                else:
-                    st.info("📱 ファイルが大きすぎます")
+            # ダウンロードボタン（PC・スマホ共通）
+            st.download_button(
+                label=f"📥 音声ファイルをダウンロード ({audio_size_mb:.1f}MB)",
+                data=st.session_state.tts_audio_bytes,
+                file_name=safe_file_name,
+                mime=audio_mime,
+                use_container_width=True
+            )
         
         except Exception as e:
             st.error(f"❌ 音声の表示に失敗しました: {e}")
