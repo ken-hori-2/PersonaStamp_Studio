@@ -30,6 +30,7 @@ tts_env/
 # IDEs
 .vscode/
 .idea/
+.cursor/
 *.swp
 *.swo
 *~
