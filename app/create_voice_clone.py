@@ -54,6 +54,11 @@ def create_voice_clone_model(
     session = Session(api_key)
     
     # 音声ファイルの存在確認
+    # ファイルパスを文字列として正規化（エンコーディング問題を回避）
+    if isinstance(audio_file_path, bytes):
+        audio_file_path = audio_file_path.decode('utf-8', errors='replace')
+    audio_file_path = str(audio_file_path)
+    
     if not os.path.exists(audio_file_path):
         raise FileNotFoundError(f"音声ファイルが見つかりません: {audio_file_path}")
     

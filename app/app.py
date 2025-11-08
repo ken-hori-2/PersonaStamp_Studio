@@ -79,7 +79,7 @@ def init_session_state():
         st.session_state.tts_audio_bytes = None
     
     if "tts_format" not in st.session_state:
-        st.session_state.tts_format = "wav"
+        st.session_state.tts_format = "mp3"  # スマホブラウザ対応のためデフォルトをMP3に変更
 
 def get_models_json_path() -> Path:
     """models.jsonファイルのパスを取得"""
@@ -184,7 +184,16 @@ def transcribe_audio_with_whisper(audio_file_path: str, language: str = "ja") ->
         
         model = st.session_state.whisper_model
         
-        # 音声認識を実行
+        # 音声認識を実行（ファイルパスが文字列であることを確認）
+        # ファイルパスをUTF-8文字列として確実に処理（エンコーディング問題を回避）
+        if isinstance(audio_file_path, bytes):
+            audio_file_path = audio_file_path.decode('utf-8', errors='replace')
+        # パスを文字列に変換（Pathオブジェクトの場合）
+        audio_file_path = str(audio_file_path)
+        # ファイルパスを正規化（ASCII文字のみのパスに変換するため）
+        # 日本語や特殊文字を含むファイル名の場合、Whisper/ffmpegが処理できない可能性があるため
+        # 一時ファイルを使用しているので、通常は問題ないが念のため
+        
         result = model.transcribe(
             audio_file_path,
             language=language,
@@ -310,7 +319,15 @@ def page_create_voice_clone():
         if "last_processed_file" not in st.session_state:
             st.session_state.last_processed_file = None
         
-        current_file_name = uploaded_file.name if hasattr(uploaded_file, 'name') else None
+        # ファイル名を安全に取得（エンコーディング問題を回避）
+        if hasattr(uploaded_file, 'name'):
+            current_file_name = uploaded_file.name
+            # ファイル名がbytesの場合はUTF-8にデコード
+            if isinstance(current_file_name, bytes):
+                current_file_name = current_file_name.decode('utf-8', errors='replace')
+            current_file_name = str(current_file_name)
+        else:
+            current_file_name = None
         
         auto_transcribe_enabled = st.session_state.get("auto_transcribe_enabled", True)
         
@@ -329,11 +346,16 @@ def page_create_voice_clone():
                     # アップロードされたファイルを読み込む
                     file_bytes = uploaded_file.getvalue()
                     file_ext = current_file_name.split('.')[-1] if current_file_name else "wav"
+                    # 拡張子をASCII文字のみに制限（エンコーディング問題を回避）
+                    file_ext = ''.join(c for c in file_ext if c.isalnum() or c in '._-')[:10] or "wav"
                     
                     # 一時ファイルに保存してWhisperで処理
                     with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_ext}") as tmp_audio:
                         tmp_audio.write(file_bytes)
                         tmp_audio_path = tmp_audio.name
+                        # ファイルパスを文字列として正規化（エンコーディング問題を回避）
+                        if isinstance(tmp_audio_path, bytes):
+                            tmp_audio_path = tmp_audio_path.decode('utf-8', errors='replace')
                     
                     try:
                         transcribed_text = transcribe_audio_with_whisper(tmp_audio_path)
@@ -404,7 +426,15 @@ def page_create_voice_clone():
         
         # 現在のファイル名をセッション状態から取得
         current_file_from_session = st.session_state.get("voice_file_uploader", None)
-        current_file_name_in_form = current_file_from_session.name if current_file_from_session and hasattr(current_file_from_session, 'name') else None
+        # ファイル名を安全に取得（エンコーディング問題を回避）
+        if current_file_from_session and hasattr(current_file_from_session, 'name'):
+            current_file_name_in_form = current_file_from_session.name
+            # ファイル名がbytesの場合はUTF-8にデコード
+            if isinstance(current_file_name_in_form, bytes):
+                current_file_name_in_form = current_file_name_in_form.decode('utf-8', errors='replace')
+            current_file_name_in_form = str(current_file_name_in_form)
+        else:
+            current_file_name_in_form = None
         
         # 音声プレーヤーを表示（編集しながら音声を聴けるように）
         if current_file_from_session:
@@ -522,12 +552,24 @@ def page_create_voice_clone():
                     st.stop()
                 final_transcription = ""
             
-            # 一時ファイルに保存
-            file_ext = submitted_file.name.split('.')[-1] if hasattr(submitted_file, 'name') else "wav"
+            # 一時ファイルに保存（ファイル名のエンコーディング問題を回避するため、拡張子のみを使用）
+            if hasattr(submitted_file, 'name'):
+                file_name = submitted_file.name
+                # ファイル名がbytesの場合はUTF-8にデコード
+                if isinstance(file_name, bytes):
+                    file_name = file_name.decode('utf-8', errors='replace')
+                file_ext = str(file_name).split('.')[-1] if '.' in str(file_name) else "wav"
+            else:
+                file_ext = "wav"
+            # 拡張子をASCII文字のみに制限（エンコーディング問題を回避）
+            file_ext = ''.join(c for c in file_ext if c.isalnum() or c in '._-')[:10] or "wav"
             with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_ext}") as tmp_file:
                 submitted_file.seek(0)  # ファイルポインタをリセット
                 tmp_file.write(submitted_file.read())
                 tmp_path = tmp_file.name
+                # ファイルパスを文字列として正規化（エンコーディング問題を回避）
+                if isinstance(tmp_path, bytes):
+                    tmp_path = tmp_path.decode('utf-8', errors='replace')
             
             try:
                 with st.spinner("音声クローンモデルを作成中... この処理には時間がかかる場合があります。"):
@@ -784,8 +826,9 @@ def page_generate_tts():
         with col2:
             format = st.selectbox(
                 "出力形式",
-                ["wav", "mp3", "opus", "pcm"],
-                help="出力音声ファイルの形式"
+                ["mp3", "wav", "opus", "pcm"],
+                index=0,  # MP3をデフォルトに
+                help="出力音声ファイルの形式（スマホではMP3推奨、WAVは一部のスマホブラウザで再生できない場合があります）"
             )
             
             speed = st.slider(
@@ -828,12 +871,23 @@ def page_generate_tts():
                     )
                 
                 # 音声ファイルを読み込んでセッション状態に保存
-                with open(output_file, "rb") as f:
-                    audio_bytes = f.read()
+                try:
+                    with open(output_file, "rb") as f:
+                        audio_bytes = f.read()
                 
-                st.session_state.tts_output_file = output_file
-                st.session_state.tts_audio_bytes = audio_bytes
-                st.session_state.tts_format = format
+                    # ファイルサイズを確認
+                    file_size_mb = len(audio_bytes) / (1024 * 1024)
+                        
+                    st.session_state.tts_output_file = output_file
+                    st.session_state.tts_audio_bytes = audio_bytes
+                    st.session_state.tts_format = format
+                    
+                
+                except Exception as file_error:
+                    st.error(f"❌ 音声ファイルの読み込みに失敗しました: {file_error}")
+                    st.session_state.tts_output_file = None
+                    st.session_state.tts_audio_bytes = None
+                    raise
                 
                 # 選択されたモデル情報を保存
                 if selected_model_id:
@@ -868,20 +922,79 @@ def page_generate_tts():
                     st.code(traceback.format_exc())
     
     # フォームの外で結果を表示（ダウンロードボタンを含む）
-    if st.session_state.tts_output_file and st.session_state.tts_audio_bytes:
+    # スマホ対応：セッション状態のデータを優先的に使用（ファイルアクセスは不確実なため）
+    if st.session_state.tts_audio_bytes and len(st.session_state.tts_audio_bytes) > 0:
         st.markdown("---")
         st.subheader("🎵 生成された音声")
         
-        st.audio(st.session_state.tts_audio_bytes, format=f"audio/{st.session_state.tts_format}")
+        try:
+            # セッション状態のデータからサイズを取得
+            audio_size_mb = len(st.session_state.tts_audio_bytes) / (1024 * 1024)
+            
+            # MIMEタイプのマッピング
+            mime_map = {
+                "wav": "audio/wav",
+                "mp3": "audio/mpeg",
+                "opus": "audio/opus",
+                "pcm": "audio/pcm"
+            }
+            audio_mime = mime_map.get(st.session_state.tts_format, "audio/mpeg")
+            
+            # ファイル名の取得
+            if st.session_state.tts_output_file:
+                file_name = Path(st.session_state.tts_output_file).name
+            else:
+                file_name = f"tts_output.{st.session_state.tts_format}"
+            
+            # ファイル名に特殊文字が含まれている場合、安全な名前に変換
+            safe_file_name = "".join(c for c in file_name if c.isalnum() or c in "._-") or f"tts_output.{st.session_state.tts_format}"
+            
+            # 音声プレーヤー（MP3形式のため、スマホでも通常通り動作）
+            try:
+                st.audio(st.session_state.tts_audio_bytes, format=audio_mime)
+                st.caption("💡 再生できない場合は、ダウンロードボタンからファイルをダウンロードしてください。")
+            except Exception as audio_error:
+                st.warning(f"⚠️ 音声の再生に失敗しました。ダウンロードボタンからファイルをダウンロードして、デバイスのメディアプレーヤーで再生してください。")
+                st.caption(f"エラー詳細: {str(audio_error)[:200]}")
+            
+            # ダウンロードボタン（PC・スマホ共通）
+            st.download_button(
+                label=f"📥 音声ファイルをダウンロード ({audio_size_mb:.1f}MB)",
+                data=st.session_state.tts_audio_bytes,
+                file_name=safe_file_name,
+                mime=audio_mime,
+                use_container_width=True
+            )
         
-        # ダウンロードボタン（フォームの外なので使用可能）
-        st.download_button(
-            label="📥 音声ファイルをダウンロード",
-            data=st.session_state.tts_audio_bytes,
-            file_name=Path(st.session_state.tts_output_file).name,
-            mime=f"audio/{st.session_state.tts_format}",
-            use_container_width=True
-        )
+        except Exception as e:
+            st.error(f"❌ 音声の表示に失敗しました: {e}")
+            import traceback
+            with st.expander("詳細なエラー情報"):
+                st.code(traceback.format_exc())
+    
+    elif st.session_state.tts_output_file:
+        # ファイルパスはあるが、セッション状態のデータがない場合
+        # ファイルから読み込んでセッション状態に保存を試みる
+        try:
+            if os.path.exists(st.session_state.tts_output_file):
+                with open(st.session_state.tts_output_file, "rb") as f:
+                    audio_bytes = f.read()
+                
+                if len(audio_bytes) > 0:
+                    st.session_state.tts_audio_bytes = audio_bytes
+                    st.rerun()  # データが読み込めたので再レンダリング
+                else:
+                    st.error(f"❌ 音声ファイルが空です: {st.session_state.tts_output_file}")
+                    st.session_state.tts_output_file = None
+            else:
+                st.error(f"❌ 音声ファイルが見つかりません: {st.session_state.tts_output_file}")
+                st.session_state.tts_output_file = None
+        except Exception as load_error:
+            st.error(f"❌ 音声ファイルの読み込みに失敗しました: {load_error}")
+            import traceback
+            with st.expander("詳細なエラー情報"):
+                st.code(traceback.format_exc())
+            st.session_state.tts_output_file = None
 
 def main():
     """メイン関数"""
