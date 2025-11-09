@@ -48,8 +48,10 @@ def init_session_state():
     defaults = {
         "youtube_output_file": None,
         "youtube_audio_bytes": None,
+        "youtube_audio_mp3_bytes": None,  # プレビュー用MP3データ
         "separation_output_files": {},
         "separation_audio_bytes": {},
+        "separation_audio_mp3_bytes": {},  # プレビュー用MP3データ
         "last_uploaded_file_name": None,
         "separation_input_source": "upload"  # "upload" or "youtube"
     }
@@ -151,20 +153,76 @@ def load_audio_file(file_path: str) -> bytes:
     return data
 
 
+def convert_wav_to_mp3(wav_bytes: bytes) -> bytes:
+    """
+    WAVファイルのバイトデータをMP3に変換
+    
+    Args:
+        wav_bytes: WAVファイルのバイトデータ
+    
+    Returns:
+        MP3ファイルのバイトデータ
+    
+    Raises:
+        RuntimeError: 変換に失敗した場合
+    """
+    import tempfile
+    
+    # 一時ファイルにWAVを書き込み
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_wav:
+        tmp_wav.write(wav_bytes)
+        tmp_wav_path = tmp_wav.name
+    
+    try:
+        # MP3に変換
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_mp3:
+            tmp_mp3_path = tmp_mp3.name
+        
+        cmd = [
+            'ffmpeg', '-y', '-loglevel', 'error',
+            '-i', tmp_wav_path,
+            '-codec:a', 'libmp3lame',
+            '-b:a', '192k',  # ビットレート 192kbps
+            tmp_mp3_path
+        ]
+        
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        
+        if result.returncode != 0:
+            raise RuntimeError(f"MP3変換に失敗しました: {result.stderr[:200]}")
+        
+        # MP3ファイルを読み込む
+        with open(tmp_mp3_path, "rb") as f:
+            mp3_bytes = f.read()
+        
+        return mp3_bytes
+        
+    finally:
+        # 一時ファイルを削除
+        for tmp_file in [tmp_wav_path, tmp_mp3_path]:
+            if os.path.exists(tmp_file):
+                try:
+                    os.remove(tmp_file)
+                except OSError:
+                    pass
+
+
 def display_audio_player(
     audio_bytes: bytes,
     file_name: str,
     file_path: Optional[str] = None,
-    part_name: Optional[str] = None
+    part_name: Optional[str] = None,
+    mp3_bytes: Optional[bytes] = None
 ) -> None:
     """
     音声プレーヤーとダウンロードボタンを表示
     
     Args:
-        audio_bytes: 音声データのバイト
+        audio_bytes: 音声データのバイト（元の形式、ダウンロード用）
         file_name: ファイル名
         file_path: ファイルパス（表示用）
         part_name: パート名（表示用）
+        mp3_bytes: MP3形式のバイトデータ（プレビュー用、Noneの場合は自動変換）
     """
     file_size_mb = len(audio_bytes) / (1024 * 1024)
     
@@ -172,16 +230,60 @@ def display_audio_player(
     if part_name:
         st.markdown(f"### {part_name}")
     
-    # 音声プレーヤー
-    st.audio(audio_bytes, format="audio/wav")
+    # プレビュー用のMP3データを準備
+    preview_audio_bytes = mp3_bytes
+    preview_format = "audio/mpeg"
     
-    # ダウンロードボタン
+    if preview_audio_bytes is None:
+        # MP3データが提供されていない場合、WAVファイルの場合はMP3に変換
+        file_ext = Path(file_name).suffix.lower()
+        if file_ext == ".wav":
+            try:
+                preview_audio_bytes = convert_wav_to_mp3(audio_bytes)
+            except Exception as e:
+                # 変換に失敗した場合は元のWAVを使用
+                preview_audio_bytes = audio_bytes
+                preview_format = "audio/wav"
+                st.warning(f"⚠️ MP3変換に失敗しました。WAV形式で再生します: {str(e)[:100]}")
+        else:
+            # WAV以外の場合はそのまま使用
+            preview_audio_bytes = audio_bytes
+            # ファイル拡張子に基づいてMIMEタイプを決定
+            mime_map = {
+                ".mp3": "audio/mpeg",
+                ".wav": "audio/wav",
+                ".m4a": "audio/mp4",
+                ".ogg": "audio/ogg",
+                ".flac": "audio/flac"
+            }
+            preview_format = mime_map.get(file_ext, "audio/wav")
+    
+    # 音声プレーヤー（MP3形式で再生、スマホ対応）
+    try:
+        st.audio(preview_audio_bytes, format=preview_format)
+        st.caption("💡 再生できない場合は、ダウンロードボタンからファイルをダウンロードしてください。")
+    except Exception as audio_error:
+        st.warning(f"⚠️ 音声の再生に失敗しました。ダウンロードボタンからファイルをダウンロードして、デバイスのメディアプレーヤーで再生してください。")
+        st.caption(f"エラー詳細: {str(audio_error)[:200]}")
+    
+    # ダウンロードボタン（元の形式でダウンロード）
+    # MIMEタイプを決定
+    file_ext = Path(file_name).suffix.lower()
+    mime_map = {
+        ".mp3": "audio/mpeg",
+        ".wav": "audio/wav",
+        ".m4a": "audio/mp4",
+        ".ogg": "audio/ogg",
+        ".flac": "audio/flac"
+    }
+    download_mime = mime_map.get(file_ext, "audio/wav")
+    
     label = f"📥 {part_name or '音声ファイル'}をダウンロード ({file_size_mb:.1f}MB)"
     st.download_button(
         label=label,
         data=audio_bytes,
         file_name=file_name,
-        mime="audio/wav",
+        mime=download_mime,
         use_container_width=True,
         key=f"download_{file_name}_{part_name or ''}"
     )
@@ -284,8 +386,17 @@ def page_youtube_download():
                     # ファイルを読み込んでセッション状態に保存
                     audio_bytes = load_audio_file(downloaded_path)
                     
+                    # プレビュー用にMP3に変換
+                    try:
+                        mp3_bytes = convert_wav_to_mp3(audio_bytes)
+                    except Exception as e:
+                        # MP3変換に失敗した場合はNoneを設定（display_audio_playerで自動変換を試みる）
+                        mp3_bytes = None
+                        st.warning(f"⚠️ MP3変換に失敗しました。WAV形式で再生します: {str(e)[:100]}")
+                    
                     st.session_state.youtube_output_file = downloaded_path
                     st.session_state.youtube_audio_bytes = audio_bytes
+                    st.session_state.youtube_audio_mp3_bytes = mp3_bytes
                     
                     st.success("✅ ダウンロード完了！")
                     st.rerun()
@@ -312,7 +423,8 @@ def page_youtube_download():
             display_audio_player(
                 st.session_state.youtube_audio_bytes,
                 file_name,
-                st.session_state.youtube_output_file
+                st.session_state.youtube_output_file,
+                mp3_bytes=st.session_state.youtube_audio_mp3_bytes
             )
         except Exception as e:
             st.error(f"❌ 音声の表示に失敗しました: {e}")
@@ -443,12 +555,28 @@ def page_audio_separation():
                             
                             # 出力ファイルを読み込んでセッション状態に保存
                             separation_audio_bytes = {}
+                            separation_audio_mp3_bytes = {}
                             for key, file_path in output_files.items():
                                 if os.path.exists(file_path):
-                                    separation_audio_bytes[key] = load_audio_file(file_path)
+                                    audio_bytes = load_audio_file(file_path)
+                                    separation_audio_bytes[key] = audio_bytes
+                                    
+                                    # プレビュー用にMP3に変換（WAVファイルの場合）
+                                    file_ext = Path(file_path).suffix.lower()
+                                    if file_ext == ".wav":
+                                        try:
+                                            mp3_bytes = convert_wav_to_mp3(audio_bytes)
+                                            separation_audio_mp3_bytes[key] = mp3_bytes
+                                        except Exception:
+                                            # MP3変換に失敗した場合はNoneを設定
+                                            separation_audio_mp3_bytes[key] = None
+                                    else:
+                                        # WAV以外の場合はそのまま使用
+                                        separation_audio_mp3_bytes[key] = None
                             
                             st.session_state.separation_output_files = output_files
                             st.session_state.separation_audio_bytes = separation_audio_bytes
+                            st.session_state.separation_audio_mp3_bytes = separation_audio_mp3_bytes
                             
                             st.success("✅ 音源分離完了！")
                             st.rerun()
@@ -482,6 +610,7 @@ def page_audio_separation():
             if key in st.session_state.separation_audio_bytes:
                 try:
                     audio_bytes = st.session_state.separation_audio_bytes[key]
+                    mp3_bytes = st.session_state.separation_audio_mp3_bytes.get(key)
                     file_name = Path(file_path).name
                     part_name = PART_NAMES.get(key, key)
                     
@@ -489,7 +618,8 @@ def page_audio_separation():
                         audio_bytes,
                         file_name,
                         file_path,
-                        part_name
+                        part_name,
+                        mp3_bytes=mp3_bytes
                     )
                     st.markdown("---")
                 except Exception as e:
