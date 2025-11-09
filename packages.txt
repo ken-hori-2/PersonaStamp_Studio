@@ -1,1 +1,4 @@
+# Streamlit Cloud用システム依存関係
+# app/app.py (Whisper文字起こし) と app_audio_tools/app.py (YouTubeダウンロード・音源分離) で必要
+
 ffmpeg
