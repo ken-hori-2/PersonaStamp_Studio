@@ -73,25 +73,45 @@ def check_tool_available(tool_name: str, version_flag: str = '--version') -> boo
         ツールが利用可能な場合True
     """
     import shutil
-    
-    # まず、コマンドが存在するか確認
-    if not shutil.which(tool_name):
-        return False
+    import sys
     
     try:
         # demucsの場合は特別な処理
         if tool_name == 'demucs':
-            # demucsは--helpで動作確認
+            # まず、Pythonモジュールとしてインポートできるか確認（Streamlit Cloud対応）
+            try:
+                import demucs
+                # モジュールがインポートできれば利用可能
+                return True
+            except ImportError:
+                pass
+            
+            # コマンドラインから実行できるか確認
+            # 1. 直接コマンドを試す
+            if shutil.which('demucs'):
+                result = subprocess.run(
+                    ['demucs', '--help'], 
+                    capture_output=True, 
+                    check=False,
+                    timeout=5
+                )
+                if result.returncode in [0, 1]:
+                    return True
+            
+            # 2. python -m demucs で試す
             result = subprocess.run(
-                ['demucs', '--help'], 
+                [sys.executable, '-m', 'demucs', '--help'], 
                 capture_output=True, 
                 check=False,
                 timeout=5
             )
             # エラーコードが0または1（help表示は成功）なら利用可能
             return result.returncode in [0, 1]
+            
         elif tool_name == 'ffmpeg':
             # ffmpegは-versionで動作確認（stderrに出力される）
+            if not shutil.which('ffmpeg'):
+                return False
             result = subprocess.run(
                 ['ffmpeg', '-version'], 
                 capture_output=True, 
@@ -101,6 +121,9 @@ def check_tool_available(tool_name: str, version_flag: str = '--version') -> boo
             # ffmpegはバージョン情報をstderrに出力するが、エラーコードは0
             return result.returncode == 0
         else:
+            # その他のツール
+            if not shutil.which(tool_name):
+                return False
             result = subprocess.run(
                 [tool_name, version_flag], 
                 capture_output=True, 
