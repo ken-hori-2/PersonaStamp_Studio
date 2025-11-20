@@ -75,3 +75,6 @@ model_id.txt
 # テスト出力
 test_output/
 output/
+
+# 使用しないフォルダ
+create_stamp/mobile/not_use_*/
