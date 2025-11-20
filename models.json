@@ -1,0 +1,20 @@
+{
+  "models": [
+    {
+      "name": "Aya Chan Voice",
+      "id": "3d9399363d1e47bd8980943654a57842",
+      "description": "Voice cloned from sample audio",
+      "created_at": "2025-11-01T15:08:41.391370"
+    },
+    {
+      "name": "Test1",
+      "id": "1fa201ff711e4af5b71963ab27e8c06c",
+      "description": "Voice cloned from sample audio",
+      "created_at": "2025-11-01T19:16:49.244934"
+    }
+  ],
+  "last_used": {
+    "name": "Test1",
+    "id": "1fa201ff711e4af5b71963ab27e8c06c"
+  }
+}

@@ -35,6 +35,12 @@ tts_env/
 *.swo
 *~
 
+# Xcode
+*.xcuserstate
+*.xcuserdatad/
+xcuserdata/
+*.xcworkspace/xcuserdata/
+
 # OS
 .DS_Store
 Thumbs.db

@@ -1,0 +1,44 @@
+{
+  "models": [
+    {
+      "name": "マイボイス",
+      "id": "a9d5b33cfd124cefa494135661566413",
+      "description": "テスト用",
+      "created_at": "2025-11-01T15:01:47.368549"
+    },
+    {
+      "name": "My Custom Voice",
+      "id": "3b8e1c10472a4e4889c1f3a433579bd6",
+      "description": "Voice cloned from sample audio",
+      "created_at": "2025-11-01T15:01:47.369846"
+    },
+    {
+      "name": "Aya-chan Custom Voice",
+      "id": "4d93057f8d1d404e9bacbb3b8684dbc7",
+      "description": "Aya-chan Voice cloned from sample audio",
+      "created_at": "2025-11-01T15:01:47.370391"
+    },
+    {
+      "name": "Sample Voice Clone",
+      "id": "904714893aa44f7aa959e4c315cfd828",
+      "description": "sample_voice.wavから作成した音声クローン",
+      "created_at": "2025-11-01T15:01:47.370763"
+    },
+    {
+      "name": "test",
+      "id": "a47fd601d92544158f6ba2ccbc7728fc",
+      "description": "test Voice cloned from sample audio",
+      "created_at": "2025-11-01T15:01:47.370942"
+    },
+    {
+      "name": "Test Aya-chan",
+      "id": "e86cefebeb634d4d8ef5bd495cd86273",
+      "description": "Voice cloned from sample audio",
+      "created_at": "2025-11-01T15:01:47.371123"
+    }
+  ],
+  "last_used": {
+    "name": "Test Aya-chan",
+    "id": "e86cefebeb634d4d8ef5bd495cd86273"
+  }
+}
