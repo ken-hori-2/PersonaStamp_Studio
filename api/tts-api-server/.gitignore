@@ -1,0 +1,79 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# データベース
+*.db
+*.sqlite
+*.sqlite3
+
+# 環境変数
+.env
+.env.local
+.env.*.local
+
+# ログファイル
+*.log
+*.log.*
+
+# 一時ファイル
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# メディア・バイナリファイル
+*.mp3
+*.wav
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+*.ogg
+*.m4a
+*.aac
+*.exe
+*.dll
+*.dylib
+*.so
+*.bin
+
+# テスト出力
+test_output.*
+*.test_output.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# その他
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
