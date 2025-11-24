@@ -66,6 +66,28 @@ temp_audio.*
 # APIキー・機密情報
 model_id.txt
 
+# Firebase認証情報（機密情報）
+*-firebase-adminsdk-*.json
+*firebase*.json
+
+# 画像ファイル（セキュリティ・プライバシー考慮）
+create_stamp/img/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.HEIC
+*.heic
+*.bmp
+*.tiff
+*.webp
+
 # テスト出力
 test_output/
 output/
+
+# Xcode user-specific data
+**/xcuserdata/
+
+# Firebase config (contains secrets)
+GoogleService-Info.plist

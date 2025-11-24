@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# データベース
+*.db
+*.sqlite
+*.sqlite3
+
+# 環境変数
+.env
+.env.local
+
+# Firebase認証情報（JSONファイル）
+*-firebase-adminsdk-*.json
+firebase-adminsdk-*.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ログ
+*.log
+logs/
+
+# 一時ファイル
+*.tmp
+tmp/
+
+# 生成音声
+generated_audio/
+
