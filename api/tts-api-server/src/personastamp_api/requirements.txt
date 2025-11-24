@@ -4,5 +4,5 @@ python-dotenv==1.0.0
 pydantic>=2.5.0
 requests>=2.31.0
 firebase-admin>=6.0.0
-fish-audio-sdk>=2025.6.3
+fish-audio-sdk>=1.1.0
 
