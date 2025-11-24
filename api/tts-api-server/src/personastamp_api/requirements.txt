@@ -7,10 +7,10 @@
 # # fish-audio-sdk>=2025.6.3
 # fish-audio-sdk>=1.1.0
 
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-python-dotenv==1.0.0
+fastapi==0.115.6
+uvicorn[standard]==0.30.6
+python-dotenv==1.0.1
 pydantic==2.12.4
 requests==2.32.3
-firebase-admin==7.1.0
+firebase-admin==7.3.0
 fish-audio-sdk==1.1.0
