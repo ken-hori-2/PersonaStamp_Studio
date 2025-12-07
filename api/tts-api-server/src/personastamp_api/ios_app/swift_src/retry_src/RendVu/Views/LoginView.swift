@@ -36,7 +36,7 @@ struct LoginView: View {
                         .foregroundColor(.blue)
                 }
                 
-                Text("RendVu")
+                Text("Re:ndVu")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                 

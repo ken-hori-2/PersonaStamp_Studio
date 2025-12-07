@@ -122,7 +122,7 @@ class TTSViewModel: ObservableObject {
             
             infoMessage = """
 保存しました: \(item.file_name)
-「ファイル」アプリ >「このiPhone内」> RendVu > \(historyFolderName) で確認できます。
+「ファイル」アプリ >「このiPhone内」> Re:ndVu > \(historyFolderName) で確認できます。
 """
         } catch {
             errorMessage = "保存に失敗しました: \(error.localizedDescription)"
