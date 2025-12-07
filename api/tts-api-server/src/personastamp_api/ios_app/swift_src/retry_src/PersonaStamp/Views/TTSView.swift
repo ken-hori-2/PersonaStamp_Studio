@@ -7,11 +7,11 @@
 
 import SwiftUI
 import AVFoundation
-import UIKit
 
 struct TTSView: View {
     @EnvironmentObject var authManager: AuthManager
     @StateObject private var viewModel = TTSViewModel()
+    @FocusState private var isTextEditorFocused: Bool
     
     var body: some View {
         NavigationView {
@@ -19,6 +19,7 @@ struct TTSView: View {
                 Section(header: Text("テキスト入力")) {
                     TextEditor(text: $viewModel.text)
                         .frame(height: 150)
+                        .focused($isTextEditorFocused)
                 }
                 
                 Section(header: Text("設定")) {
@@ -118,6 +119,14 @@ struct TTSView: View {
                 }
             }
             .navigationTitle("TTS")
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("完了") {
+                        isTextEditorFocused = false
+                    }
+                }
+            }
             .onAppear {
                 Task {
                     await viewModel.loadModels(authManager: authManager)
@@ -127,27 +136,7 @@ struct TTSView: View {
             .refreshable {
                 await viewModel.loadHistory(authManager: authManager)
             }
-            .background(
-                Color.clear
-                    .contentShape(Rectangle())
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .onEnded { value in
-                                guard let window = UIApplication.shared.connectedScenes
-                                    .compactMap({ ($0 as? UIWindowScene)?.keyWindow }).first else { return }
-                                
-                                let location = value.location
-                                if !window.rootViewController!.view.point(inside: location, with: nil) {
-                                    hideKeyboard()
-                                }
-                            }
-                    )
-            )
         }
-    }
-    
-    private func hideKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 

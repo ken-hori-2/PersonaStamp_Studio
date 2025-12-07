@@ -21,8 +21,6 @@ class TTSViewModel: ObservableObject {
     @Published var infoMessage: String?
     @Published var isLoadingHistory = false
     @Published var history: [TTSHistoryItem] = []
-    @Published var lastSavedFileURL: URL?
-    @Published var shouldShowShareSheet = false
     
     private var audioPlayer: AVAudioPlayer?
     private let historyFolderName = "PersonaStampTTS"
@@ -122,8 +120,6 @@ class TTSViewModel: ObservableObject {
             try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
             try data.write(to: fileURL, options: Data.WritingOptions.atomic)
             
-            lastSavedFileURL = fileURL
-            shouldShowShareSheet = true
             infoMessage = """
 保存しました: \(item.file_name)
 「ファイル」アプリ >「このiPhone内」> PersonaStamp > \(historyFolderName) で確認できます。
@@ -131,25 +127,6 @@ class TTSViewModel: ObservableObject {
         } catch {
             errorMessage = "保存に失敗しました: \(error.localizedDescription)"
         }
-    }
-    
-    func playSavedFile(item: TTSHistoryItem) {
-        let fileURL = localFileURL(for: item)
-        guard FileManager.default.fileExists(atPath: fileURL.path) else {
-            errorMessage = "保存済みファイルが見つかりません。保存してから再度お試しください。"
-            return
-        }
-        
-        do {
-            let data = try Data(contentsOf: fileURL)
-            try playAudio(data: data)
-        } catch {
-            errorMessage = "保存済みファイルの再生に失敗しました: \(error.localizedDescription)"
-        }
-    }
-    
-    func hasLocalFile(for item: TTSHistoryItem) -> Bool {
-        FileManager.default.fileExists(atPath: localFileURL(for: item).path)
     }
     
     private func playAudio(data: Data) throws {
