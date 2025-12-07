@@ -16,8 +16,8 @@ struct ContentView: View {
             if showSplash {
                 SplashView()
                     .onAppear {
-                        // スプラッシュ画面を2秒間表示
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                        // スプラッシュ画面を約10秒間表示（すべてのテキストアニメーションを表示）
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 10.5) {
                             withAnimation {
                                 showSplash = false
                             }
