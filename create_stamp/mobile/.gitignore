@@ -1,0 +1,73 @@
+# Xcode
+#
+# User settings (プライバシー情報)
+xcuserdata/
+*.xcuserstate
+*.xcuserdatad/
+
+# not_use系ディレクトリ（使用しないプロジェクト）
+not_use_*/
+
+# Xcode 8 and earlier
+*.xcscmblueprint
+*.xccheckout
+
+# Xcode 3 and earlier
+build/
+DerivedData/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# Obj-C/Swift specific
+*.hmap
+
+# App packaging
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# CocoaPods
+# Pods/
+
+# Carthage
+Carthage/Build/
+
+# Accio dependency management
+Dependencies/
+.accio/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# Code Injection
+iOSInjectionProject/
+
+# macOS
+.DS_Store
+
+# Temporary files
+*.swp
+*.swo
+*~
+
+# Info.plist (自動生成される場合)
+# ただし、明示的に作成したInfo.plistは含める
+
