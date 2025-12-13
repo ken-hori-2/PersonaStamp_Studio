@@ -15,20 +15,26 @@ struct ContentView: View {
         Group {
             if showSplash {
                 SplashView()
+                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
                     .onAppear {
                         // スプラッシュ画面を約10秒間表示（すべてのテキストアニメーションを表示）
                         DispatchQueue.main.asyncAfter(deadline: .now() + 10.5) {
-                            withAnimation {
+                            withAnimation(
+                                .easeInOut(duration: 0.8)
+                            ) {
                                 showSplash = false
                             }
                         }
                     }
             } else {
-                if authManager.isAuthenticated {
-                    MainTabView()
-                } else {
-                    LoginView()
+                Group {
+                    if authManager.isAuthenticated {
+                        MainTabView()
+                    } else {
+                        LoginView()
+                    }
                 }
+                .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
         }
         .onAppear {

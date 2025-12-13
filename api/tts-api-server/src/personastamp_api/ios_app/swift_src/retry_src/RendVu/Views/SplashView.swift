@@ -11,8 +11,11 @@ import UIKit
 struct SplashView: View {
     @State private var currentStep: Int = 0
     @State private var opacity: Double = 0
-    @State private var scale: Double = 0.9
+    @State private var scale: Double = 0.8
     @State private var showIcon: Bool = true
+    @State private var backgroundOffset: CGFloat = 0
+    @State private var iconRotation: Double = 0
+    @State private var blurRadius: CGFloat = 0
     
     // 表示するテキストの配列
     private let steps: [SplashStep] = [
@@ -27,7 +30,7 @@ struct SplashView: View {
     
     // 各ステップの表示時間（秒）
     private let displayDurations: [Double] = [2.0, 4.0, 2.5]
-    private let fadeDuration: Double = 0.8
+    private let fadeDuration: Double = 1.0
     
     enum SplashStep {
         case title(String)
@@ -37,13 +40,36 @@ struct SplashView: View {
     
     var body: some View {
         ZStack {
-            // グラデーション背景
-            LinearGradient(
-                colors: [Color.white, Color(white: 0.98)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
+            // 動的なグラデーション背景（パララックス効果）
+            ZStack {
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.05, green: 0.05, blue: 0.1),
+                        Color(red: 0.1, green: 0.05, blue: 0.15),
+                        Color(red: 0.05, green: 0.1, blue: 0.2)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                
+                // 動的な光の効果
+                RadialGradient(
+                    colors: [
+                        Color.blue.opacity(0.3),
+                        Color.purple.opacity(0.2),
+                        Color.clear
+                    ],
+                    center: UnitPoint(
+                        x: 0.5 + backgroundOffset * 0.1,
+                        y: 0.3 + backgroundOffset * 0.05
+                    ),
+                    startRadius: 100,
+                    endRadius: 500
+                )
+            }
             .ignoresSafeArea()
+            .blur(radius: blurRadius)
+            .offset(y: backgroundOffset)
             
             VStack(spacing: 40) {
                 Spacer()
@@ -57,11 +83,23 @@ struct SplashView: View {
                             .scaledToFit()
                             .frame(width: 140, height: 140)
                             .cornerRadius(30)
-                            .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
+                            .shadow(color: .black.opacity(0.4), radius: 30, x: 0, y: 15)
+                            .shadow(color: .blue.opacity(0.3), radius: 40, x: 0, y: 20)
                             .scaleEffect(scale)
+                            .rotationEffect(.degrees(iconRotation))
                             .opacity(opacity > 0 ? 1.0 : 0.0)
-                            .animation(.easeInOut(duration: 0.6), value: scale)
-                            .animation(.easeInOut(duration: fadeDuration), value: opacity)
+                            .animation(
+                                .spring(response: 0.8, dampingFraction: 0.7, blendDuration: 0),
+                                value: scale
+                            )
+                            .animation(
+                                .easeInOut(duration: fadeDuration),
+                                value: opacity
+                            )
+                            .animation(
+                                .easeInOut(duration: 2.0).repeatForever(autoreverses: true),
+                                value: iconRotation
+                            )
                     } else {
                         Image(systemName: "app.fill")
                             .font(.system(size: 80))
@@ -73,9 +111,21 @@ struct SplashView: View {
                                 )
                             )
                             .scaleEffect(scale)
+                            .rotationEffect(.degrees(iconRotation))
                             .opacity(opacity > 0 ? 1.0 : 0.0)
-                            .animation(.easeInOut(duration: 0.6), value: scale)
-                            .animation(.easeInOut(duration: fadeDuration), value: opacity)
+                            .shadow(color: .blue.opacity(0.5), radius: 20, x: 0, y: 10)
+                            .animation(
+                                .spring(response: 0.8, dampingFraction: 0.7, blendDuration: 0),
+                                value: scale
+                            )
+                            .animation(
+                                .easeInOut(duration: fadeDuration),
+                                value: opacity
+                            )
+                            .animation(
+                                .easeInOut(duration: 2.0).repeatForever(autoreverses: true),
+                                value: iconRotation
+                            )
                     }
                 }
                 
@@ -84,8 +134,12 @@ struct SplashView: View {
                     if currentStep < steps.count {
                         stepView(for: steps[currentStep])
                             .opacity(opacity)
-                            .scaleEffect(opacity > 0 ? 1.0 : 0.95)
-                            .animation(.easeInOut(duration: fadeDuration), value: opacity)
+                            .scaleEffect(opacity > 0 ? 1.0 : 0.85)
+                            .blur(radius: opacity > 0 ? 0 : 10)
+                            .animation(
+                                .spring(response: 0.9, dampingFraction: 0.8, blendDuration: 0),
+                                value: opacity
+                            )
                     }
                 }
                 .frame(minHeight: 200)
@@ -98,9 +152,30 @@ struct SplashView: View {
         }
         .onAppear {
             print("🎬 SplashView appeared, starting animation")
-            scale = 1.0
+            startBackgroundAnimation()
             startAnimationSequence()
         }
+    }
+    
+    private func startBackgroundAnimation() {
+        // 背景のパララックスアニメーション
+        withAnimation(
+            .easeInOut(duration: 8.0)
+            .repeatForever(autoreverses: true)
+        ) {
+            backgroundOffset = 20
+        }
+        
+        // ブラー効果のアニメーション
+        withAnimation(
+            .easeInOut(duration: 4.0)
+            .repeatForever(autoreverses: true)
+        ) {
+            blurRadius = 5
+        }
+        
+        // アイコンの微細な回転
+        iconRotation = 5
     }
     
     @ViewBuilder
@@ -111,20 +186,35 @@ struct SplashView: View {
                 .font(.system(size: 56, weight: .bold, design: .rounded))
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [.blue, .purple],
+                        colors: [
+                            Color(red: 0.4, green: 0.6, blue: 1.0),
+                            Color(red: 0.7, green: 0.4, blue: 1.0),
+                            Color(red: 0.9, green: 0.5, blue: 0.8)
+                        ],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
                 )
-                .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+                .shadow(color: .blue.opacity(0.5), radius: 15, x: 0, y: 5)
+                .shadow(color: .purple.opacity(0.3), radius: 25, x: 0, y: 10)
                 .padding(.vertical, 20)
                 
         case .subtitle(let text):
             Text(text)
                 .font(.system(size: 22, weight: .medium, design: .rounded))
-                .foregroundColor(.black)
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.9),
+                            Color.white.opacity(0.7)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
+                .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 20)
                 
@@ -133,7 +223,17 @@ struct SplashView: View {
                 // 「=」を最初に表示
                 Text("=")
                     .font(.system(size: 32, weight: .bold, design: .rounded))
-                    .foregroundColor(.black)
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.9),
+                                Color.white.opacity(0.6)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
                     .padding(.bottom, 8)
                 
                 ForEach(Array(parts.enumerated()), id: \.offset) { index, part in
@@ -142,7 +242,10 @@ struct SplashView: View {
                             .font(.system(size: 24, weight: .bold, design: .rounded))
                             .foregroundStyle(
                                 LinearGradient(
-                                    colors: [.blue, .purple],
+                                    colors: [
+                                        Color(red: 0.4, green: 0.6, blue: 1.0),
+                                        Color(red: 0.7, green: 0.4, blue: 1.0)
+                                    ],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
@@ -150,20 +253,68 @@ struct SplashView: View {
                         
                         Text(part.1)
                             .font(.system(size: 18, weight: .regular, design: .rounded))
-                            .foregroundColor(.black)
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.9),
+                                        Color.white.opacity(0.7)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
                     }
                     .padding(.horizontal, 24)
                     .padding(.vertical, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.white)
-                            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.15),
+                                        Color.white.opacity(0.05)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.white.opacity(0.1))
+                                    .blur(radius: 10)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: [
+                                                Color.white.opacity(0.3),
+                                                Color.white.opacity(0.1)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ),
+                                        lineWidth: 1
+                                    )
+                            )
+                            .shadow(color: .black.opacity(0.3), radius: 15, x: 0, y: 8)
+                            .shadow(color: .blue.opacity(0.2), radius: 20, x: 0, y: 10)
                     )
                     
                     if index < parts.count - 1 {
                         Text("+")
                             .font(.system(size: 28, weight: .bold, design: .rounded))
-                            .foregroundColor(.black)
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.9),
+                                        Color.white.opacity(0.6)
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
                             .padding(.vertical, 4)
                     }
                 }
@@ -178,64 +329,96 @@ struct SplashView: View {
         // 最初のテキストを設定
         currentStep = 0
         
-        // 最初のテキストをフェードイン
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+        // アイコンのスケールアニメーション（Netflix風のエレガントな登場）
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            withAnimation(
+                .spring(response: 0.8, dampingFraction: 0.7, blendDuration: 0)
+            ) {
+                self.scale = 1.0
+            }
+        }
+        
+        // 最初のテキストをフェードイン（スプリングアニメーション）
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             print("📝 Step 0: Showing title")
-            withAnimation(.easeInOut(duration: self.fadeDuration)) {
+            withAnimation(
+                .spring(response: 0.9, dampingFraction: 0.8, blendDuration: 0)
+            ) {
                 self.opacity = 1.0
             }
         }
         
         // 各ステップのタイミングを計算
-        var totalTime: Double = 0.2 + fadeDuration // 最初のフェードイン時間
+        var totalTime: Double = 0.3 + fadeDuration // 最初のフェードイン時間
         
         // Step 0: 表示 → フェードアウト（アイコンも一緒にフェードアウト）
         totalTime += displayDurations[0]
         DispatchQueue.main.asyncAfter(deadline: .now() + totalTime) {
             print("📝 Step 0: Fading out")
-            withAnimation(.easeInOut(duration: self.fadeDuration)) {
+            withAnimation(
+                .easeInOut(duration: self.fadeDuration)
+            ) {
                 self.opacity = 0.0
+                self.scale = 0.9
             }
         }
         
         // アイコンを非表示にする
         totalTime += fadeDuration
         DispatchQueue.main.asyncAfter(deadline: .now() + totalTime) {
-            self.showIcon = false
+            withAnimation(
+                .easeInOut(duration: 0.3)
+            ) {
+                self.showIcon = false
+            }
         }
         
         // Step 1: フェードイン → 表示 → フェードアウト（説明文）
-        DispatchQueue.main.asyncAfter(deadline: .now() + totalTime) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + totalTime + 0.1) {
             print("📝 Step 1: Showing explanation")
             self.currentStep = 1
-            withAnimation(.easeInOut(duration: self.fadeDuration)) {
+            self.scale = 0.95
+            withAnimation(
+                .spring(response: 0.9, dampingFraction: 0.8, blendDuration: 0)
+            ) {
                 self.opacity = 1.0
+                self.scale = 1.0
             }
         }
         
         totalTime += displayDurations[1]
         DispatchQueue.main.asyncAfter(deadline: .now() + totalTime) {
             print("📝 Step 1: Fading out")
-            withAnimation(.easeInOut(duration: self.fadeDuration)) {
+            withAnimation(
+                .easeInOut(duration: self.fadeDuration)
+            ) {
                 self.opacity = 0.0
+                self.scale = 0.9
             }
         }
         
         // Step 2: フェードイン → 表示 → フェードアウト（一言）
         totalTime += fadeDuration
-        DispatchQueue.main.asyncAfter(deadline: .now() + totalTime) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + totalTime + 0.1) {
             print("📝 Step 2: Showing subtitle")
             self.currentStep = 2
-            withAnimation(.easeInOut(duration: self.fadeDuration)) {
+            self.scale = 0.95
+            withAnimation(
+                .spring(response: 0.9, dampingFraction: 0.8, blendDuration: 0)
+            ) {
                 self.opacity = 1.0
+                self.scale = 1.0
             }
         }
         
         totalTime += displayDurations[2]
         DispatchQueue.main.asyncAfter(deadline: .now() + totalTime) {
             print("📝 Step 2: Fading out")
-            withAnimation(.easeInOut(duration: self.fadeDuration)) {
+            withAnimation(
+                .easeInOut(duration: self.fadeDuration)
+            ) {
                 self.opacity = 0.0
+                self.scale = 0.85
             }
         }
     }
