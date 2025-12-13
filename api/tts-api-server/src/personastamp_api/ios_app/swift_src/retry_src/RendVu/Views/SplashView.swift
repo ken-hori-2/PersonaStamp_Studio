@@ -212,8 +212,9 @@ struct SplashView: View {
                         endPoint: .bottom
                     )
                 )
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
                 .multilineTextAlignment(.center)
-                .lineSpacing(4)
                 .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 20)
