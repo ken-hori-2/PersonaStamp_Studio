@@ -102,13 +102,18 @@ def call_fish_audio_tts(
         )
 
 
-def call_fish_audio_clone(audio_bytes: bytes, reference_name: str) -> str:
+def call_fish_audio_clone(
+    audio_bytes: bytes, 
+    reference_name: str,
+    transcription: Optional[str] = None
+) -> str:
     """
     Fish Audio SDK を用いて Voice Model を作成する。
     
     Args:
         audio_bytes: 音声サンプルのバイナリデータ
         reference_name: ユーザーがつけた声モデルの名前
+        transcription: 音声の文字起こし（オプション、推奨）
     
     Returns:
         作成されたモデルID
@@ -118,13 +123,16 @@ def call_fish_audio_clone(audio_bytes: bytes, reference_name: str) -> str:
     # Fish Audio では複数の音声・テキストを渡せるが、現状は1件のみ
     title = reference_name or "PersonaStamp Voice"
     description = f"Uploaded from PersonaStamp Studio ({datetime.utcnow().isoformat()}Z)"
+    
+    # 文字起こしが提供されている場合は使用、なければ空文字列
+    texts = [transcription] if transcription and transcription.strip() else [""]
 
     try:
         model = session.create_model(
             title=title,
             description=description,
             voices=[audio_bytes],
-            texts=[""],
+            texts=texts,
             visibility="private",
             enhance_audio_quality=True,
         )

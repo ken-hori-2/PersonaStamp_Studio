@@ -80,6 +80,7 @@ class TTSRequest(BaseModel):
 class CloneRequest(BaseModel):
     audio_base64: str
     reference_name: str
+    transcription: Optional[str] = None  # 文字起こし（オプション、推奨）
 
 
 class CloneResponse(BaseModel):
@@ -233,7 +234,8 @@ async def clone_voice(
         # Fish Audio APIを呼び出してVoice Cloning
         model_id = call_fish_audio_clone(
             audio_bytes=audio_bytes,
-            reference_name=request.reference_name
+            reference_name=request.reference_name,
+            transcription=request.transcription
         )
         
         # モデルをデータベースに保存
