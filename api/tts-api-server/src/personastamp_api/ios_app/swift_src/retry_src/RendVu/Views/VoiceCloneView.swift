@@ -13,14 +13,29 @@ struct VoiceCloneView: View {
     @StateObject private var viewModel = VoiceCloneViewModel()
     
     var body: some View {
-        NavigationView {
+        Group {
+            if #available(iOS 16.0, *) {
+                NavigationStack {
+                    contentView
+                }
+            } else {
+                NavigationView {
+                    contentView
+                }
+            }
+        }
+    }
+    
+    private var contentView: some View {
+        ScrollView {
             VStack(spacing: 20) {
-                // 説明
+                // 説明（常に表示）
                 Text("音声サンプルを録音して、あなたの声をクローンします")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
-                    .padding()
+                    .padding(.horizontal)
+                    .padding(.top)
                 
                 // 録音ボタン
                 Button(action: {
@@ -52,13 +67,64 @@ struct VoiceCloneView: View {
                         .foregroundColor(.secondary)
                 }
                 
-                // モデル名入力
+                // モデル名入力と文字起こし
                 if viewModel.hasRecordedAudio {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("モデル名")
-                            .font(.headline)
-                        TextField("例: my_voice", text: $viewModel.modelName)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                    VStack(alignment: .leading, spacing: 16) {
+                        // 自動文字起こし設定
+                        Toggle("🎤 自動文字起こし（推奨）", isOn: $viewModel.autoTranscribeEnabled)
+                            .font(.subheadline)
+                        
+                        // 文字起こしエリア
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text("📝 文字起こし（推奨）")
+                                    .font(.headline)
+                                if viewModel.isTranscribing {
+                                    ProgressView()
+                                        .scaleEffect(0.8)
+                                }
+                            }
+                            Text("音声クローンの精度向上のため、文字起こしの入力をおすすめします")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            
+                            TextEditor(text: $viewModel.transcription)
+                                .frame(height: 100)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                )
+                                .disabled(viewModel.isTranscribing)
+                            
+                            if viewModel.isTranscribing {
+                                HStack {
+                                    ProgressView()
+                                    Text("文字起こし中...")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            } else if !viewModel.transcription.isEmpty {
+                                Button(action: {
+                                    Task {
+                                        await viewModel.transcribeAudio()
+                                    }
+                                }) {
+                                    HStack {
+                                        Image(systemName: "arrow.clockwise")
+                                        Text("再文字起こし")
+                                    }
+                                    .font(.caption)
+                                }
+                            }
+                        }
+                        
+                        // モデル名入力
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("モデル名")
+                                .font(.headline)
+                            TextField("例: my_voice", text: $viewModel.modelName)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                        }
                     }
                     .padding(.horizontal)
                     
@@ -103,13 +169,20 @@ struct VoiceCloneView: View {
                         .foregroundColor(.green)
                         .padding()
                 }
-                
-                Spacer()
             }
-            .navigationTitle("Voice Clone")
-            .onAppear {
-                viewModel.setupAudioRecorder()
+            .padding(.bottom)
+        }
+        .navigationTitle("Voice Clone")
+        .navigationBarTitleDisplayMode(.large)
+        .alert("成功", isPresented: $viewModel.showSuccessAlert) {
+            Button("OK") {
+                viewModel.showSuccessAlert = false
             }
+        } message: {
+            Text(viewModel.successAlertMessage)
+        }
+        .onAppear {
+            viewModel.setupAudioRecorder()
         }
     }
 }

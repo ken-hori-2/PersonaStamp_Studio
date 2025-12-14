@@ -12,6 +12,8 @@ struct TTSView: View {
     @EnvironmentObject var authManager: AuthManager
     @StateObject private var viewModel = TTSViewModel()
     @FocusState private var isTextEditorFocused: Bool
+    @State private var showEmotionPicker = false
+    @State private var selectedEmotionTag: EmotionTag?
     
     var body: some View {
         NavigationView {
@@ -20,6 +22,41 @@ struct TTSView: View {
                     TextEditor(text: $viewModel.text)
                         .frame(height: 150)
                         .focused($isTextEditorFocused)
+                    
+                    // 感情タグ挿入ボタン
+                    Button(action: {
+                        showEmotionPicker = true
+                    }) {
+                        HStack {
+                            Image(systemName: "face.smiling")
+                            Text("感情タグを挿入")
+                        }
+                        .font(.subheadline)
+                    }
+                    
+                    // 使用中の感情タグ表示
+                    Group {
+                        let usedTags = EmotionTagHelper.extractTags(from: viewModel.text)
+                        if !usedTags.isEmpty {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("使用中の感情タグ:")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 8) {
+                                        ForEach(usedTags) { tag in
+                                            Text(tag.name)
+                                                .font(.caption)
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 4)
+                                                .background(Color.blue.opacity(0.2))
+                                                .cornerRadius(8)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 
                 Section(header: Text("設定")) {
@@ -28,6 +65,12 @@ struct TTSView: View {
                         ForEach(viewModel.availableModels) { model in
                             Text(model.reference_name).tag(model.id as String?)
                         }
+                    }
+                    
+                    Picker("出力形式", selection: $viewModel.format) {
+                        Text("MP3").tag("mp3")
+                        // WAV形式はFish Audio SDKが生成する形式がiOSでサポートされていないため、一時的に無効化
+                        // Text("WAV").tag("wav")
                     }
                     
                     VStack(alignment: .leading) {
@@ -135,6 +178,20 @@ struct TTSView: View {
             }
             .refreshable {
                 await viewModel.loadHistory(authManager: authManager)
+            }
+            .sheet(isPresented: $showEmotionPicker) {
+                EmotionPickerView(
+                    selectedTag: $selectedEmotionTag,
+                    text: $viewModel.text,
+                    isPresented: $showEmotionPicker
+                )
+            }
+            .alert("保存完了", isPresented: $viewModel.showSaveSuccessAlert) {
+                Button("OK") {
+                    viewModel.showSaveSuccessAlert = false
+                }
+            } message: {
+                Text(viewModel.saveSuccessAlertMessage)
             }
         }
     }

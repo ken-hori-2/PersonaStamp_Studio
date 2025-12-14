@@ -9,16 +9,22 @@ import Foundation
 import AVFoundation
 import Combine
 import AVFAudio
+import Speech
 
 @MainActor
 class VoiceCloneViewModel: ObservableObject {
     @Published var isRecording = false
     @Published var hasRecordedAudio = false
     @Published var modelName = ""
+    @Published var transcription = ""
+    @Published var isTranscribing = false
     @Published var isProcessing = false
     @Published var errorMessage: String?
     @Published var successMessage: String?
+    @Published var showSuccessAlert = false
+    @Published var successAlertMessage = ""
     @Published var recordingTimeString = "00:00"
+    @Published var autoTranscribeEnabled = true
     
     private var audioRecorder: AVAudioRecorder?
     private var audioURL: URL?
@@ -94,6 +100,89 @@ class VoiceCloneViewModel: ObservableObject {
         hasRecordedAudio = true
         recordingTimer?.invalidate()
         recordingTimer = nil
+        
+        // 自動文字起こしが有効な場合、文字起こしを実行
+        if autoTranscribeEnabled {
+            Task {
+                await transcribeAudio()
+            }
+        }
+    }
+    
+    func transcribeAudio() async {
+        guard let audioURL = audioURL else { return }
+        
+        // 音声認識の許可を確認
+        let currentStatus = SFSpeechRecognizer.authorizationStatus()
+        let authorizationStatus: SFSpeechRecognizerAuthorizationStatus
+        
+        if currentStatus == .notDetermined {
+            // 許可をリクエスト
+            authorizationStatus = await withCheckedContinuation { continuation in
+                SFSpeechRecognizer.requestAuthorization { status in
+                    continuation.resume(returning: status)
+                }
+            }
+        } else {
+            authorizationStatus = currentStatus
+        }
+        
+        guard authorizationStatus == .authorized else {
+            errorMessage = "音声認識の許可が必要です。設定から許可してください。"
+            return
+        }
+        
+        let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "ja-JP"))
+        guard let recognizer = speechRecognizer, recognizer.isAvailable else {
+            errorMessage = "日本語の音声認識が利用できません"
+            return
+        }
+        
+        isTranscribing = true
+        errorMessage = nil
+        
+        do {
+            let request = SFSpeechURLRecognitionRequest(url: audioURL)
+            request.shouldReportPartialResults = false
+            
+            // 非同期で音声認識を実行
+            let result = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<String, Error>) in
+                var recognitionTask: SFSpeechRecognitionTask?
+                
+                recognitionTask = recognizer.recognitionTask(with: request) { result, error in
+                    if let error = error {
+                        recognitionTask?.cancel()
+                        continuation.resume(throwing: error)
+                        return
+                    }
+                    
+                    if let result = result, result.isFinal {
+                        let transcriptionText = result.bestTranscription.formattedString
+                        recognitionTask?.cancel()
+                        continuation.resume(returning: transcriptionText)
+                    }
+                }
+                
+                // タイムアウト処理（30秒）
+                Task {
+                    try? await Task.sleep(nanoseconds: 30_000_000_000)
+                    if recognitionTask?.state != .completed && recognitionTask?.state != .canceling {
+                        recognitionTask?.cancel()
+                        continuation.resume(throwing: NSError(domain: "TranscriptionTimeout", code: -1, userInfo: [NSLocalizedDescriptionKey: "文字起こしがタイムアウトしました"]))
+                    }
+                }
+            }
+            
+            if !result.isEmpty {
+                transcription = result
+            } else {
+                errorMessage = "文字起こし結果が空でした。手動で入力してください。"
+            }
+        } catch {
+            errorMessage = "文字起こしに失敗しました: \(error.localizedDescription)"
+        }
+        
+        isTranscribing = false
     }
     
     private func updateRecordingTime() {
@@ -122,14 +211,19 @@ class VoiceCloneViewModel: ObservableObject {
         
         do {
             let audioData = try Data(contentsOf: audioURL)
+            let transcriptionText = transcription.trimmingCharacters(in: .whitespacesAndNewlines)
             let response = try await APIClient.shared.cloneVoice(
                 audioData: audioData,
                 referenceName: modelName,
+                transcription: transcriptionText.isEmpty ? nil : transcriptionText,
                 idToken: idToken
             )
             
             successMessage = "Voice Cloningが完了しました！モデルID: \(response.model_id)"
+            successAlertMessage = "Voice Cloningが完了しました！\n\nモデルID: \(response.model_id)\n\nこのモデルを使用してTTSを生成できます。"
+            showSuccessAlert = true
             modelName = ""
+            transcription = ""
             hasRecordedAudio = false
             
             // 録音ファイルを削除

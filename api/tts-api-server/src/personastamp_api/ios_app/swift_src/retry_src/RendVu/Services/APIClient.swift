@@ -119,6 +119,7 @@ class APIClient {
     func cloneVoice(
         audioData: Data,
         referenceName: String,
+        transcription: String? = nil,
         idToken: String
     ) async throws -> CloneResponse {
         let url = URL(string: "\(baseURL)/api/v2/clone")!
@@ -128,10 +129,16 @@ class APIClient {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let audioBase64 = audioData.base64EncodedString()
-        let body: [String: Any] = [
+        var body: [String: Any] = [
             "audio_base64": audioBase64,
             "reference_name": referenceName
         ]
+        
+        // 文字起こしが提供されている場合は追加
+        if let transcription = transcription, !transcription.isEmpty {
+            body["transcription"] = transcription
+        }
+        
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
         let (data, response) = try await URLSession.shared.data(for: request)

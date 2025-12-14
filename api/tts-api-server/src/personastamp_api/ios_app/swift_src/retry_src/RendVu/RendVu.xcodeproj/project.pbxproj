@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		96A702E29FC855E7B9BD4AD1 /* Pods_RendVu.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53DEBBA4A7FC9FD4C4F5F8B3 /* Pods_RendVu.framework */; };
+		BE8E73F42EED8661006569C6 /* EmotionTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8E73F32EED8661006569C6 /* EmotionTag.swift */; };
+		BE8E73F62EED8672006569C6 /* EmotionPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8E73F52EED8672006569C6 /* EmotionPickerView.swift */; };
 		BE9BE27E2ED448E400C46725 /* TTSHistoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9BE27D2ED448E300C46725 /* TTSHistoryItem.swift */; };
 		BEB6E7212ED35B7F00A1933B /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E71E2ED35B7F00A1933B /* APIClient.swift */; };
 		BEB6E7222ED35B7F00A1933B /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E71F2ED35B7F00A1933B /* AuthManager.swift */; };
@@ -30,6 +32,8 @@
 		28CBCD3B8A39F6F63BCCEAEF /* Pods-RendVu.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RendVu.release.xcconfig"; path = "Target Support Files/Pods-RendVu/Pods-RendVu.release.xcconfig"; sourceTree = "<group>"; };
 		53DEBBA4A7FC9FD4C4F5F8B3 /* Pods_RendVu.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RendVu.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A34DF61A69AD9F54865321F7 /* Pods-RendVu.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RendVu.debug.xcconfig"; path = "Target Support Files/Pods-RendVu/Pods-RendVu.debug.xcconfig"; sourceTree = "<group>"; };
+		BE8E73F32EED8661006569C6 /* EmotionTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionTag.swift; sourceTree = "<group>"; };
+		BE8E73F52EED8672006569C6 /* EmotionPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionPickerView.swift; sourceTree = "<group>"; };
 		BE9BE27D2ED448E300C46725 /* TTSHistoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSHistoryItem.swift; sourceTree = "<group>"; };
 		BEB6E7082ED3584D00A1933B /* RendVu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RendVu.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEB6E71E2ED35B7F00A1933B /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
@@ -144,6 +148,7 @@
 		BEB6E7332ED35BC300A1933B /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				BE8E73F52EED8672006569C6 /* EmotionPickerView.swift */,
 				BEB6E72C2ED35BC300A1933B /* ContentView.swift */,
 				BEB6E72D2ED35BC300A1933B /* LoginView.swift */,
 				BEB6E72E2ED35BC300A1933B /* MainTabView.swift */,
@@ -159,6 +164,7 @@
 		BEB6E73C2ED35BD700A1933B /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				BE8E73F32EED8661006569C6 /* EmotionTag.swift */,
 				BEB6E73B2ED35BD700A1933B /* VoiceModel.swift */,
 				BE9BE27D2ED448E300C46725 /* TTSHistoryItem.swift */,
 			);
@@ -265,9 +271,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-RendVu/Pods-RendVu-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-RendVu/Pods-RendVu-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -289,6 +299,8 @@
 				BEB6E72A2ED35BA700A1933B /* ProfileViewModel.swift in Sources */,
 				BEB6E7342ED35BC300A1933B /* VoiceCloneView.swift in Sources */,
 				BEB6E7352ED35BC300A1933B /* MainTabView.swift in Sources */,
+				BE8E73F42EED8661006569C6 /* EmotionTag.swift in Sources */,
+				BE8E73F62EED8672006569C6 /* EmotionPickerView.swift in Sources */,
 				BEB6E7362ED35BC300A1933B /* ModelsView.swift in Sources */,
 				BEB6E7372ED35BC300A1933B /* LoginView.swift in Sources */,
 				BEB6E7382ED35BC300A1933B /* ContentView.swift in Sources */,
