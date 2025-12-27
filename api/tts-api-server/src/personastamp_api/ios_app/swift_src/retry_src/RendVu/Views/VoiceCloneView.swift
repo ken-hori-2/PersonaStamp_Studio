@@ -19,7 +19,7 @@ struct VoiceCloneView: View {
                     contentView
                 }
             } else {
-                NavigationView {
+        NavigationView {
                     contentView
                 }
             }
@@ -119,11 +119,11 @@ struct VoiceCloneView: View {
                         }
                         
                         // モデル名入力
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("モデル名")
-                                .font(.headline)
-                            TextField("例: my_voice", text: $viewModel.modelName)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("モデル名")
+                            .font(.headline)
+                        TextField("例: my_voice", text: $viewModel.modelName)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
                         }
                     }
                     .padding(.horizontal)
@@ -171,8 +171,8 @@ struct VoiceCloneView: View {
                 }
             }
             .padding(.bottom)
-        }
-        .navigationTitle("Voice Clone")
+            }
+            .navigationTitle("Voice Clone")
         .navigationBarTitleDisplayMode(.large)
         .alert("成功", isPresented: $viewModel.showSuccessAlert) {
             Button("OK") {
@@ -181,8 +181,8 @@ struct VoiceCloneView: View {
         } message: {
             Text(viewModel.successAlertMessage)
         }
-        .onAppear {
-            viewModel.setupAudioRecorder()
+            .onAppear {
+                viewModel.setupAudioRecorder()
         }
     }
 }

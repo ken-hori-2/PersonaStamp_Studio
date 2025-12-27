@@ -29,10 +29,7 @@ struct UsageStats: Codable {
     let daily_usage: Int
     let daily_tts: Int
     let daily_clone: Int
-    let daily_cost: Double
-    let monthly_cost: Double
     let daily_tts_limit: Int
     let daily_clone_limit: Int
-    let monthly_cost_limit: Double
 }
 

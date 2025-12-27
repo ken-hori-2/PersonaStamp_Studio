@@ -96,6 +96,10 @@ iOSInjectionProject/
 # Firebase - 機密情報を含むファイル
 GoogleService-Info.plist
 **/GoogleService-Info.plist
+**/GoogleService-Info.plist.backup
+**/GoogleService-Info.plist.bak
+*.backup
+*.bak
 
 # Xcode workspace user state
 *.xcworkspace/xcuserdata/

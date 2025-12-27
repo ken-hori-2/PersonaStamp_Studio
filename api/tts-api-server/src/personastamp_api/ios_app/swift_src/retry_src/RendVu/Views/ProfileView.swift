@@ -49,20 +49,6 @@ struct ProfileView: View {
                             Text("\(stats.daily_clone) / \(stats.daily_clone_limit)")
                                 .foregroundColor(.secondary)
                         }
-                        
-                        HStack {
-                            Text("今日のコスト")
-                            Spacer()
-                            Text("¥\(String(format: "%.2f", stats.daily_cost))")
-                                .foregroundColor(.secondary)
-                        }
-                        
-                        HStack {
-                            Text("今月のコスト")
-                            Spacer()
-                            Text("¥\(String(format: "%.2f", stats.monthly_cost)) / ¥\(String(format: "%.0f", stats.monthly_cost_limit))")
-                                .foregroundColor(.secondary)
-                        }
                     } else if viewModel.isLoading {
                         HStack {
                             Spacer()
