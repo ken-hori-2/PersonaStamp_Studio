@@ -7,10 +7,10 @@ import os
 import sys
 from pathlib import Path
 
-# .envファイルを読み込む
+# .envファイルを読み込む（親ディレクトリから）
 try:
     from dotenv import load_dotenv
-    env_path = Path(__file__).parent / '.env'
+    env_path = Path(__file__).parent.parent / '.env'
     load_dotenv(env_path)
 except ImportError:
     print("⚠️  python-dotenvがインストールされていません")
@@ -62,7 +62,7 @@ def test_firebase_config():
     # Firebase Admin SDKの初期化をテスト
     print("\n🔧 Firebase Admin SDKの初期化をテスト中...")
     try:
-        from auth import initialize_firebase
+        from core.auth import initialize_firebase
         initialize_firebase()
         print("✅ Firebase認証の初期化に成功しました！")
         return True
@@ -80,9 +80,9 @@ if __name__ == '__main__':
     if test_firebase_config():
         print("\n🎉 Firebase認証の設定が完了しています！")
         print("   サーバーを起動して動作確認してください:")
-        print("   python api_server.py")
+        print("   python main.py")
     else:
         print("\n⚠️  Firebase認証の設定が完了していません。")
-        print("   詳細は FIREBASE_SETUP.md を参照してください。")
+        print("   詳細は docs/FIREBASE_SETUP.md を参照してください。")
         sys.exit(1)
 

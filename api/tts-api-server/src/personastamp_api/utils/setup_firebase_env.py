@@ -33,8 +33,8 @@ def setup_firebase_env(json_file_path: str):
         print("❌ エラー: JSONファイルに必要な情報が不足しています")
         return False
     
-    # .envファイルのパス
-    env_file = Path(__file__).parent / '.env'
+    # .envファイルのパス（親ディレクトリから）
+    env_file = Path(__file__).parent.parent / '.env'
     
     # 既存の.envファイルを読み込む
     env_vars = {}
