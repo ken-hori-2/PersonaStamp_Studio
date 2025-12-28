@@ -18,8 +18,15 @@ DEFAULT_DAILY_CLONE_LIMIT = 2
 DEFAULT_MONTHLY_COST_LIMIT = 5000.0
 
 
+def _ensure_storage_directory():
+    """storageディレクトリが存在することを確認し、存在しない場合は作成"""
+    storage_dir = DB_PATH.parent
+    storage_dir.mkdir(parents=True, exist_ok=True)
+
+
 def get_db_connection():
     """データベース接続を取得"""
+    _ensure_storage_directory()
     conn = sqlite3.connect(str(DB_PATH), timeout=10.0)
     conn.row_factory = sqlite3.Row
     # WALモードを有効にして同時アクセスを改善
@@ -619,6 +626,8 @@ def get_voice_model_by_id(model_id: str) -> Optional[Dict]:
 
 
 # データベース初期化（モジュール読み込み時）
+# storageディレクトリが存在することを確認
+_ensure_storage_directory()
 if not DB_PATH.exists():
     init_database()
 
