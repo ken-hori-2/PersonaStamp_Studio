@@ -181,6 +181,32 @@ def get_user_by_id(user_id: str) -> Optional[Dict]:
     return None
 
 
+def get_all_users() -> List[Dict]:
+    """全ユーザー情報を取得"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT user_id, email, daily_tts_limit, daily_clone_limit, is_active
+        FROM users
+        ORDER BY created_at DESC
+    """)
+    
+    rows = cursor.fetchall()
+    conn.close()
+    
+    return [
+        {
+            "user_id": row["user_id"],
+            "email": row["email"],
+            "daily_tts_limit": row["daily_tts_limit"],
+            "daily_clone_limit": row["daily_clone_limit"],
+            "is_active": bool(row["is_active"])
+        }
+        for row in rows
+    ]
+
+
 def get_daily_usage_count(user_id: str, usage_type: str, target_date: date = None) -> int:
     """指定日の利用回数を取得"""
     if target_date is None:
@@ -202,7 +228,7 @@ def get_daily_usage_count(user_id: str, usage_type: str, target_date: date = Non
 
 
 def get_monthly_cost(year: int = None, month: int = None) -> float:
-    """月次コストを取得"""
+    """月次コストを取得（全体）"""
     if year is None or month is None:
         today = date.today()
         year = today.year
@@ -221,6 +247,28 @@ def get_monthly_cost(year: int = None, month: int = None) -> float:
     conn.close()
     
     return row["total_cost"] if row else 0.0
+
+
+def get_user_monthly_cost(user_id: str, year: int = None, month: int = None) -> float:
+    """特定ユーザーの月次コストを取得"""
+    if year is None or month is None:
+        today = date.today()
+        year = today.year
+        month = today.month
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT SUM(cost) as total_cost
+        FROM usage_history
+        WHERE user_id = ? AND strftime('%Y', created_at) = ? AND strftime('%m', created_at) = ?
+    """, (user_id, str(year).zfill(4), str(month).zfill(2)))
+    
+    row = cursor.fetchone()
+    conn.close()
+    
+    return row["total_cost"] if row and row["total_cost"] is not None else 0.0
 
 
 def update_monthly_cost(year: int, month: int, additional_cost: float):
