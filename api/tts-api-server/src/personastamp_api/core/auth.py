@@ -94,7 +94,7 @@ def verify_firebase_token(
         
         # ユーザーがデータベースに存在するかチェック
         # 存在しない場合は作成
-        from database import get_user_by_id, create_user
+        from .database import get_user_by_id, create_user
         
         user = get_user_by_id(user_id)
         if not user:
