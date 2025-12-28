@@ -41,4 +41,10 @@ tmp/
 
 # 生成音声
 generated_audio/
+storage/generated_audio/
+
+# 設定ファイル（機密情報含む）
+config/GoogleService-Info.plist
+config/*.plist
+config/*.json
 
