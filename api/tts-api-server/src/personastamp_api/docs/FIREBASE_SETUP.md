@@ -58,7 +58,7 @@ FIREBASE_CLIENT_ID=xxxxx
 ```bash
 cd src/personastamp_api
 source venv/bin/activate
-python api_server.py
+python main.py
 ```
 
 ---
@@ -89,7 +89,7 @@ Firebase認証が正しく設定されているかテスト：
 
 ```python
 # test_firebase.py
-from auth import initialize_firebase
+from core.auth import initialize_firebase
 
 try:
     initialize_firebase()
