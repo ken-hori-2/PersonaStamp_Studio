@@ -16,16 +16,20 @@ import os
 import base64
 from pathlib import Path
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, date
 
 # データベースモジュールをインポート
 from database import (
     init_database,
     create_user,
     get_user_by_id,
+    get_all_users,
     check_usage_limit,
     record_usage,
     get_usage_stats,
+    get_monthly_cost,
+    get_user_monthly_cost,
+    get_db_connection,
     save_voice_model,
     get_voice_models_by_user,
     check_model_belongs_to_user,
@@ -96,14 +100,12 @@ class VoiceModelResponse(BaseModel):
 
 
 class UsageStatsResponse(BaseModel):
+    """エンドユーザー向けの利用統計（コスト情報は含まない）"""
     daily_usage: int
     daily_tts: int
     daily_clone: int
-    daily_cost: float
-    monthly_cost: float
     daily_tts_limit: int
     daily_clone_limit: int
-    monthly_cost_limit: float
 
 
 class TTSHistoryResponse(BaseModel):
@@ -123,6 +125,19 @@ init_database()
 AUDIO_STORAGE_DIR = Path(__file__).parent / "generated_audio"
 AUDIO_STORAGE_DIR.mkdir(parents=True, exist_ok=True)
 MAX_TTS_HISTORY_ITEMS = int(os.environ.get("TTS_HISTORY_LIMIT", "10"))
+
+# 管理者のメールアドレス（環境変数から取得、カンマ区切りで複数指定可能）
+ADMIN_EMAILS = set(
+    email.strip().lower() 
+    for email in os.environ.get("ADMIN_EMAILS", "").split(",") 
+    if email.strip()
+)
+
+
+def is_admin_user(user: dict) -> bool:
+    """ユーザーが管理者かどうかを判定"""
+    email = user.get("email", "").lower()
+    return email in ADMIN_EMAILS
 
 
 def _persist_tts_result(
@@ -450,19 +465,181 @@ async def get_user_stats(user: dict = Depends(get_current_user)):
             raise HTTPException(status_code=404, detail="ユーザーが見つかりません")
         
         stats = get_usage_stats(user_id)
-        monthly_cost_limit = float(
-            os.environ.get("MONTHLY_COST_LIMIT", DEFAULT_MONTHLY_COST_LIMIT)
-        )
         
+        # エンドユーザーには使用回数のみを返す（コスト情報は含まない）
         return UsageStatsResponse(
             daily_usage=stats["daily_usage"],
             daily_tts=stats["daily_tts"],
             daily_clone=stats["daily_clone"],
-            daily_cost=stats["daily_cost"],
-            monthly_cost=stats["monthly_cost"],
             daily_tts_limit=user_info["daily_tts_limit"],
-            daily_clone_limit=user_info["daily_clone_limit"],
+            daily_clone_limit=user_info["daily_clone_limit"]
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"内部サーバーエラー: {str(e)}")
+
+
+# ============================================================================
+# 管理者向けAPIエンドポイント
+# ============================================================================
+
+class AdminStatsResponse(BaseModel):
+    """管理者向けの全体統計"""
+    total_users: int
+    active_users_today: int
+    daily_tts_count: int
+    daily_clone_count: int
+    daily_total_cost: float
+    monthly_total_cost: float
+    monthly_cost_limit: float
+
+
+class AdminUserCostResponse(BaseModel):
+    """管理者向けのユーザー別コスト情報"""
+    user_id: str
+    email: Optional[str]
+    daily_tts: int
+    daily_clone: int
+    daily_cost: float
+    monthly_cost: float
+    daily_tts_limit: int
+    daily_clone_limit: int
+
+
+class AdminUserListResponse(BaseModel):
+    """管理者向けのユーザー一覧"""
+    users: List[AdminUserCostResponse]
+    total_users: int
+
+
+def verify_admin_user(user: dict = Depends(get_current_user)) -> dict:
+    """管理者かどうかを確認し、管理者でない場合はエラーを返す"""
+    if not is_admin_user(user):
+        raise HTTPException(
+            status_code=403,
+            detail="このエンドポイントにアクセスするには管理者権限が必要です"
+        )
+    return user
+
+
+@app.get("/api/admin/stats", response_model=AdminStatsResponse)
+async def get_admin_stats(admin_user: dict = Depends(verify_admin_user)):
+    """
+    管理者向けの全体統計を取得
+    
+    コスト情報を含む詳細な統計情報を返します。
+    """
+    try:
+        # 全体統計を取得
+        all_stats = get_usage_stats(user_id=None)
+        
+        # ユーザー数を取得
+        all_users = get_all_users()
+        total_users = len(all_users)
+        
+        # 今日アクティブなユーザー数（今日使用したユーザー数）
+        today = date.today()
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT COUNT(DISTINCT user_id) as active_users
+            FROM usage_history
+            WHERE DATE(created_at) = ?
+        """, (today.isoformat(),))
+        result = cursor.fetchone()
+        active_users_today = result["active_users"] if result else 0
+        conn.close()
+        
+        # 月次コストを取得
+        monthly_cost = get_monthly_cost()
+        monthly_cost_limit = float(
+            os.environ.get("MONTHLY_COST_LIMIT", DEFAULT_MONTHLY_COST_LIMIT)
+        )
+        
+        return AdminStatsResponse(
+            total_users=total_users,
+            active_users_today=active_users_today,
+            daily_tts_count=all_stats["daily_tts"],
+            daily_clone_count=all_stats["daily_clone"],
+            daily_total_cost=all_stats["daily_cost"],
+            monthly_total_cost=monthly_cost,
             monthly_cost_limit=monthly_cost_limit
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"内部サーバーエラー: {str(e)}")
+
+
+@app.get("/api/admin/users", response_model=AdminUserListResponse)
+async def get_admin_users(admin_user: dict = Depends(verify_admin_user)):
+    """
+    管理者向けのユーザー一覧とコスト情報を取得
+    
+    全ユーザーの使用状況とコスト情報を返します。
+    """
+    try:
+        all_users = get_all_users()
+        user_costs = []
+        
+        for user in all_users:
+            user_id = user["user_id"]
+            stats = get_usage_stats(user_id)
+            
+            # ユーザー別の月次コストを取得
+            monthly_cost = get_user_monthly_cost(user_id)
+            
+            user_costs.append(AdminUserCostResponse(
+                user_id=user_id,
+                email=user.get("email"),
+                daily_tts=stats["daily_tts"],
+                daily_clone=stats["daily_clone"],
+                daily_cost=stats["daily_cost"],
+                monthly_cost=monthly_cost,
+                daily_tts_limit=user["daily_tts_limit"],
+                daily_clone_limit=user["daily_clone_limit"]
+            ))
+        
+        return AdminUserListResponse(
+            users=user_costs,
+            total_users=len(user_costs)
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"内部サーバーエラー: {str(e)}")
+
+
+@app.get("/api/admin/users/{user_id}/costs", response_model=AdminUserCostResponse)
+async def get_admin_user_costs(
+    user_id: str,
+    admin_user: dict = Depends(verify_admin_user)
+):
+    """
+    管理者向けの特定ユーザーのコスト情報を取得
+    
+    指定されたユーザーの詳細な使用状況とコスト情報を返します。
+    """
+    try:
+        user_info = get_user_by_id(user_id)
+        if not user_info:
+            raise HTTPException(status_code=404, detail="ユーザーが見つかりません")
+        
+        stats = get_usage_stats(user_id)
+        
+        # ユーザー別の月次コストを取得
+        monthly_cost = get_user_monthly_cost(user_id)
+        
+        return AdminUserCostResponse(
+            user_id=user_id,
+            email=user_info.get("email"),
+            daily_tts=stats["daily_tts"],
+            daily_clone=stats["daily_clone"],
+            daily_cost=stats["daily_cost"],
+            monthly_cost=monthly_cost,
+            daily_tts_limit=user_info["daily_tts_limit"],
+            daily_clone_limit=user_info["daily_clone_limit"]
         )
     except HTTPException:
         raise
