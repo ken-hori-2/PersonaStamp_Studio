@@ -54,6 +54,20 @@ separated/
 # 音源分離モデル
 pretrained_models/
 
+# 動画ファイル
+*.MOV
+*.mov
+*.mp4
+*.avi
+*.mkv
+
+# 動画からボーカル削除ツールの一時ファイル
+app_audio_tools/video_vocal_removal/separated_temp/
+app_audio_tools/video_vocal_removal/*_temp_audio.wav
+app_audio_tools/video_vocal_removal/*_no_vocals.MOV
+app_audio_tools/video_vocal_removal/*.MOV
+app_audio_tools/video_vocal_removal/*.mov
+
 # ダウンロードファイル
 downloads/
 temp_audio.*
