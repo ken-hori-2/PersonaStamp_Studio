@@ -18,8 +18,8 @@ from pathlib import Path
 from uuid import uuid4
 from datetime import datetime, date
 
-# データベースモジュールをインポート
-from database import (
+# データベースモジュールをインポート（相対インポート）
+from .database import (
     init_database,
     create_user,
     get_user_by_id,
@@ -44,11 +44,11 @@ from database import (
     DEFAULT_MONTHLY_COST_LIMIT
 )
 
-# 認証モジュールをインポート
-from auth import verify_firebase_token, get_current_user
+# 認証モジュールをインポート（相対インポート）
+from .auth import verify_firebase_token, get_current_user
 
-# Fish Audio APIクライアントをインポート
-from fish_audio_client import call_fish_audio_tts, call_fish_audio_clone
+# Fish Audio APIクライアントをインポート（相対インポート）
+from .fish_audio_client import call_fish_audio_tts, call_fish_audio_clone
 
 # .envファイルがあれば読み込む
 try:
@@ -121,8 +121,8 @@ class TTSHistoryResponse(BaseModel):
 # データベース初期化
 init_database()
 
-# 生成音声の保存先
-AUDIO_STORAGE_DIR = Path(__file__).parent / "generated_audio"
+# 生成音声の保存先（storageディレクトリに配置）
+AUDIO_STORAGE_DIR = Path(__file__).parent.parent / "storage" / "generated_audio"
 AUDIO_STORAGE_DIR.mkdir(parents=True, exist_ok=True)
 MAX_TTS_HISTORY_ITEMS = int(os.environ.get("TTS_HISTORY_LIMIT", "10"))
 

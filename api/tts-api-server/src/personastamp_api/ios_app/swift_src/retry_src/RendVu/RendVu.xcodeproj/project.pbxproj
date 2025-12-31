@@ -1,0 +1,541 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		96A702E29FC855E7B9BD4AD1 /* Pods_RendVu.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53DEBBA4A7FC9FD4C4F5F8B3 /* Pods_RendVu.framework */; };
+		BE8E73F42EED8661006569C6 /* EmotionTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8E73F32EED8661006569C6 /* EmotionTag.swift */; };
+		BE8E73F62EED8672006569C6 /* EmotionPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE8E73F52EED8672006569C6 /* EmotionPickerView.swift */; };
+		BE9BE27E2ED448E400C46725 /* TTSHistoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9BE27D2ED448E300C46725 /* TTSHistoryItem.swift */; };
+		BEB6E7212ED35B7F00A1933B /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E71E2ED35B7F00A1933B /* APIClient.swift */; };
+		BEB6E7222ED35B7F00A1933B /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E71F2ED35B7F00A1933B /* AuthManager.swift */; };
+		BEB6E7282ED35BA700A1933B /* TTSViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E7252ED35BA700A1933B /* TTSViewModel.swift */; };
+		BEB6E7292ED35BA700A1933B /* ModelsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E7232ED35BA700A1933B /* ModelsViewModel.swift */; };
+		BEB6E72A2ED35BA700A1933B /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E7242ED35BA700A1933B /* ProfileViewModel.swift */; };
+		BEB6E72B2ED35BA700A1933B /* VoiceCloneViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E7262ED35BA700A1933B /* VoiceCloneViewModel.swift */; };
+		BEB6E7342ED35BC300A1933B /* VoiceCloneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E7322ED35BC300A1933B /* VoiceCloneView.swift */; };
+		BEB6E7352ED35BC300A1933B /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E72E2ED35BC300A1933B /* MainTabView.swift */; };
+		BEB6E7362ED35BC300A1933B /* ModelsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E72F2ED35BC300A1933B /* ModelsView.swift */; };
+		BEB6E7372ED35BC300A1933B /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E72D2ED35BC300A1933B /* LoginView.swift */; };
+		BEB6E7382ED35BC300A1933B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E72C2ED35BC300A1933B /* ContentView.swift */; };
+		BEB6E7392ED35BC300A1933B /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E7302ED35BC300A1933B /* ProfileView.swift */; };
+		BEB6E73A2ED35BC300A1933B /* TTSView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E7312ED35BC300A1933B /* TTSView.swift */; };
+		BEB6E73D2ED35BD700A1933B /* VoiceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E73B2ED35BD700A1933B /* VoiceModel.swift */; };
+		BEB6E73E2ED35BC300A1933B /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E73F2ED35BC300A1933B /* SplashView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		28CBCD3B8A39F6F63BCCEAEF /* Pods-RendVu.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RendVu.release.xcconfig"; path = "Target Support Files/Pods-RendVu/Pods-RendVu.release.xcconfig"; sourceTree = "<group>"; };
+		53DEBBA4A7FC9FD4C4F5F8B3 /* Pods_RendVu.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RendVu.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A34DF61A69AD9F54865321F7 /* Pods-RendVu.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RendVu.debug.xcconfig"; path = "Target Support Files/Pods-RendVu/Pods-RendVu.debug.xcconfig"; sourceTree = "<group>"; };
+		BE8E73F32EED8661006569C6 /* EmotionTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionTag.swift; sourceTree = "<group>"; };
+		BE8E73F52EED8672006569C6 /* EmotionPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionPickerView.swift; sourceTree = "<group>"; };
+		BE9BE27D2ED448E300C46725 /* TTSHistoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSHistoryItem.swift; sourceTree = "<group>"; };
+		BEB6E7082ED3584D00A1933B /* RendVu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RendVu.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BEB6E71E2ED35B7F00A1933B /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		BEB6E71F2ED35B7F00A1933B /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
+		BEB6E7232ED35BA700A1933B /* ModelsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelsViewModel.swift; sourceTree = "<group>"; };
+		BEB6E7242ED35BA700A1933B /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
+		BEB6E7252ED35BA700A1933B /* TTSViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSViewModel.swift; sourceTree = "<group>"; };
+		BEB6E7262ED35BA700A1933B /* VoiceCloneViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceCloneViewModel.swift; sourceTree = "<group>"; };
+		BEB6E72C2ED35BC300A1933B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		BEB6E72D2ED35BC300A1933B /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		BEB6E72E2ED35BC300A1933B /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		BEB6E72F2ED35BC300A1933B /* ModelsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelsView.swift; sourceTree = "<group>"; };
+		BEB6E7302ED35BC300A1933B /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		BEB6E7312ED35BC300A1933B /* TTSView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSView.swift; sourceTree = "<group>"; };
+		BEB6E7322ED35BC300A1933B /* VoiceCloneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceCloneView.swift; sourceTree = "<group>"; };
+		BEB6E73B2ED35BD700A1933B /* VoiceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceModel.swift; sourceTree = "<group>"; };
+		BEB6E73F2ED35BC300A1933B /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		BECB78B92ED4364C00A0C355 /* Exceptions for "RendVu" folder in "RendVu" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = BEB6E7072ED3584D00A1933B /* RendVu */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		BEB6E70A2ED3584D00A1933B /* RendVu */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				BECB78B92ED4364C00A0C355 /* Exceptions for "RendVu" folder in "RendVu" target */,
+			);
+			path = RendVu;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BEB6E7052ED3584D00A1933B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				96A702E29FC855E7B9BD4AD1 /* Pods_RendVu.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0C8C633AD81E02B2242EA61B /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				A34DF61A69AD9F54865321F7 /* Pods-RendVu.debug.xcconfig */,
+				28CBCD3B8A39F6F63BCCEAEF /* Pods-RendVu.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		96A6640DB794CFF0AD911DBC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				53DEBBA4A7FC9FD4C4F5F8B3 /* Pods_RendVu.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		BEB6E6FF2ED3584D00A1933B = {
+			isa = PBXGroup;
+			children = (
+				BEB6E73C2ED35BD700A1933B /* Models */,
+				BEB6E7332ED35BC300A1933B /* Views */,
+				BEB6E7272ED35BA700A1933B /* ViewModels */,
+				BEB6E7202ED35B7F00A1933B /* Services */,
+				BEB6E70A2ED3584D00A1933B /* RendVu */,
+				BEB6E7092ED3584D00A1933B /* Products */,
+				0C8C633AD81E02B2242EA61B /* Pods */,
+				96A6640DB794CFF0AD911DBC /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		BEB6E7092ED3584D00A1933B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BEB6E7082ED3584D00A1933B /* RendVu.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BEB6E7202ED35B7F00A1933B /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				BEB6E71E2ED35B7F00A1933B /* APIClient.swift */,
+				BEB6E71F2ED35B7F00A1933B /* AuthManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		BEB6E7272ED35BA700A1933B /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				BEB6E7232ED35BA700A1933B /* ModelsViewModel.swift */,
+				BEB6E7242ED35BA700A1933B /* ProfileViewModel.swift */,
+				BEB6E7252ED35BA700A1933B /* TTSViewModel.swift */,
+				BEB6E7262ED35BA700A1933B /* VoiceCloneViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		BEB6E7332ED35BC300A1933B /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				BE8E73F52EED8672006569C6 /* EmotionPickerView.swift */,
+				BEB6E72C2ED35BC300A1933B /* ContentView.swift */,
+				BEB6E72D2ED35BC300A1933B /* LoginView.swift */,
+				BEB6E72E2ED35BC300A1933B /* MainTabView.swift */,
+				BEB6E72F2ED35BC300A1933B /* ModelsView.swift */,
+				BEB6E7302ED35BC300A1933B /* ProfileView.swift */,
+				BEB6E73F2ED35BC300A1933B /* SplashView.swift */,
+				BEB6E7312ED35BC300A1933B /* TTSView.swift */,
+				BEB6E7322ED35BC300A1933B /* VoiceCloneView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		BEB6E73C2ED35BD700A1933B /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				BE8E73F32EED8661006569C6 /* EmotionTag.swift */,
+				BEB6E73B2ED35BD700A1933B /* VoiceModel.swift */,
+				BE9BE27D2ED448E300C46725 /* TTSHistoryItem.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BEB6E7072ED3584D00A1933B /* RendVu */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BEB6E7132ED3584F00A1933B /* Build configuration list for PBXNativeTarget "RendVu" */;
+			buildPhases = (
+				28A68CD560FB6661E43BF0E5 /* [CP] Check Pods Manifest.lock */,
+				BEB6E7042ED3584D00A1933B /* Sources */,
+				BEB6E7052ED3584D00A1933B /* Frameworks */,
+				BEB6E7062ED3584D00A1933B /* Resources */,
+				D72DE1F17345E1DBB19F3EF0 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				BEB6E70A2ED3584D00A1933B /* RendVu */,
+			);
+			name = RendVu;
+			productName = RendVu;
+			productReference = BEB6E7082ED3584D00A1933B /* RendVu.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BEB6E7002ED3584D00A1933B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2610;
+				LastUpgradeCheck = 2610;
+				TargetAttributes = {
+					BEB6E7072ED3584D00A1933B = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
+				};
+			};
+			buildConfigurationList = BEB6E7032ED3584D00A1933B /* Build configuration list for PBXProject "RendVu" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = BEB6E6FF2ED3584D00A1933B;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = BEB6E7092ED3584D00A1933B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BEB6E7072ED3584D00A1933B /* RendVu */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BEB6E7062ED3584D00A1933B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		28A68CD560FB6661E43BF0E5 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-RendVu-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D72DE1F17345E1DBB19F3EF0 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-RendVu/Pods-RendVu-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-RendVu/Pods-RendVu-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-RendVu/Pods-RendVu-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BEB6E7042ED3584D00A1933B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BEB6E7212ED35B7F00A1933B /* APIClient.swift in Sources */,
+				BEB6E7222ED35B7F00A1933B /* AuthManager.swift in Sources */,
+				BEB6E73D2ED35BD700A1933B /* VoiceModel.swift in Sources */,
+				BEB6E7282ED35BA700A1933B /* TTSViewModel.swift in Sources */,
+				BEB6E7292ED35BA700A1933B /* ModelsViewModel.swift in Sources */,
+				BEB6E72A2ED35BA700A1933B /* ProfileViewModel.swift in Sources */,
+				BEB6E7342ED35BC300A1933B /* VoiceCloneView.swift in Sources */,
+				BEB6E7352ED35BC300A1933B /* MainTabView.swift in Sources */,
+				BE8E73F42EED8661006569C6 /* EmotionTag.swift in Sources */,
+				BE8E73F62EED8672006569C6 /* EmotionPickerView.swift in Sources */,
+				BEB6E7362ED35BC300A1933B /* ModelsView.swift in Sources */,
+				BEB6E7372ED35BC300A1933B /* LoginView.swift in Sources */,
+				BEB6E7382ED35BC300A1933B /* ContentView.swift in Sources */,
+				BE9BE27E2ED448E400C46725 /* TTSHistoryItem.swift in Sources */,
+				BEB6E7392ED35BC300A1933B /* ProfileView.swift in Sources */,
+				BEB6E73E2ED35BC300A1933B /* SplashView.swift in Sources */,
+				BEB6E73A2ED35BC300A1933B /* TTSView.swift in Sources */,
+				BEB6E72B2ED35BA700A1933B /* VoiceCloneViewModel.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		BEB6E7112ED3584F00A1933B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = TLTA2VB55F;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		BEB6E7122ED3584F00A1933B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = TLTA2VB55F;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		BEB6E7142ED3584F00A1933B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A34DF61A69AD9F54865321F7 /* Pods-RendVu.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = RendVu/RendVu.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TLTA2VB55F;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RendVu/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_NSAllowsLocalNetworking = YES;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "バックエンドAPIサーバーに接続するためにローカルネットワークへのアクセスが必要です";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "音声を録音してVoice Cloningに使用します";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ken.PersonaStampStudio;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BEB6E7152ED3584F00A1933B /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 28CBCD3B8A39F6F63BCCEAEF /* Pods-RendVu.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = RendVu/RendVu.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TLTA2VB55F;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RendVu/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_NSAllowsLocalNetworking = YES;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "バックエンドAPIサーバーに接続するためにローカルネットワークへのアクセスが必要です";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "音声を録音してVoice Cloningに使用します";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ken.PersonaStampStudio;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BEB6E7032ED3584D00A1933B /* Build configuration list for PBXProject "RendVu" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BEB6E7112ED3584F00A1933B /* Debug */,
+				BEB6E7122ED3584F00A1933B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BEB6E7132ED3584F00A1933B /* Build configuration list for PBXNativeTarget "RendVu" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BEB6E7142ED3584F00A1933B /* Debug */,
+				BEB6E7152ED3584F00A1933B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BEB6E7002ED3584D00A1933B /* Project object */;
+}

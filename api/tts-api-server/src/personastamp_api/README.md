@@ -58,7 +58,7 @@ PORT=8000
 ### 3. サーバーの起動
 
 ```bash
-python api_server.py
+python main.py
 ```
 
 サーバーは `http://localhost:8000` で起動します。
@@ -166,7 +166,7 @@ Firebase Authenticationを使用します。
 
 1. GitHubリポジトリを接続
 2. 環境変数を設定
-3. Start Command: `cd src/personastamp_api && python api_server.py`
+3. Start Command: `cd src/personastamp_api && python main.py`
 
 詳細は `../../specs/07_DEPLOYMENT_GUIDE.md` を参照してください。
 
