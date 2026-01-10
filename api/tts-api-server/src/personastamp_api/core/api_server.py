@@ -17,6 +17,8 @@ import base64
 from pathlib import Path
 from uuid import uuid4
 from datetime import datetime, date
+import tempfile
+import shutil
 
 # データベースモジュールをインポート（相対インポート）
 from .database import (
@@ -49,6 +51,9 @@ from .auth import verify_firebase_token, get_current_user
 
 # Fish Audio APIクライアントをインポート（相対インポート）
 from .fish_audio_client import call_fish_audio_tts, call_fish_audio_clone
+
+# 音声処理モジュールをインポート（相対インポート）
+from .audio_processing import separate_vocals, remove_silence, process_audio_file
 
 # .envファイルがあれば読み込む
 try:
@@ -645,6 +650,114 @@ async def get_admin_user_costs(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"内部サーバーエラー: {str(e)}")
+
+
+# 音声処理関連のPydanticモデル
+class AudioProcessRequest(BaseModel):
+    """音声処理リクエスト（base64形式）"""
+    audio_base64: str
+    separate_vocals: bool = False
+    remove_silence: bool = False
+    separation_model: str = "htdemucs"
+    silence_thresh: float = -40.0
+    min_silence_len: int = 500
+    keep_silence: int = 200
+
+
+class AudioProcessResponse(BaseModel):
+    """音声処理レスポンス"""
+    output_audio_base64: str
+    vocals_audio_base64: Optional[str] = None
+    message: str
+
+
+@app.post("/api/v2/audio/process", response_model=AudioProcessResponse)
+async def process_audio(
+    request: AudioProcessRequest,
+    user: dict = Depends(get_current_user)
+):
+    """
+    音声ファイルを処理（音源分離、無音区間削除）
+    
+    iOSアプリからbase64エンコードされた音声データを受け取り、処理して返します。
+    
+    - 音源分離: 音楽ファイルからボーカルを抽出
+    - 無音区間削除: 音声から無音区間を削除
+    
+    仕様書: specs/03_API_SPECIFICATION.md
+    """
+    try:
+        user_id = user["user_id"]
+        
+        # base64デコード
+        try:
+            audio_bytes = base64.b64decode(request.audio_base64)
+        except Exception as e:
+            raise HTTPException(
+                status_code=400,
+                detail=f"音声データのデコードに失敗しました: {str(e)}"
+            )
+        
+        # 一時ファイルに保存
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_input:
+            tmp_input.write(audio_bytes)
+            tmp_input_path = tmp_input.name
+        
+        try:
+            # 出力ディレクトリ
+            output_dir = tempfile.mkdtemp(prefix=f"audio_processing_{user_id}_")
+            
+            # 音声処理を実行
+            result = process_audio_file(
+                input_path=tmp_input_path,
+                output_dir=output_dir,
+                separate_vocals_enabled=request.separate_vocals,
+                remove_silence_enabled=request.remove_silence,
+                separation_model=request.separation_model,
+                silence_thresh=request.silence_thresh,
+                min_silence_len=request.min_silence_len,
+                keep_silence=request.keep_silence
+            )
+            
+            # 出力ファイルを読み込む
+            with open(result['output'], 'rb') as f:
+                output_audio_bytes = f.read()
+            
+            output_audio_base64 = base64.b64encode(output_audio_bytes).decode('utf-8')
+            
+            # ボーカルファイルがある場合は読み込む
+            vocals_audio_base64 = None
+            if 'vocals' in result and os.path.exists(result['vocals']):
+                with open(result['vocals'], 'rb') as f:
+                    vocals_audio_bytes = f.read()
+                vocals_audio_base64 = base64.b64encode(vocals_audio_bytes).decode('utf-8')
+            
+            # クリーンアップ
+            shutil.rmtree(output_dir, ignore_errors=True)
+            
+            message = "音声処理が完了しました"
+            if request.separate_vocals:
+                message += "（音源分離済み）"
+            if request.remove_silence:
+                message += "（無音区間削除済み）"
+            
+            return AudioProcessResponse(
+                output_audio_base64=output_audio_base64,
+                vocals_audio_base64=vocals_audio_base64,
+                message=message
+            )
+            
+        finally:
+            # 一時ファイルを削除
+            if os.path.exists(tmp_input_path):
+                os.remove(tmp_input_path)
+                
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"内部サーバーエラー: {str(e)}")
+
+
 
 
 if __name__ == "__main__":
