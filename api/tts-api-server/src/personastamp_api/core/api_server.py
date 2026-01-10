@@ -52,8 +52,19 @@ from .auth import verify_firebase_token, get_current_user
 # Fish Audio APIクライアントをインポート（相対インポート）
 from .fish_audio_client import call_fish_audio_tts, call_fish_audio_clone
 
-# 音声処理モジュールをインポート（相対インポート）
-from .audio_processing import separate_vocals, remove_silence, process_audio_file
+# 音声処理モジュールをインポート（相対インポート、オプショナル）
+try:
+    from .audio_processing import separate_vocals, remove_silence, process_audio_file
+    AUDIO_PROCESSING_AVAILABLE = True
+except ImportError as e:
+    AUDIO_PROCESSING_AVAILABLE = False
+    # デフォルトのダミー関数を定義（エラー時に使用）
+    def separate_vocals(*args, **kwargs):
+        raise HTTPException(status_code=503, detail="音源分離機能は利用できません。demucsがインストールされていません。")
+    def remove_silence(*args, **kwargs):
+        raise HTTPException(status_code=503, detail="無音区間削除機能は利用できません。pydubがインストールされていません。")
+    def process_audio_file(*args, **kwargs):
+        raise HTTPException(status_code=503, detail="音声処理機能は利用できません。必要なライブラリがインストールされていません。")
 
 # .envファイルがあれば読み込む
 try:
@@ -686,6 +697,12 @@ async def process_audio(
     
     仕様書: specs/03_API_SPECIFICATION.md
     """
+    if not AUDIO_PROCESSING_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="音声処理機能は現在利用できません。必要なライブラリ（demucs, pydub）がインストールされていません。"
+        )
+    
     try:
         user_id = user["user_id"]
         
