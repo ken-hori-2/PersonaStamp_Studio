@@ -669,7 +669,7 @@ class AudioProcessRequest(BaseModel):
     audio_base64: str
     separate_vocals: bool = False
     remove_silence: bool = False
-    separation_model: str = "htdemucs"
+    separation_model: str = "spleeter:2stems"  # Spleeterの軽量モデル（Render無料プラン対応）
     silence_thresh: float = -40.0
     min_silence_len: int = 500
     keep_silence: int = 200
