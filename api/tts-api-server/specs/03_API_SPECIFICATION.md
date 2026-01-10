@@ -6,6 +6,7 @@
 |---------|--------------|------|------|
 | POST | `/api/v2/clone` | Voice Cloningを実行 | 必須 |
 | POST | `/api/v2/tts/generate` | TTS音声を生成 | 必須 |
+| POST | `/api/v2/audio/process` | 音声処理（音源分離、無音区間削除） | 必須 |
 | GET | `/api/v2/models` | 声モデル一覧を取得 | 必須 |
 | DELETE | `/api/v2/models/{model_id}` | 声モデルを削除 | 必須 |
 | GET | `/api/v2/users/me/stats` | 利用統計を取得 | 必須 |
@@ -166,7 +167,93 @@ Content-Type: application/json
 
 ---
 
-### 3. GET /api/v2/models
+### 3. POST /api/v2/audio/process
+
+音声ファイルを処理します。音源分離（ボーカル抽出）と無音区間削除を組み合わせて実行できます。
+
+iOSアプリ側でファイルを読み込んでbase64エンコードして送信します。
+
+#### リクエスト
+
+**ヘッダー**:
+```
+Authorization: Bearer <Firebase ID Token>
+Content-Type: application/json
+```
+
+**ボディ**:
+```json
+{
+  "audio_base64": "base64エンコードされた音声データ",
+  "separate_vocals": true,
+  "remove_silence": true,
+  "separation_model": "htdemucs",
+  "silence_thresh": -40.0,
+  "min_silence_len": 500,
+  "keep_silence": 200
+}
+```
+
+**パラメータ**:
+- `audio_base64` (string, required): base64エンコードされた音声データ（WAV, MP3, M4A, FLAC, OGG形式）
+- `separate_vocals` (boolean, optional): 音源分離を有効にする（デフォルト: false）
+- `remove_silence` (boolean, optional): 無音区間削除を有効にする（デフォルト: false）
+- `separation_model` (string, optional): 分離モデル（デフォルト: "spleeter:2stems"）
+  - `spleeter:2stems`: ボーカルと伴奏の2-stem分離（軽量・推奨・Render無料プラン対応・デフォルト）
+  - `spleeter:4stems`: ボーカル、ドラム、ベース、その他の4-stem分離
+  - `spleeter:5stems`: ボーカル、ドラム、ベース、ピアノ、その他の5-stem分離
+  - 注意: Demucsモデル（`htdemucs`など）はRender無料プランでは重すぎるため使用不可（コメントアウト済み）
+- `silence_thresh` (float, optional): 無音とみなす音量閾値（dB、デフォルト: -40.0）
+- `min_silence_len` (int, optional): 無音とみなす最小長さ（ミリ秒、デフォルト: 500）
+- `keep_silence` (int, optional): 無音区間の前後に残す長さ（ミリ秒、デフォルト: 200）
+
+#### レスポンス
+
+**成功時 (200 OK)**:
+```json
+{
+  "output_audio_base64": "処理後の音声データ（base64）",
+  "vocals_audio_base64": "ボーカル音声データ（base64、音源分離した場合のみ）",
+  "message": "音声処理が完了しました（音源分離済み）（無音区間削除済み）"
+}
+```
+
+**パラメータ説明**:
+- `output_audio_base64`: 処理後の音声データ（base64エンコード）
+- `vocals_audio_base64`: ボーカル音声データ（base64エンコード、`separate_vocals`が`true`の場合のみ）
+- `message`: 処理結果のメッセージ
+
+**エラー時**:
+
+- **400 Bad Request**: バリデーションエラー
+```json
+{
+  "detail": "音声データのデコードに失敗しました"
+}
+```
+
+- **401 Unauthorized**: 認証エラー
+```json
+{
+  "detail": "無効なトークンです"
+}
+```
+
+- **500 Internal Server Error**: サーバーエラー
+```json
+{
+  "detail": "音源分離に失敗しました"
+}
+```
+
+**使用例**:
+- 音楽ファイルからボーカルを抽出: `separate_vocals: true, remove_silence: false`
+- 録音音声から無音区間を削除: `separate_vocals: false, remove_silence: true`
+- 両方を実行: `separate_vocals: true, remove_silence: true`
+
+---
+
+### 4. GET /api/v2/models
 
 ユーザーが所有する声モデルの一覧を取得します。
 
@@ -206,7 +293,7 @@ Authorization: Bearer <Firebase ID Token>
 
 ---
 
-### 4. DELETE /api/v2/models/{model_id}
+### 5. DELETE /api/v2/models/{model_id}
 
 指定した声モデルを削除します。
 
@@ -248,7 +335,7 @@ Authorization: Bearer <Firebase ID Token>
 
 ---
 
-### 5. GET /api/v2/users/me/stats
+### 6. GET /api/v2/users/me/stats
 
 ユーザーの利用統計を取得します。
 
@@ -287,7 +374,7 @@ Authorization: Bearer <Firebase ID Token>
 
 ---
 
-### 6. GET /health
+### 7. GET /health
 
 サーバーのヘルスチェックを行います。
 
@@ -419,6 +506,25 @@ curl -X GET "https://your-api.com/api/v2/models" \
   -H "Authorization: Bearer <Firebase ID Token>"
 ```
 
+#### 音声処理（無音区間削除のみ）
+
+```bash
+curl -X POST "https://your-api.com/api/v2/audio/process" \
+  -H "Authorization: Bearer <Firebase ID Token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "audio_base64": "base64_encoded_audio_data",
+    "separate_vocals": false,
+    "remove_silence": true
+  }'
+```
+
+**注意**: 
+- 音源分離機能（`separate_vocals: true`）は現在利用できませんが、コードはコメントアウトで残されています
+- **Spleeter**: 依存関係の競合により現在は使用不可（将来的に使用可能）
+- **Demucs**: Render無料プランでは重すぎるため現在は使用不可（将来的に使用可能）
+- 詳細は `docs/AUDIO_PROCESSING_API.md` を参照してください
+
 ---
 
 ## 🔗 関連ドキュメント
@@ -426,4 +532,5 @@ curl -X GET "https://your-api.com/api/v2/models" \
 - [システム概要](./01_SYSTEM_OVERVIEW.md)
 - [アーキテクチャ設計](./02_ARCHITECTURE.md)
 - [データベース設計](./04_DATABASE_DESIGN.md)
+- [音声処理API詳細](../src/personastamp_api/docs/AUDIO_PROCESSING_API.md)
 

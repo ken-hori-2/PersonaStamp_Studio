@@ -22,6 +22,16 @@ python main.py
 uvicorn main:app --host 0.0.0.0 --port $PORT
 ```
 
+## Pythonバージョンの指定
+
+RenderでPython 3.10を使用するには、プロジェクトルートに`runtime.txt`ファイルを作成します：
+
+```
+python-3.10.13
+```
+
+**注意**: Spleeterを使用する場合はPython 3.10が必要です。Fish Audio SDKはPython 3.9以上をサポートしているため、Python 3.10でも動作します。
+
 ## Render ダッシュボードでの設定
 
 1. **Render ダッシュボードにログイン**
@@ -30,6 +40,7 @@ uvicorn main:app --host 0.0.0.0 --port $PORT
 4. **Build & Deploy セクションで以下を設定**:
    - **Start Command**: `python main.py`
    - または: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+   - **Python Version**: `runtime.txt`で指定したバージョンが自動的に使用されます
 
 ## 新しいプロジェクト構造
 

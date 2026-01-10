@@ -53,27 +53,23 @@ from .auth import verify_firebase_token, get_current_user
 from .fish_audio_client import call_fish_audio_tts, call_fish_audio_clone
 
 # 音声処理モジュールをインポート（相対インポート、オプショナル）
+# 注意: separate_vocalsはコメントアウト済み（依存関係の競合により利用不可）
 try:
-    from .audio_processing import separate_vocals, remove_silence, process_audio_file
+    from .audio_processing import remove_silence, process_audio_file
     AUDIO_PROCESSING_AVAILABLE = True
 except ImportError as e:
     AUDIO_PROCESSING_AVAILABLE = False
     import_error_message = str(e)
     # デフォルトのダミー関数を定義（エラー時に使用）
-    def separate_vocals(*args, **kwargs):
-        raise HTTPException(
-            status_code=503, 
-            detail=f"音源分離機能は利用できません。spleeterがインストールされていません。エラー: {import_error_message}"
-        )
     def remove_silence(*args, **kwargs):
         raise HTTPException(
-            status_code=503, 
+            status_code=503,
             detail=f"無音区間削除機能は利用できません。pydubがインストールされていません。エラー: {import_error_message}"
         )
     def process_audio_file(*args, **kwargs):
         raise HTTPException(
-            status_code=503, 
-            detail=f"音声処理機能は利用できません。必要なライブラリ（spleeter, pydub）がインストールされていません。エラー: {import_error_message}"
+            status_code=503,
+            detail=f"音声処理機能は利用できません。必要なライブラリ（pydub）がインストールされていません。エラー: {import_error_message}"
         )
 
 # .envファイルがあれば読み込む
@@ -233,12 +229,9 @@ async def health_check():
     status = {"status": "ok"}
     
     # 音声処理ライブラリの可用性をチェック
-    try:
-        import spleeter
-        status["spleeter_available"] = True
-    except ImportError:
-        status["spleeter_available"] = False
-        status["spleeter_error"] = "spleeterがインストールされていません"
+    # 音源分離機能（spleeter）は依存関係の競合によりコメントアウトされています
+    status["spleeter_available"] = False
+    status["spleeter_note"] = "音源分離機能は依存関係の競合により利用できません（コメントアウト済み）"
     
     try:
         import pydub
@@ -694,9 +687,9 @@ async def get_admin_user_costs(
 class AudioProcessRequest(BaseModel):
     """音声処理リクエスト（base64形式）"""
     audio_base64: str
-    separate_vocals: bool = False
+    separate_vocals: bool = False  # 現在は使用不可（依存関係の競合によりコメントアウト）
     remove_silence: bool = False
-    separation_model: str = "spleeter:2stems"  # Spleeterの軽量モデル（Render無料プラン対応）
+    separation_model: str = "spleeter:2stems"  # 現在は使用不可（コメントアウト済み）
     silence_thresh: float = -40.0
     min_silence_len: int = 500
     keep_silence: int = 200
@@ -715,23 +708,37 @@ async def process_audio(
     user: dict = Depends(get_current_user)
 ):
     """
-    音声ファイルを処理（音源分離、無音区間削除）
+    音声ファイルを処理（無音区間削除のみ）
     
     iOSアプリからbase64エンコードされた音声データを受け取り、処理して返します。
     
-    - 音源分離: 音楽ファイルからボーカルを抽出
-    - 無音区間削除: 音声から無音区間を削除
+    注意: 音源分離機能は依存関係の競合によりコメントアウトされています。
+    - 無音区間削除: 音声から無音区間を削除（利用可能）
+    - 音源分離: 音楽ファイルからボーカルを抽出（現在は利用不可）
     
     仕様書: specs/03_API_SPECIFICATION.md
     """
     if not AUDIO_PROCESSING_AVAILABLE:
         raise HTTPException(
             status_code=503,
-            detail="音声処理機能は現在利用できません。必要なライブラリ（spleeter, pydub）がインストールされていません。"
+            detail="音声処理機能は現在利用できません。必要なライブラリ（pydub）がインストールされていません。"
         )
     
     try:
         user_id = user["user_id"]
+        
+        # 音源分離が要求されている場合はエラーを返す
+        if request.separate_vocals:
+            raise HTTPException(
+                status_code=503,
+                detail="音源分離機能は現在利用できません。"
+                " 理由: Spleeter 2.1.0はhttpx<0.17.0を要求しますが、firebase-adminとfish-audio-sdkは"
+                " httpx>=0.27.2を要求するため、依存関係の競合が発生します。"
+                " 解決策:"
+                " ・無音区間削除のみを利用する（推奨）"
+                " ・音源分離をiOSアプリ側で実装する"
+                " ・別の音源分離サービスを使用する"
+            )
         
         # base64デコード
         try:
@@ -751,11 +758,11 @@ async def process_audio(
             # 出力ディレクトリ
             output_dir = tempfile.mkdtemp(prefix=f"audio_processing_{user_id}_")
             
-            # 音声処理を実行
+            # 音声処理を実行（無音区間削除のみ）
             result = process_audio_file(
                 input_path=tmp_input_path,
                 output_dir=output_dir,
-                separate_vocals_enabled=request.separate_vocals,
+                separate_vocals_enabled=False,  # 常にFalse（コメントアウト済み）
                 remove_silence_enabled=request.remove_silence,
                 separation_model=request.separation_model,
                 silence_thresh=request.silence_thresh,
@@ -769,12 +776,8 @@ async def process_audio(
             
             output_audio_base64 = base64.b64encode(output_audio_bytes).decode('utf-8')
             
-            # ボーカルファイルがある場合は読み込む
+            # ボーカルファイルは常にNone（音源分離機能はコメントアウト済み）
             vocals_audio_base64 = None
-            if 'vocals' in result and os.path.exists(result['vocals']):
-                with open(result['vocals'], 'rb') as f:
-                    vocals_audio_bytes = f.read()
-                vocals_audio_base64 = base64.b64encode(vocals_audio_bytes).decode('utf-8')
             
             # クリーンアップ
             shutil.rmtree(output_dir, ignore_errors=True)
@@ -801,30 +804,14 @@ async def process_audio(
     except ImportError as e:
         # ImportErrorの場合は、より詳細なエラーメッセージを返す
         error_detail = str(e)
-        if "spleeter" in error_detail.lower() or "No module named" in error_detail:
-            raise HTTPException(
-                status_code=503,
-                detail=f"音源分離機能に必要なライブラリ（spleeter）がインストールされていません。"
-                       f" `pip install spleeter`でインストールしてください。"
-                       f" 詳細: {error_detail}"
-            )
-        else:
-            raise HTTPException(
-                status_code=503,
-                detail=f"必要なライブラリがインストールされていません: {error_detail}"
-            )
+        raise HTTPException(
+            status_code=503,
+            detail=f"必要なライブラリがインストールされていません: {error_detail}"
+        )
     except RuntimeError as e:
-        # RuntimeErrorの場合も、ImportErrorが含まれているかチェック
+        # RuntimeErrorの場合
         error_detail = str(e)
-        if "spleeter" in error_detail.lower() or "No module named" in error_detail or "ImportError" in error_detail:
-            raise HTTPException(
-                status_code=503,
-                detail=f"音源分離機能に必要なライブラリ（spleeter）がインストールされていません。"
-                       f" `pip install spleeter`でインストールしてください。"
-                       f" 詳細: {error_detail}"
-            )
-        else:
-            raise HTTPException(status_code=500, detail=f"音声処理エラー: {error_detail}")
+        raise HTTPException(status_code=500, detail=f"音声処理エラー: {error_detail}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"内部サーバーエラー: {str(e)}")
 

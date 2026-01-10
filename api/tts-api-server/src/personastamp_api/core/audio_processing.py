@@ -1,7 +1,22 @@
 """
 音声処理モジュール
-- 音源分離（ボーカル抽出）- Spleeterを使用（Render無料プラン対応）
-- 無音区間の削除
+- 無音区間の削除（常時利用可能、軽量）
+- 音源分離（ボーカル抽出）- Spleeter/Demucs（現在は利用不可、将来的に使用可能）
+
+注意: 
+音源分離機能（Spleeter/Demucs）は依存関係の競合や環境制約によりコメントアウトされていますが、
+コードは残されています。将来的に使用可能です。
+
+- **Spleeter**: 
+  - Spleeter 2.1.0はhttpx<0.17.0を要求しますが、firebase-adminとfish-audio-sdkは
+    httpx>=0.27.2を要求するため、依存関係の競合が発生し、requirements.txtに含めることができません。
+  - 依存関係の競合が解消されれば、コメントアウトを解除して使用可能です。
+
+- **Demucs**: 
+  - 高品質な音源分離が可能ですが、Render無料プラン（512MB RAM、0.1 CPU）では重すぎるため使用不可です。
+  - Render有料プランや別の環境では使用可能です。
+
+- 音源分離が必要な場合は、iOSアプリ側で実装するか、別のサービスを使用することを推奨します。
 """
 
 import subprocess
@@ -99,95 +114,107 @@ from typing import Optional, Dict
 # ============================================================================
 
 
-def separate_vocals(
-    input_path: str,
-    output_dir: Optional[str] = None,
-        model: str = 'spleeter:2stems'  # Spleeterのデフォルトモデル（軽量）
-) -> str:
-    """
-    Spleeterによる音声分離（ボーカルのみ）
-    
-    Render無料プラン（512MB RAM、0.1 CPU）でも動作する軽量な実装。
-    Demucsよりも軽量で、メモリ使用量が少ない。
-    
-    Args:
-        input_path: 入力音声ファイルパス
-        output_dir: 出力ディレクトリ（Noneの場合は自動生成）
-        model: 分離モデル（Spleeter形式）
-            - 'spleeter:2stems': ボーカルと伴奏の2-stem分離（軽量・推奨・デフォルト）
-            - 'spleeter:4stems': ボーカル、ドラム、ベース、その他の4-stem分離
-            - 'spleeter:5stems': ボーカル、ドラム、ベース、ピアノ、その他の5-stem分離
-    
-    Returns:
-        ボーカル音声ファイルのパス
-    
-    Raises:
-        ImportError: spleeterがインストールされていない場合
-        RuntimeError: 音源分離に失敗した場合
-        ValueError: 入力ファイルが存在しない場合
-    """
-    try:
-        from spleeter.separator import Separator
-        from spleeter.audio.adapter import AudioAdapter
-    except ImportError:
-        raise ImportError(
-            "spleeterがインストールされていません。`pip install spleeter`でインストールしてください。"
-        )
-    
-    input_path = str(input_path)
-    if not os.path.exists(input_path):
-        raise ValueError(f"入力ファイルが見つかりません: {input_path}")
-    
-    if output_dir is None:
-        # 一時ディレクトリを使用
-        output_dir = tempfile.mkdtemp(prefix="audio_separation_")
-    else:
-        output_dir = str(output_dir)
-        os.makedirs(output_dir, exist_ok=True)
-    
-    try:
-        # Spleeterのセパレーターを初期化
-        separator = Separator(model)
-        audio_adapter = AudioAdapter.default()
-        
-        # 音声ファイルを読み込む
-        waveform, sample_rate = audio_adapter.load(input_path)
-        
-        # 音源分離を実行
-        prediction = separator.separate(waveform)
-        
-        # ボーカル音声を取得（2-stemモデルの場合）
-        if 'vocals' in prediction:
-            vocals_waveform = prediction['vocals']
-        else:
-            # 4-stemまたは5-stemモデルの場合もvocalsキーがあるはず
-            raise RuntimeError("ボーカル音声が見つかりませんでした")
-        
-        # 出力ファイルパス
-        input_name = Path(input_path).stem
-        vocals_path = os.path.join(output_dir, f"{input_name}_vocals.wav")
-        
-        # ボーカル音声を保存
-        audio_adapter.save(vocals_path, vocals_waveform, sample_rate)
-        
-        if not os.path.exists(vocals_path):
-            raise RuntimeError(f"ボーカルファイルが生成されませんでした: {vocals_path}")
-        
-        return vocals_path
-        
-    except ImportError as e:
-        # ImportErrorの場合は、より詳細なメッセージを返す
-        raise ImportError(
-            f"spleeterがインストールされていません。`pip install spleeter`でインストールしてください。"
-            f" 詳細エラー: {str(e)}"
-        )
-    except Exception as e:
-        # その他のエラーの場合
-        error_msg = f"音源分離に失敗しました: {str(e)}"
-        # ImportErrorが含まれている場合は、より詳細なメッセージを追加
-        if "ImportError" in str(e) or "No module named" in str(e):
-            error_msg += "\n\nspleeterがインストールされていない可能性があります。`pip install spleeter`でインストールしてください。"
-        raise RuntimeError(error_msg)
+# ============================================================================
+# 音源分離機能（コメントアウト - 依存関係の競合により利用不可）
+# ============================================================================
+# Spleeter 2.1.0はhttpx<0.17.0を要求しますが、firebase-adminとfish-audio-sdkは
+# httpx>=0.27.2を要求するため、依存関係の競合が発生し、requirements.txtに含めることができません。
+# 音源分離が必要な場合は、iOSアプリ側で実装するか、別のサービスを使用することを推奨します。
+# ============================================================================
+# def separate_vocals(
+#     input_path: str,
+#     output_dir: Optional[str] = None,
+#     model: str = 'spleeter:2stems'  # Spleeterのデフォルトモデル
+# ) -> str:
+#     """
+#     Spleeterによる音声分離（ボーカルのみ）
+#     
+#     注意: SpleeterはTensorFlowに依存しており、Render無料プラン（512MB RAM、0.1 CPU）では
+#     動作しない可能性があります。有料プランへのアップグレードを推奨します。
+#     
+#     Demucsよりも軽量ですが、TensorFlowの依存関係によりメモリ使用量が大きいです。
+#     
+#     Args:
+#         input_path: 入力音声ファイルパス
+#         output_dir: 出力ディレクトリ（Noneの場合は自動生成）
+#         model: 分離モデル（Spleeter形式）
+#             - 'spleeter:2stems': ボーカルと伴奏の2-stem分離（軽量・推奨・デフォルト）
+#             - 'spleeter:4stems': ボーカル、ドラム、ベース、その他の4-stem分離
+#             - 'spleeter:5stems': ボーカル、ドラム、ベース、ピアノ、その他の5-stem分離
+#     
+#     Returns:
+#         ボーカル音声ファイルのパス
+#     
+#     Raises:
+#         ImportError: spleeterがインストールされていない場合
+#         RuntimeError: 音源分離に失敗した場合
+#         ValueError: 入力ファイルが存在しない場合
+#     """
+#     try:
+#         from spleeter.separator import Separator
+#         from spleeter.audio.adapter import AudioAdapter
+#     except ImportError as e:
+#         raise ImportError(
+#             "spleeterがインストールされていません。`pip install spleeter==2.1.0`でインストールしてください。"
+#             f" 注意: SpleeterはTensorFlowに依存しており、Render無料プラン（512MB RAM、0.1 CPU）では動作しない可能性があります。"
+#             f" 詳細エラー: {str(e)}"
+#         )
+#     
+#     input_path = str(input_path)
+#     if not os.path.exists(input_path):
+#         raise ValueError(f"入力ファイルが見つかりません: {input_path}")
+#     
+#     if output_dir is None:
+#         # 一時ディレクトリを使用
+#         output_dir = tempfile.mkdtemp(prefix="audio_separation_")
+#     else:
+#         output_dir = str(output_dir)
+#         os.makedirs(output_dir, exist_ok=True)
+#     
+#     try:
+#         # Spleeterのセパレーターを初期化
+#         separator = Separator(model)
+#         audio_adapter = AudioAdapter.default()
+#         
+#         # 音声ファイルを読み込む
+#         waveform, sample_rate = audio_adapter.load(input_path)
+#         
+#         # 音源分離を実行
+#         prediction = separator.separate(waveform)
+#         
+#         # ボーカル音声を取得（2-stemモデルの場合）
+#         if 'vocals' in prediction:
+#             vocals_waveform = prediction['vocals']
+#         else:
+#             # 4-stemまたは5-stemモデルの場合もvocalsキーがあるはず
+#             raise RuntimeError("ボーカル音声が見つかりませんでした")
+#         
+#         # 出力ファイルパス
+#         input_name = Path(input_path).stem
+#         vocals_path = os.path.join(output_dir, f"{input_name}_vocals.wav")
+#         
+#         # ボーカル音声を保存
+#         audio_adapter.save(vocals_path, vocals_waveform, sample_rate)
+#         
+#         if not os.path.exists(vocals_path):
+#             raise RuntimeError(f"ボーカルファイルが生成されませんでした: {vocals_path}")
+#         
+#         return vocals_path
+#         
+#     except ImportError as e:
+#         # ImportErrorの場合は、より詳細なメッセージを返す
+#         raise ImportError(
+#             f"spleeterがインストールされていません。`pip install spleeter`でインストールしてください。"
+#             f" 詳細エラー: {str(e)}"
+#         )
+#     except Exception as e:
+#         # その他のエラーの場合
+#         error_msg = f"音源分離に失敗しました: {str(e)}"
+#         # ImportErrorが含まれている場合は、より詳細なメッセージを追加
+#         if "ImportError" in str(e) or "No module named" in str(e):
+#             error_msg += "\n\nspleeterがインストールされていない可能性があります。`pip install spleeter`でインストールしてください。"
+#         raise RuntimeError(error_msg)
+# ============================================================================
 
 
 def remove_silence(
@@ -274,20 +301,22 @@ def process_audio_file(
     output_dir: Optional[str] = None,
     separate_vocals_enabled: bool = False,
     remove_silence_enabled: bool = False,
-    separation_model: str = 'spleeter:2stems',  # Spleeterの軽量モデル（Render無料プラン対応）
+    separation_model: str = 'spleeter:2stems',  # コメントアウト済み（使用不可）
     silence_thresh: float = -40.0,
     min_silence_len: int = 500,
     keep_silence: int = 200
 ) -> Dict[str, str]:
     """
-    音声ファイルを処理（音源分離と無音区間削除を組み合わせ）
+    音声ファイルを処理（無音区間削除のみ）
+    
+    注意: 音源分離機能は依存関係の競合によりコメントアウトされています。
     
     Args:
         input_path: 入力音声ファイルパス
         output_dir: 出力ディレクトリ
-        separate_vocals_enabled: 音源分離を有効にする
+        separate_vocals_enabled: 音源分離を有効にする（現在は使用不可）
         remove_silence_enabled: 無音区間削除を有効にする
-        separation_model: 分離モデル
+        separation_model: 分離モデル（現在は使用不可）
         silence_thresh: 無音とみなす音量閾値（dB）
         min_silence_len: 無音とみなす最小長さ（ミリ秒）
         keep_silence: 無音区間の前後に残す長さ（ミリ秒）
@@ -295,7 +324,7 @@ def process_audio_file(
     Returns:
         処理されたファイルのパスの辞書
         - 'output': 最終的な出力ファイルパス
-        - 'vocals': 音源分離した場合のボーカルファイルパス（オプション）
+        - 'vocals': 音源分離した場合のボーカルファイルパス（現在は常にNone）
     """
     if output_dir is None:
         output_dir = tempfile.mkdtemp(prefix="audio_processing_")
@@ -305,25 +334,31 @@ def process_audio_file(
     current_file = input_path
     result = {}
     
-    # 1. 音源分離（必要に応じて）
+    # 1. 音源分離（コメントアウト済み - 依存関係の競合により利用不可）
     if separate_vocals_enabled:
-        try:
-            vocals_path = separate_vocals(current_file, output_dir, separation_model)
-            current_file = vocals_path
-            result['vocals'] = vocals_path
-        except ImportError as e:
-            # ImportErrorの場合は、より詳細なエラーメッセージを返す
-            raise ImportError(
-                f"音源分離に必要なライブラリ（spleeter）がインストールされていません。"
-                f" `pip install spleeter`でインストールしてください。"
-                f" 詳細エラー: {str(e)}"
-            )
-        except Exception as e:
-            # その他のエラーの場合
-            error_msg = f"音源分離処理中にエラーが発生しました: {str(e)}"
-            if "ImportError" in str(e) or "No module named" in str(e):
-                error_msg += "\n\nspleeterがインストールされていない可能性があります。`pip install spleeter`でインストールしてください。"
-            raise RuntimeError(error_msg)
+        raise RuntimeError(
+            "音源分離機能は現在利用できません。"
+            " Spleeter 2.1.0はhttpx<0.17.0を要求しますが、firebase-adminとfish-audio-sdkは"
+            " httpx>=0.27.2を要求するため、依存関係の競合が発生します。"
+            " 音源分離が必要な場合は、iOSアプリ側で実装するか、別のサービスを使用してください。"
+        )
+        # try:
+        #     vocals_path = separate_vocals(current_file, output_dir, separation_model)
+        #     current_file = vocals_path
+        #     result['vocals'] = vocals_path
+        # except ImportError as e:
+        #     # ImportErrorの場合は、より詳細なエラーメッセージを返す
+        #     raise ImportError(
+        #         f"音源分離に必要なライブラリ（spleeter）がインストールされていません。"
+        #         f" `pip install spleeter`でインストールしてください。"
+        #         f" 詳細エラー: {str(e)}"
+        #     )
+        # except Exception as e:
+        #     # その他のエラーの場合
+        #     error_msg = f"音源分離処理中にエラーが発生しました: {str(e)}"
+        #     if "ImportError" in str(e) or "No module named" in str(e):
+        #         error_msg += "\n\nspleeterがインストールされていない可能性があります。`pip install spleeter`でインストールしてください。"
+        #     raise RuntimeError(error_msg)
     
     # 2. 無音区間削除（必要に応じて）
     if remove_silence_enabled:
