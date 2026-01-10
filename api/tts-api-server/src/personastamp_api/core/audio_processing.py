@@ -175,8 +175,19 @@ def separate_vocals(
         
         return vocals_path
         
+    except ImportError as e:
+        # ImportErrorの場合は、より詳細なメッセージを返す
+        raise ImportError(
+            f"spleeterがインストールされていません。`pip install spleeter`でインストールしてください。"
+            f" 詳細エラー: {str(e)}"
+        )
     except Exception as e:
-        raise RuntimeError(f"音源分離に失敗しました: {str(e)}")
+        # その他のエラーの場合
+        error_msg = f"音源分離に失敗しました: {str(e)}"
+        # ImportErrorが含まれている場合は、より詳細なメッセージを追加
+        if "ImportError" in str(e) or "No module named" in str(e):
+            error_msg += "\n\nspleeterがインストールされていない可能性があります。`pip install spleeter`でインストールしてください。"
+        raise RuntimeError(error_msg)
 
 
 def remove_silence(
@@ -263,7 +274,7 @@ def process_audio_file(
     output_dir: Optional[str] = None,
     separate_vocals_enabled: bool = False,
     remove_silence_enabled: bool = False,
-        separation_model: str = 'spleeter:2stems',  # Spleeterの軽量モデル（Render無料プラン対応）
+    separation_model: str = 'spleeter:2stems',  # Spleeterの軽量モデル（Render無料プラン対応）
     silence_thresh: float = -40.0,
     min_silence_len: int = 500,
     keep_silence: int = 200
@@ -296,9 +307,23 @@ def process_audio_file(
     
     # 1. 音源分離（必要に応じて）
     if separate_vocals_enabled:
-        vocals_path = separate_vocals(current_file, output_dir, separation_model)
-        current_file = vocals_path
-        result['vocals'] = vocals_path
+        try:
+            vocals_path = separate_vocals(current_file, output_dir, separation_model)
+            current_file = vocals_path
+            result['vocals'] = vocals_path
+        except ImportError as e:
+            # ImportErrorの場合は、より詳細なエラーメッセージを返す
+            raise ImportError(
+                f"音源分離に必要なライブラリ（spleeter）がインストールされていません。"
+                f" `pip install spleeter`でインストールしてください。"
+                f" 詳細エラー: {str(e)}"
+            )
+        except Exception as e:
+            # その他のエラーの場合
+            error_msg = f"音源分離処理中にエラーが発生しました: {str(e)}"
+            if "ImportError" in str(e) or "No module named" in str(e):
+                error_msg += "\n\nspleeterがインストールされていない可能性があります。`pip install spleeter`でインストールしてください。"
+            raise RuntimeError(error_msg)
     
     # 2. 無音区間削除（必要に応じて）
     if remove_silence_enabled:

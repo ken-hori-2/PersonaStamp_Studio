@@ -58,13 +58,23 @@ try:
     AUDIO_PROCESSING_AVAILABLE = True
 except ImportError as e:
     AUDIO_PROCESSING_AVAILABLE = False
+    import_error_message = str(e)
     # デフォルトのダミー関数を定義（エラー時に使用）
     def separate_vocals(*args, **kwargs):
-        raise HTTPException(status_code=503, detail="音源分離機能は利用できません。demucsがインストールされていません。")
+        raise HTTPException(
+            status_code=503, 
+            detail=f"音源分離機能は利用できません。spleeterがインストールされていません。エラー: {import_error_message}"
+        )
     def remove_silence(*args, **kwargs):
-        raise HTTPException(status_code=503, detail="無音区間削除機能は利用できません。pydubがインストールされていません。")
+        raise HTTPException(
+            status_code=503, 
+            detail=f"無音区間削除機能は利用できません。pydubがインストールされていません。エラー: {import_error_message}"
+        )
     def process_audio_file(*args, **kwargs):
-        raise HTTPException(status_code=503, detail="音声処理機能は利用できません。必要なライブラリがインストールされていません。")
+        raise HTTPException(
+            status_code=503, 
+            detail=f"音声処理機能は利用できません。必要なライブラリ（spleeter, pydub）がインストールされていません。エラー: {import_error_message}"
+        )
 
 # .envファイルがあれば読み込む
 try:
@@ -220,7 +230,24 @@ async def root():
 @app.get("/health")
 async def health_check():
     """ヘルスチェック"""
-    return {"status": "ok"}
+    status = {"status": "ok"}
+    
+    # 音声処理ライブラリの可用性をチェック
+    try:
+        import spleeter
+        status["spleeter_available"] = True
+    except ImportError:
+        status["spleeter_available"] = False
+        status["spleeter_error"] = "spleeterがインストールされていません"
+    
+    try:
+        import pydub
+        status["pydub_available"] = True
+    except ImportError:
+        status["pydub_available"] = False
+        status["pydub_error"] = "pydubがインストールされていません"
+    
+    return status
 
 
 @app.post("/api/v2/clone", response_model=CloneResponse)
@@ -700,7 +727,7 @@ async def process_audio(
     if not AUDIO_PROCESSING_AVAILABLE:
         raise HTTPException(
             status_code=503,
-            detail="音声処理機能は現在利用できません。必要なライブラリ（demucs, pydub）がインストールされていません。"
+            detail="音声処理機能は現在利用できません。必要なライブラリ（spleeter, pydub）がインストールされていません。"
         )
     
     try:
@@ -771,6 +798,33 @@ async def process_audio(
                 
     except HTTPException:
         raise
+    except ImportError as e:
+        # ImportErrorの場合は、より詳細なエラーメッセージを返す
+        error_detail = str(e)
+        if "spleeter" in error_detail.lower() or "No module named" in error_detail:
+            raise HTTPException(
+                status_code=503,
+                detail=f"音源分離機能に必要なライブラリ（spleeter）がインストールされていません。"
+                       f" `pip install spleeter`でインストールしてください。"
+                       f" 詳細: {error_detail}"
+            )
+        else:
+            raise HTTPException(
+                status_code=503,
+                detail=f"必要なライブラリがインストールされていません: {error_detail}"
+            )
+    except RuntimeError as e:
+        # RuntimeErrorの場合も、ImportErrorが含まれているかチェック
+        error_detail = str(e)
+        if "spleeter" in error_detail.lower() or "No module named" in error_detail or "ImportError" in error_detail:
+            raise HTTPException(
+                status_code=503,
+                detail=f"音源分離機能に必要なライブラリ（spleeter）がインストールされていません。"
+                       f" `pip install spleeter`でインストールしてください。"
+                       f" 詳細: {error_detail}"
+            )
+        else:
+            raise HTTPException(status_code=500, detail=f"音声処理エラー: {error_detail}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"内部サーバーエラー: {str(e)}")
 
