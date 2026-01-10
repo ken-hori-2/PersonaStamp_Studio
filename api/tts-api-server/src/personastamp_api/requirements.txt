@@ -14,9 +14,11 @@ pydantic==2.12.4
 requests==2.32.3
 firebase-admin==7.1.0
 fish-audio-sdk==1.1.0
-# 音源分離: Spleeter（軽量、Render無料プラン対応）
+# 音源分離: Spleeter（Render無料プランではTensorFlowが重すぎる可能性あり）
 # 注意: SpleeterはTensorFlowを依存関係として自動インストールします
-spleeter>=2.3.0
+# Python 3.11以上では2.1.0のみ利用可能（2.3.0以上はPython 3.11未対応）
+# Render無料プラン（512MB RAM、0.1 CPU）ではTensorFlowが重すぎる可能性があります
+spleeter==2.1.0
 # 音源分離: Demucs（高品質だが重い、Render無料プランでは使用不可）
 # demucs>=4.0.0
 # 無音区間削除
