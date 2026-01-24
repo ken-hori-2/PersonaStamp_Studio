@@ -37,3 +37,28 @@ img/
 *.HEIC
 *.heic
 
+# --- Security-sensitive (API keys, secrets, certs) ---
+.env
+.env.*
+.env.local
+GoogleService-Info.plist
+*.p12
+*.mobileprovision
+*.cer
+*.pem
+*-firebase-adminsdk-*.json
+model_id.txt
+credentials.json
+secrets.json
+**/xcuserdata/
+
+# --- Backups (exclude from repo) ---
+*.backup
+*_backup_*/
+
+# not_use directories (unused projects; moved to _archive)
+not_use_*/
+
+# --- Archive (原理検討・未使用の出力など) ---
+_archive/
+

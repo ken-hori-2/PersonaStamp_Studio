@@ -5,9 +5,6 @@ xcuserdata/
 *.xcuserstate
 *.xcuserdatad/
 
-# not_use系ディレクトリ（使用しないプロジェクト）
-not_use_*/
-
 # Xcode 8 and earlier
 *.xcscmblueprint
 *.xccheckout
