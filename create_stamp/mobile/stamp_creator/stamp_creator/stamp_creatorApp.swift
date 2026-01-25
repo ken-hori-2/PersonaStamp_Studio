@@ -9,9 +9,15 @@ import SwiftUI
 
 @main
 struct stamp_creatorApp: App {
+    @State private var showSplash = true
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if showSplash {
+                SplashView(onFinish: { showSplash = false })
+            } else {
+                ContentView()
+            }
         }
     }
 }

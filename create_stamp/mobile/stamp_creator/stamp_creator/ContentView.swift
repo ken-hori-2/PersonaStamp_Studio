@@ -76,7 +76,7 @@ struct ContentView: View {
                 }
             }
             .tabItem {
-                Label("TTS Stamp", systemImage: "waveform")
+                Label("TTS Sticker", systemImage: "waveform")
             }
             .tag(3)
         }

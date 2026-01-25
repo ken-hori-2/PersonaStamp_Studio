@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AVFoundation
+import NaturalLanguage
 import Photos
 import CoreMedia
 import AVKit
@@ -118,12 +119,24 @@ struct TTSStampView: View {
                                         .foregroundColor(.white)
                                     Spacer()
                                     if !textInput.isEmpty {
-                                        Text("\(textInput.count) chars")
+                                        Text("\(textInput.count) \(String(localized: "chars"))")
                                             .font(.caption)
                                             .foregroundColor(.white.opacity(0.6))
                                     }
                                 }
                                 .padding(.horizontal)
+                                
+                                Text("TTS converts your text into spoken audio.")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.65))
+                                    .padding(.horizontal)
+                                    .padding(.top, 2)
+                                
+                                Text("Detects en/ja from text and reads aloud: alphabets → English; hiragana, katakana, kanji → Japanese.")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.65))
+                                    .padding(.horizontal)
+                                    .padding(.top, 2)
                                 
                                 ZStack(alignment: .topLeading) {
                                     if textInput.isEmpty {
@@ -188,7 +201,7 @@ struct TTSStampView: View {
                 }
             }
         }
-        .navigationTitle("TTS Stamp")
+        .navigationTitle("TTS Sticker")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
@@ -251,7 +264,7 @@ struct TTSStampView: View {
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                 
-                Text("Select an image to create a TTS stamp")
+                Text("Select an image to create a TTS sticker")
                     .font(.subheadline)
                     .foregroundColor(.white.opacity(0.7))
                     .multilineTextAlignment(.center)
@@ -417,7 +430,7 @@ struct TTSStampView: View {
                             Image(systemName: "square.and.arrow.down.fill")
                                 .font(.title2)
                         }
-                        Text(isSaving ? "Saving..." : "Save Stamp")
+                        Text(isSaving ? "Saving..." : "Save Sticker")
                             .font(.headline)
                             .fontWeight(.semibold)
                     }
@@ -456,10 +469,33 @@ struct TTSStampView: View {
     
     // MARK: - TTS生成
     
+    /// 入力テキストの主な言語を検出し、TTS用の言語コード（"ja" or "en"）を返す。
+    /// アプリの表示言語に関係なく、日本語テキストは日本語音声、英語テキストは英語音声で読み上げる。
+    private func detectTTSLanguage(for text: String) -> String {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return "en" }
+        
+        let recognizer = NLLanguageRecognizer()
+        recognizer.processString(trimmed)
+        if let lang = recognizer.dominantLanguage?.rawValue, lang.hasPrefix("ja") {
+            return "ja"
+        }
+        if let lang = recognizer.dominantLanguage?.rawValue, lang.hasPrefix("en") {
+            return "en"
+        }
+        // 判定不能 or その他: 日本語文字（ひらがな・カタカナ・漢字）を含むかで推測
+        let hasJapanese = trimmed.unicodeScalars.contains { scalar in
+            (0x3040...0x309F).contains(scalar.value) || // ひらがな
+            (0x30A0...0x30FF).contains(scalar.value) || // カタカナ
+            (0x4E00...0x9FFF).contains(scalar.value)    // CJK基本漢字
+        }
+        return hasJapanese ? "ja" : "en"
+    }
+    
     private func generateTTS() {
         guard !textInput.isEmpty else {
-            alertTitle = "Error"
-            alertMessage = "Please enter text"
+            alertTitle = String(localized: "Error")
+            alertMessage = String(localized: "Please enter text")
             showingAlert = true
             return
         }
@@ -472,15 +508,15 @@ struct TTSStampView: View {
                 await MainActor.run {
                     audioURL = url
                     isGenerating = false
-                    alertTitle = "Success"
-                    alertMessage = "TTS audio generated successfully"
+                    alertTitle = String(localized: "Success")
+                    alertMessage = String(localized: "TTS audio generated successfully")
                     showingAlert = true
                 }
             } catch {
                 await MainActor.run {
                     isGenerating = false
-                    alertTitle = "Error"
-                    alertMessage = "Failed to generate TTS: \(error.localizedDescription)"
+                    alertTitle = String(localized: "Error")
+                    alertMessage = String(format: String(localized: "failed_to_generate_tts"), error.localizedDescription)
                     showingAlert = true
                 }
             }
@@ -512,14 +548,16 @@ struct TTSStampView: View {
                 
                 let utterance = AVSpeechUtterance(string: text)
                 
-                // 利用可能な日本語の声を確認
-                let availableVoices = AVSpeechSynthesisVoice.speechVoices().filter { $0.language.hasPrefix("ja") }
-                if let japaneseVoice = availableVoices.first {
-                    utterance.voice = japaneseVoice
-                    print("🔊 [TTS] Using voice: \(japaneseVoice.name), language: \(japaneseVoice.language)")
+                // 入力テキストの言語を自動検出し、それに合う音声を選択（ja→日本語、en→英語）。アプリの表示言語は関係ない。
+                let ttsLangCode = detectTTSLanguage(for: text)
+                let (ttsLang, voicePrefix): (String, String) = ttsLangCode == "ja" ? ("ja-JP", "ja") : ("en-US", "en")
+                let availableVoices = AVSpeechSynthesisVoice.speechVoices().filter { $0.language.hasPrefix(voicePrefix) }
+                if let voice = availableVoices.first {
+                    utterance.voice = voice
+                    print("🔊 [TTS] Using voice: \(voice.name), language: \(voice.language) (detected: \(ttsLangCode))")
                 } else {
-                    utterance.voice = AVSpeechSynthesisVoice(language: "ja-JP")
-                    print("⚠️ [TTS] Using default Japanese voice")
+                    utterance.voice = AVSpeechSynthesisVoice(language: ttsLang)
+                    print("⚠️ [TTS] Using default \(ttsLang) voice (detected: \(ttsLangCode))")
                 }
                 
                 utterance.rate = 0.5
@@ -715,8 +753,8 @@ struct TTSStampView: View {
                 print("🔊 [Play] Audio format: \(audioFormat), frame count: \(audioFrameCount)")
                 
                 guard let audioBuffer = AVAudioPCMBuffer(pcmFormat: audioFormat, frameCapacity: audioFrameCount) else {
-                    alertTitle = "Error"
-                    alertMessage = "Failed to create audio buffer"
+                    alertTitle = String(localized: "Error")
+                    alertMessage = String(localized: "Failed to create audio buffer")
                     showingAlert = true
                     return
                 }
@@ -761,8 +799,8 @@ struct TTSStampView: View {
     private func saveStamp() {
         guard let image = selectedImage,
               let audio = audioURL else {
-            alertTitle = "Error"
-            alertMessage = "Image and audio are required"
+            alertTitle = String(localized: "Error")
+            alertMessage = String(localized: "Image and audio are required")
             showingSaveAlert = true
             return
         }
@@ -779,15 +817,15 @@ struct TTSStampView: View {
                 
                 await MainActor.run {
                     isSaving = false
-                    alertTitle = "Success"
-                    alertMessage = "Saved successfully"
+                    alertTitle = String(localized: "Success")
+                    alertMessage = String(localized: "Saved successfully")
                     showingSaveAlert = true
                 }
             } catch {
                 await MainActor.run {
                     isSaving = false
-                    alertTitle = "Error"
-                    alertMessage = "Failed to save: \(error.localizedDescription)"
+                    alertTitle = String(localized: "Error")
+                    alertMessage = String(format: String(localized: "failed_to_save"), error.localizedDescription)
                     showingSaveAlert = true
                 }
             }

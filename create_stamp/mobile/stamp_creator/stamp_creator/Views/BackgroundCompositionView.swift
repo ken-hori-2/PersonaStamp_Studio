@@ -18,7 +18,7 @@ struct BackgroundCompositionView: View {
     @State private var isComposing = false
     @State private var isSaving = false
     @State private var showAlert = false
-    @State private var alertTitle = "Info"
+    @State private var alertTitle = String(localized: "Info")
     @State private var alertMessage = ""
     @State private var composeButtonOpacity: Double = 1.0
     @State private var composeButtonTextOpacity: Double = 1.0
@@ -169,7 +169,7 @@ struct BackgroundCompositionView: View {
                 
                 Picker("Background Color", selection: $backgroundColor) {
                     ForEach(BackgroundColor.allCases, id: \.self) { color in
-                        Text(color.rawValue).tag(color)
+                        Text(String(localized: String.LocalizationValue(color.rawValue))).tag(color)
                     }
                 }
                 .pickerStyle(.segmented)
@@ -564,8 +564,8 @@ struct BackgroundCompositionView: View {
     
     private func composeImages() {
         guard let foreground = foregroundImage else {
-            alertTitle = "Error"
-            alertMessage = "Please select an extracted image"
+            alertTitle = String(localized: "Error")
+            alertMessage = String(localized: "Please select an extracted image")
             showAlert = true
             return
         }
@@ -591,8 +591,8 @@ struct BackgroundCompositionView: View {
             } catch {
                 await MainActor.run {
                     isComposing = false
-                    alertTitle = "Error"
-                    alertMessage = "Failed to compose image: \(error.localizedDescription)"
+                    alertTitle = String(localized: "Error")
+                    alertMessage = String(format: String(localized: "failed_to_compose"), error.localizedDescription)
                     showAlert = true
                 }
             }
@@ -685,8 +685,8 @@ struct BackgroundCompositionView: View {
     private func saveComposedImage() {
         // 保存できるのは Compose で確定した画像のみ。プレビューはスライダー操作の確認用。
         guard let image = composedImage else {
-            alertTitle = "Error"
-            alertMessage = "No composed image available"
+            alertTitle = String(localized: "Error")
+            alertMessage = String(localized: "No composed image available")
             showAlert = true
             return
         }
@@ -703,8 +703,8 @@ struct BackgroundCompositionView: View {
                 
                 guard let pngData = pngData else {
                     isSaving = false
-                    alertTitle = "Error"
-                    alertMessage = "Failed to convert image"
+                    alertTitle = String(localized: "Error")
+                    alertMessage = String(localized: "failed_to_convert_image")
                     showAlert = true
                     return
                 }
@@ -713,8 +713,8 @@ struct BackgroundCompositionView: View {
                 
                 guard status == .authorized || status == .limited else {
                     isSaving = false
-                    alertTitle = "Error"
-                    alertMessage = "Photo library access permission is required"
+                    alertTitle = String(localized: "Error")
+                    alertMessage = String(localized: "Photo library access permission is required")
                     showAlert = true
                     return
                 }
@@ -725,15 +725,15 @@ struct BackgroundCompositionView: View {
                 }
                 
                 isSaving = false
-                alertTitle = "Success"
-                alertMessage = "Saved successfully"
+                alertTitle = String(localized: "Success")
+                alertMessage = String(localized: "Saved successfully")
                 showAlert = true
                 
             } catch {
                 isSaving = false
-                alertTitle = "Error"
-                alertMessage = "Failed to save: \(error.localizedDescription)"
-                showAlert = true
+alertTitle = String(localized: "Error")
+                    alertMessage = String(format: String(localized: "failed_to_save"), error.localizedDescription)
+                    showAlert = true
             }
         }
     }

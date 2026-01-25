@@ -15,7 +15,7 @@ struct ImageEditorView: View {
     @State private var showingEditingSheet = false
     @State private var showingSaveAlert = false
     @State private var isSaving = false
-    @State private var alertTitle = "Info"
+    @State private var alertTitle = String(localized: "Info")
     @State private var alertMessage = ""
     // MARK: - テキスト入力機能（コメントアウト）
     // @State private var textLayers: [TextLayer] = [] // テキストレイヤー
@@ -292,8 +292,8 @@ struct ImageEditorView: View {
     private func saveCurrentImage() {
         // 現在の画像をそのまま保存（編集画面で編集した場合は既に更新されている）
         guard let image = selectedImage else {
-            alertTitle = "Error"
-            alertMessage = "No image selected"
+            alertTitle = String(localized: "Error")
+            alertMessage = String(localized: "No image selected")
             showingSaveAlert = true
             return
         }
@@ -320,8 +320,8 @@ struct ImageEditorView: View {
                 }.value
                 
                 guard let pngData = pngData else {
-                    alertTitle = "Error"
-                    alertMessage = "Failed to convert image to PNG"
+                    alertTitle = String(localized: "Error")
+                    alertMessage = String(localized: "Failed to convert image to PNG")
                     showingSaveAlert = true
                     return
                 }
@@ -330,8 +330,8 @@ struct ImageEditorView: View {
                 let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
                 
                 guard status == .authorized || status == .limited else {
-                    alertTitle = "Error"
-                    alertMessage = "Photo library access permission is required"
+                    alertTitle = String(localized: "Error")
+                    alertMessage = String(localized: "Photo library access permission is required")
                     showingSaveAlert = true
                     return
                 }
@@ -344,14 +344,14 @@ struct ImageEditorView: View {
                 
                 // 成功
                 isSaving = false
-                alertTitle = "Success"
-                alertMessage = "Saved successfully"
+                alertTitle = String(localized: "Success")
+                alertMessage = String(localized: "Saved successfully")
                 showingSaveAlert = true
                 
             } catch {
                 isSaving = false
-                alertTitle = "Error"
-                alertMessage = "Failed to save: \(error.localizedDescription)"
+                alertTitle = String(localized: "Error")
+                alertMessage = String(format: String(localized: "failed_to_save"), error.localizedDescription)
                 showingSaveAlert = true
             }
         }

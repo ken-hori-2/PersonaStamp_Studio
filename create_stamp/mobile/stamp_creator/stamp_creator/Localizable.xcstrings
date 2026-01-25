@@ -1,0 +1,861 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%lld %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld %2$@"
+          }
+        }
+      }
+    },
+    "%lld%%" : {
+
+    },
+    "Add background color" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "背景色を追加"
+          }
+        }
+      }
+    },
+    "Adjust with the slider to preview. Press Compose to create the final image, then Save." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スライダーで調整してプレビュー。「画像を合成」で最終画像を作成し、「保存」で合成画像を保存。"
+          }
+        }
+      }
+    },
+    "Audio file not found" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音声ファイルが見つかりません"
+          }
+        }
+      }
+    },
+    "AXiV" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AXiV"
+          }
+        }
+      }
+    },
+    "Background Color" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "背景色"
+          }
+        }
+      }
+    },
+    "Background Settings" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "背景設定"
+          }
+        }
+      }
+    },
+    "Change Image" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像を変更"
+          }
+        }
+      }
+    },
+    "chars" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文字"
+          }
+        }
+      }
+    },
+    "Close" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "閉じる"
+          }
+        }
+      }
+    },
+    "Color" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "色"
+          }
+        }
+      }
+    },
+    "Compose" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "合成"
+          }
+        }
+      }
+    },
+    "Compose Background" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "背景合成"
+          }
+        }
+      }
+    },
+    "Compose Image" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像を合成"
+          }
+        }
+      }
+    },
+    "Composing..." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "合成中..."
+          }
+        }
+      }
+    },
+    "Composition Options" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "合成オプション"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "削除"
+          }
+        }
+      }
+    },
+    "Detects en/ja from text and reads aloud: alphabets → English; hiragana, katakana, kanji → Japanese." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "入力から en/ja を判定して読み上げ：アルファベット→英語、ひらがな・カタカナ・漢字→日本語。"
+          }
+        }
+      }
+    },
+    "Done" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完了"
+          }
+        }
+      }
+    },
+    "Edit" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編集"
+          }
+        }
+      }
+    },
+    "Edit Image" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像を編集"
+          }
+        }
+      }
+    },
+    "Edit Text" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "テキスト編集"
+          }
+        }
+      }
+    },
+    "Enter text" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "テキストを入力"
+          }
+        }
+      }
+    },
+    "Enter text for TTS..." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TTS用のテキストを入力..."
+          }
+        }
+      }
+    },
+    "Error" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エラー"
+          }
+        }
+      }
+    },
+    "Extracted Image" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "抽出画像"
+          }
+        }
+      }
+    },
+    "Failed to convert image to PNG" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PNGへの変換に失敗しました"
+          }
+        }
+      }
+    },
+    "Failed to create audio buffer" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オーディオバッファの作成に失敗しました"
+          }
+        }
+      }
+    },
+    "Failed to generate PNG data" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PNGデータの生成に失敗しました"
+          }
+        }
+      }
+    },
+    "Failed to get image" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像の取得に失敗しました"
+          }
+        }
+      }
+    },
+    "failed_to_analyze_image" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to analyze image: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像の解析に失敗: %@"
+          }
+        }
+      }
+    },
+    "failed_to_compose" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to compose image: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像の合成に失敗: %@"
+          }
+        }
+      }
+    },
+    "failed_to_convert_image" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to convert image"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像の変換に失敗しました"
+          }
+        }
+      }
+    },
+    "failed_to_generate_tts" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to generate TTS: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TTSの生成に失敗: %@"
+          }
+        }
+      }
+    },
+    "failed_to_play_audio" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to play audio: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "音声の再生に失敗: %@"
+          }
+        }
+      }
+    },
+    "failed_to_remove_background" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to remove background: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "背景除去に失敗: %@"
+          }
+        }
+      }
+    },
+    "failed_to_save" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to save: %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存に失敗: %@"
+          }
+        }
+      }
+    },
+    "Font" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フォント"
+          }
+        }
+      }
+    },
+    "Generate TTS" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TTSを生成"
+          }
+        }
+      }
+    },
+    "Generating..." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "生成中..."
+          }
+        }
+      }
+    },
+    "Image and audio are required" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像と音声が必要です"
+          }
+        }
+      }
+    },
+    "Image Editor" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像編集"
+          }
+        }
+      }
+    },
+    "Image Size" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像サイズ"
+          }
+        }
+      }
+    },
+    "Info" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "情報"
+          }
+        }
+      }
+    },
+    "Long press to select subject, tap to deselect" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "長押しで被写体を選択、タップで解除"
+          }
+        }
+      }
+    },
+    "No composed image available" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "合成画像がありません"
+          }
+        }
+      }
+    },
+    "No image selected" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像が選択されていません"
+          }
+        }
+      }
+    },
+    "OK" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "Pause Audio" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一時停止"
+          }
+        }
+      }
+    },
+    "Photo library access permission is required" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真ライブラリへのアクセス許可が必要です"
+          }
+        }
+      }
+    },
+    "Play Audio" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再生"
+          }
+        }
+      }
+    },
+    "Please enter text" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "テキストを入力してください"
+          }
+        }
+      }
+    },
+    "Please long press to select a subject" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "長押しして被写体を選択してください"
+          }
+        }
+      }
+    },
+    "Please select an extracted image" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "抽出した画像を選択してください"
+          }
+        }
+      }
+    },
+    "Please select an image" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像を選択してください"
+          }
+        }
+      }
+    },
+    "Preview" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プレビュー"
+          }
+        }
+      }
+    },
+    "Processing..." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "処理中..."
+          }
+        }
+      }
+    },
+    "Remove Background" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "背景除去"
+          }
+        }
+      }
+    },
+    "Remove BG" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "背景除去"
+          }
+        }
+      }
+    },
+    "Rendezvous with the Moment" : {
+      "localizations" : { }
+    },
+    "Save" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存"
+          }
+        }
+      }
+    },
+    "Save Sticker" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スタンプを保存"
+          }
+        }
+      }
+    },
+    "Saved successfully" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存しました"
+          }
+        }
+      }
+    },
+    "Saving..." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存中..."
+          }
+        }
+      }
+    },
+    "Select an extracted image to place on a square background" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正方形の背景に配置する画像を選択"
+          }
+        }
+      }
+    },
+    "Select an image to create a TTS sticker" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TTSスタンプ用の画像を選択"
+          }
+        }
+      }
+    },
+    "Select Image" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像を選択"
+          }
+        }
+      }
+    },
+    "Selected Image" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選択した画像"
+          }
+        }
+      }
+    },
+    "Square Size" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャンバスサイズ"
+          }
+        }
+      }
+    },
+    "Success" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "成功"
+          }
+        }
+      }
+    },
+    "Tap to choose an image and start editing" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タップして画像を選び、編集を開始"
+          }
+        }
+      }
+    },
+    "Text" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "テキスト"
+          }
+        }
+      }
+    },
+    "Text color" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "テキスト色"
+          }
+        }
+      }
+    },
+    "Text Input" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "テキスト入力"
+          }
+        }
+      }
+    },
+    "Transparent" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "透明"
+          }
+        }
+      }
+    },
+    "TTS converts your text into spoken audio." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TTSは入力したテキストを音声で読み上げます。"
+          }
+        }
+      }
+    },
+    "TTS audio generated successfully" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TTS音声を生成しました"
+          }
+        }
+      }
+    },
+    "TTS Sticker" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TTSスタンプ"
+          }
+        }
+      }
+    },
+    "Unknown error" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不明なエラー"
+          }
+        }
+      }
+    },
+    "White" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "白"
+          }
+        }
+      }
+    },
+    "サイズ" : {
+      "comment" : "A label for the size selection in the background settings area of the background composition view.",
+      "isCommentAutoGenerated" : true
+    },
+    "サイズ: %lld" : {
+      "comment" : "A stepper that lets the user adjust the font size of the text.",
+      "isCommentAutoGenerated" : true
+    },
+    "背景色" : {
+      "comment" : "A color picker for selecting the background color of a text element.",
+      "isCommentAutoGenerated" : true
+    }
+  },
+  "version" : "1.1"
+}

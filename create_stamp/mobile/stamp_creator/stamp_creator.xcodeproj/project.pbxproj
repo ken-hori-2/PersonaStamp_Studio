@@ -89,8 +89,9 @@
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
 				Base,
+				en,
+				ja,
 			);
 			mainGroup = BEBFC0A22EC8A891006C25A6;
 			minimizedProjectReferenceProxies = 1;
@@ -256,6 +257,7 @@
 				DEVELOPMENT_TEAM = TLTA2VB55F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = AXiV;
 				INFOPLIST_KEY_NSCameraUsageDescription = "カメラで写真を撮影してスタンプを作成します。";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "写真を読み込み・保存するために使用します。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -290,6 +292,7 @@
 				DEVELOPMENT_TEAM = TLTA2VB55F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = AXiV;
 				INFOPLIST_KEY_NSCameraUsageDescription = "カメラで写真を撮影してスタンプを作成します。";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "写真を読み込み・保存するために使用します。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

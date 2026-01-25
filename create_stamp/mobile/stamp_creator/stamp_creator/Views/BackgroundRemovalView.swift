@@ -19,7 +19,7 @@ struct BackgroundRemovalView: View {
     // UI状態
     @State private var isProcessing = false
     @State private var showAlert = false
-    @State private var alertTitle = "Info"
+    @State private var alertTitle = String(localized: "Info")
     @State private var alertMessage = ""
     
     // ImageAnalysis関連
@@ -381,8 +381,8 @@ struct BackgroundRemovalView: View {
                 print("✅ [画像解析] 検出された被写体数: \(detectedSubjects.count)")
             } catch {
                 print("❌ [画像解析] エラー: \(error.localizedDescription)")
-                alertTitle = "Error"
-                alertMessage = "Failed to analyze image: \(error.localizedDescription)"
+                alertTitle = String(localized: "Error")
+                alertMessage = String(format: String(localized: "failed_to_analyze_image"), error.localizedDescription)
                 showAlert = true
             }
         }
@@ -479,8 +479,8 @@ struct BackgroundRemovalView: View {
         
         guard !viewModel.interaction.highlightedSubjects.isEmpty else {
             print("❌ [背景除去] 被写体が選択されていません")
-            alertTitle = "Error"
-            alertMessage = "Please long press to select a subject"
+            alertTitle = String(localized: "Error")
+            alertMessage = String(localized: "Please long press to select a subject")
             showAlert = true
             return
         }
@@ -502,8 +502,8 @@ struct BackgroundRemovalView: View {
             } catch {
                 print("❌ [背景除去] エラー: \(error.localizedDescription)")
                 isProcessing = false
-                alertTitle = "Error"
-                alertMessage = "Failed to remove background: \(error.localizedDescription)"
+                alertTitle = String(localized: "Error")
+                alertMessage = String(format: String(localized: "failed_to_remove_background"), error.localizedDescription)
                 showAlert = true
             }
         }
@@ -518,7 +518,7 @@ struct BackgroundRemovalView: View {
             if status == .authorized || status == .limited {
                 guard let cgImage = image.cgImage else {
                     DispatchQueue.main.async {
-                        self.alertMessage = "Failed to get image"
+                        self.alertMessage = String(localized: "Failed to get image")
                         self.showAlert = true
                     }
                     return
@@ -527,7 +527,7 @@ struct BackgroundRemovalView: View {
                 let mutableData = NSMutableData()
                 guard let destination = CGImageDestinationCreateWithData(mutableData, "public.png" as CFString, 1, nil) else {
                     DispatchQueue.main.async {
-                        self.alertMessage = "Failed to generate PNG data"
+                        self.alertMessage = String(localized: "Failed to generate PNG data")
                         self.showAlert = true
                     }
                     return
@@ -536,7 +536,7 @@ struct BackgroundRemovalView: View {
                 CGImageDestinationAddImage(destination, cgImage, nil)
                 guard CGImageDestinationFinalize(destination) else {
                     DispatchQueue.main.async {
-                        self.alertMessage = "Failed to generate PNG data"
+                        self.alertMessage = String(localized: "Failed to generate PNG data")
                         self.showAlert = true
                     }
                     return
@@ -550,21 +550,21 @@ struct BackgroundRemovalView: View {
                 }) { success, error in
                     DispatchQueue.main.async {
                         if success {
-                            self.alertTitle = "Success"
-                            self.alertMessage = "Saved successfully"
+                            self.alertTitle = String(localized: "Success")
+                            self.alertMessage = String(localized: "Saved successfully")
                             self.showAlert = true
                             self.showingExtractedImage = false
                         } else {
-                            self.alertTitle = "Error"
-                            self.alertMessage = "Failed to save: \(error?.localizedDescription ?? "Unknown error")"
+                            self.alertTitle = String(localized: "Error")
+                            self.alertMessage = String(format: String(localized: "failed_to_save"), error?.localizedDescription ?? String(localized: "Unknown error"))
                             self.showAlert = true
                         }
                     }
                 }
             } else {
                 DispatchQueue.main.async {
-                    self.alertTitle = "Error"
-                    self.alertMessage = "Photo library access permission is required"
+                    self.alertTitle = String(localized: "Error")
+                    self.alertMessage = String(localized: "Photo library access permission is required")
                     self.showAlert = true
                 }
             }

@@ -33,15 +33,15 @@ struct TextEditorView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("テキスト")) {
-                    TextField("テキストを入力", text: $text)
+                Section(header: Text("Text")) {
+                    TextField("Enter text", text: $text)
                         .onChange(of: text) { _, newValue in
                             textLayer.text = newValue
                         }
                 }
                 
-                Section(header: Text("フォント")) {
-                    Picker("フォント", selection: $selectedFont) {
+                Section(header: Text("Font")) {
+                    Picker("Font", selection: $selectedFont) {
                         ForEach(FontOption.availableFonts) { font in
                             Text(font.displayName).tag(font)
                         }
@@ -56,13 +56,13 @@ struct TextEditorView: View {
                         }
                 }
                 
-                Section(header: Text("色")) {
-                    ColorPicker("テキスト色", selection: $textColor)
+                Section(header: Text("Color")) {
+                    ColorPicker("Text color", selection: $textColor)
                         .onChange(of: textColor) { _, newValue in
                             textLayer.textColor = UIColor(newValue)
                         }
                     
-                    Toggle("背景色を追加", isOn: Binding(
+                    Toggle("Add background color", isOn: Binding(
                         get: { backgroundColor != nil },
                         set: { enabled in
                             if enabled {
@@ -86,11 +86,11 @@ struct TextEditorView: View {
                     }
                 }
             }
-            .navigationTitle("テキスト編集")
+            .navigationTitle("Edit Text")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("完了") {
+                    Button("Done") {
                         dismiss()
                     }
                 }

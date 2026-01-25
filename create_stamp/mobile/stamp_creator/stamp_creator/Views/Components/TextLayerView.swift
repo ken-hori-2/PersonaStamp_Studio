@@ -51,7 +51,7 @@ struct TextLayerView: View {
             }
             .contextMenu {
                 Button(role: .destructive, action: onDelete) {
-                    Label("削除", systemImage: "trash")
+                    Label("Delete", systemImage: "trash")
                 }
             }
     }
