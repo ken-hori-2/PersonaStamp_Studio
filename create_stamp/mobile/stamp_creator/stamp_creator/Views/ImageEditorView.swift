@@ -157,13 +157,14 @@ struct ImageEditorView: View {
                 
                 // EditボタンとSaveボタン
                 HStack(spacing: 14) {
-                    // 編集ボタン
+                    // 編集ボタン（Save と同じアイコン枠でサイズを揃える）
                     Button(action: {
                         showingEditingSheet = true
                     }) {
                         HStack(spacing: 12) {
                             Image(systemName: "pencil.tip")
                                 .font(.title2)
+                                .frame(width: 26, height: 26)
                             Text("Edit")
                                 .font(.headline)
                                 .fontWeight(.semibold)
@@ -188,19 +189,22 @@ struct ImageEditorView: View {
                     }
                     .buttonStyle(ScaleButtonStyle())
                     
-                    // Saveボタン
+                    // Saveボタン（アイコン/ProgressView を固定枠で入れ替え、レイアウトのずれを防ぐ）
                     Button(action: {
                         saveCurrentImage()
                     }) {
                         HStack(spacing: 12) {
-                            if isSaving {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                    .scaleEffect(0.9)
-                            } else {
+                            ZStack {
                                 Image(systemName: "square.and.arrow.down.fill")
                                     .font(.title2)
+                                    .opacity(isSaving ? 0 : 1)
+                                if isSaving {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                        .scaleEffect(0.9)
+                                }
                             }
+                            .frame(width: 26, height: 26)
                             Text(isSaving ? "Saving..." : "Save")
                                 .font(.headline)
                                 .fontWeight(.semibold)

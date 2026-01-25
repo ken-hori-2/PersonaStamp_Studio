@@ -300,15 +300,17 @@ struct TTSStampView: View {
                 generateTTS()
             }) {
                 HStack(spacing: 12) {
-                    if isGenerating {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            .scaleEffect(0.9)
-                    } else {
+                    ZStack {
                         Image(systemName: "waveform.path")
                             .font(.title2)
-                            .opacity(isGenerating || textInput.isEmpty ? 1.0 : generateButtonTextOpacity)
+                            .opacity(isGenerating ? 0 : 1)
+                        if isGenerating {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .scaleEffect(0.9)
+                        }
                     }
+                    .frame(width: 26, height: 26)
                     Text(isGenerating ? "Generating..." : "Generate TTS")
                         .font(.headline)
                         .fontWeight(.semibold)
@@ -389,6 +391,7 @@ struct TTSStampView: View {
                         Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
                             .font(.title2)
                             .symbolEffect(.bounce, value: isPlaying)
+                            .frame(width: 26, height: 26)
                         Text(isPlaying ? "Pause Audio" : "Play Audio")
                             .font(.headline)
                             .fontWeight(.semibold)
@@ -422,14 +425,17 @@ struct TTSStampView: View {
                     saveStamp()
                 }) {
                     HStack(spacing: 12) {
-                        if isSaving {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                .scaleEffect(0.9)
-                        } else {
+                        ZStack {
                             Image(systemName: "square.and.arrow.down.fill")
                                 .font(.title2)
+                                .opacity(isSaving ? 0 : 1)
+                            if isSaving {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    .scaleEffect(0.9)
+                            }
                         }
+                        .frame(width: 26, height: 26)
                         Text(isSaving ? "Saving..." : "Save Sticker")
                             .font(.headline)
                             .fontWeight(.semibold)

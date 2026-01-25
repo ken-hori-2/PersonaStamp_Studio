@@ -230,15 +230,17 @@ struct BackgroundRemovalView: View {
             removeBackground()
         }) {
             HStack(spacing: 12) {
-                if isProcessing {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        .scaleEffect(0.9)
-                } else {
+                ZStack {
                     Image(systemName: "wand.and.stars")
                         .font(.title2)
-                        .opacity(isProcessing ? 1.0 : removeButtonTextOpacity)
+                        .opacity(isProcessing ? 0 : 1)
+                    if isProcessing {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .scaleEffect(0.9)
+                    }
                 }
+                .frame(width: 26, height: 26)
                 Text(isProcessing ? "Processing..." : "Remove Background")
                     .font(.headline)
                     .fontWeight(.semibold)

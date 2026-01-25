@@ -34,8 +34,10 @@ struct ExtractedImageView: View {
                         // ボタン群
                         HStack(spacing: 16) {
                             Button(action: onDismiss) {
-                                HStack {
+                                HStack(spacing: 12) {
                                     Image(systemName: "xmark")
+                                        .font(.title2)
+                                        .frame(width: 26, height: 26)
                                     Text("Close")
                                 }
                                 .font(.headline)
@@ -47,8 +49,10 @@ struct ExtractedImageView: View {
                             }
                             
                             Button(action: onSave) {
-                                HStack {
-                                    Image(systemName: "square.and.arrow.down")
+                                HStack(spacing: 12) {
+                                    Image(systemName: "square.and.arrow.down.fill")
+                                        .font(.title2)
+                                        .frame(width: 26, height: 26)
                                     Text("Save")
                                 }
                                 .font(.headline)
