@@ -3,6 +3,7 @@
 ## Current
 
 - **[Design_Specification.md](Design_Specification.md)** … 現行実装（stamp_creator/stamp_creator）の設計仕様書。構成・MVVM・各画面の責務とデータフロー、使用フレームワークを記載。
+- **[../stamp_creator/README.md](../stamp_creator/README.md)** … アプリ概要・機能・多言語（en/ja）・ビルド手順・技術スタック。
 
 ## Legacy
 

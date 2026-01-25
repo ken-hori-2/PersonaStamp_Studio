@@ -8,7 +8,8 @@
 ## 1. 概要
 
 stamp_creator は、**背景除去・背景合成・画像編集・TTSスタンプ動画作成**の 4 機能を持つ iOS アプリである。  
-SwiftUI をベースにし、**MVVM** に近い構成で、タブで各機能を切り替える。
+SwiftUI をベースにし、**MVVM** に近い構成で、タブで各機能を切り替える。  
+起動時に **AXiV** スプラッシュを表示し、**en/ja** の多言語対応（`Localizable.xcstrings`）を行う。
 
 ### 1.1 対応 OS
 
@@ -21,7 +22,9 @@ SwiftUI をベースにし、**MVVM** に近い構成で、タブで各機能を
 - **Vision / VisionKit**（ImageAnalyzer, ImageAnalysisInteraction：背景除去の被写体検出・切り出し）
 - **PencilKit**（画像・マスクの手書き編集）
 - **AVFoundation**（AVSpeechSynthesizer：TTS、AVAssetWriter：画像+音声の動画出力）
+- **NaturalLanguage**（NLLanguageRecognizer：TTS の入力テキスト言語判定 en/ja）
 - **Photos**（保存）
+- **Localizable.xcstrings**（多言語 en/ja）
 
 ---
 
@@ -53,19 +56,21 @@ View は主に `@State` で画面ローカルな状態（ピッカー表示、�
 
 ```
 stamp_creator/
-├── stamp_creatorApp.swift      # @main、WindowGroup で ContentView
-├── ContentView.swift           # TabView（Remove BG / Compose / Edit / TTS Stamp）
+├── stamp_creatorApp.swift      # @main、SplashView → ContentView
+├── ContentView.swift           # TabView（Remove BG / Compose / Edit / TTS Sticker）
+├── Localizable.xcstrings       # 多言語（en/ja）
 ├── Models/
 │   └── TextLayer.swift        # TextLayer, FontOption（画像編集のテキスト用、一部コメントアウト）
 ├── ViewModels/
 │   ├── ImageAnalysisViewModel.swift   # ImageAnalyzer / ImageAnalysisInteraction のラップ
 │   └── MaskEditingViewModel.swift     # マスクの初期化・適用・PencilKit 連携
 ├── Views/
-│   ├── BackgroundRemovalView.swift    # 背景除去タブ
+│   ├── SplashView.swift              # 起動スプラッシュ（AXiV）
+│   ├── BackgroundRemovalView.swift   # 背景除去タブ
 │   ├── BackgroundCompositionView.swift# 背景合成タブ
 │   ├── ImageEditorView.swift         # 画像編集タブ
-│   ├── TTSStampView.swift            # TTS スタンプタブ
-│   ├── EditingSheetView.swift        # 画像編集：PencilKit シート
+│   ├── TTSStampView.swift            # TTS スタンプ/ Sticker タブ（言語自動判定）
+│   ├── EditingSheetView.swift        # 画像編集：PencilKit シート（Done 時は canvasView.bounds で合成、ズーム不依存）
 │   ├── ExtractedImageView.swift      # 抽出結果の表示・保存
 │   └── Components/
 │       ├── ImagePicker.swift         # UIImagePickerController の SwiftUI ラップ
@@ -90,7 +95,7 @@ stamp_creator/
 ### 4.1 App・ContentView
 
 - **stamp_creatorApp.swift**  
-  - `@main` の `App`。`WindowGroup { ContentView() }` のみ。
+  - `@main` の `App`。起動時に `SplashView`（AXiV / Rendezvous with the Moment）を表示し、完了後に `ContentView` を表示。
 
 - **ContentView.swift**  
   - `TabView(selection: $selectedTab)` で 4 タブを定義。  
@@ -99,7 +104,7 @@ stamp_creator/
     1. **Remove BG** (tag 0): `BackgroundRemovalView`
     2. **Compose** (tag 1): `BackgroundCompositionView`
     3. **Edit** (tag 2): `ImageEditorView`
-    4. **TTS Stamp** (tag 3): `TTSStampView`
+    4. **TTS Sticker** (en) / **TTSスタンプ** (ja) (tag 3): `TTSStampView`
 
 ### 4.2 Models
 
