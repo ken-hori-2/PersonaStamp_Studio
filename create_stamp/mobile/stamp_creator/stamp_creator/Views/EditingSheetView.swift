@@ -19,7 +19,6 @@ struct EditingSheetView: View {
     @State private var isToolPickerVisible = false
     @State private var canUndo = false
     @State private var canRedo = false
-    @State private var imageViewFrame: CGRect = .zero
     
     var body: some View {
         NavigationStack {
@@ -45,9 +44,7 @@ struct EditingSheetView: View {
                         onUndoRedoStateChanged: {
                             updateUndoRedoState()
                         },
-                        onImageViewFrameChanged: { frame in
-                            imageViewFrame = frame
-                        }
+                        onImageViewFrameChanged: { _ in }
                     )
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
@@ -198,33 +195,21 @@ struct EditingSheetView: View {
         return try await withCheckedThrowingContinuation { continuation in
             DispatchQueue.global(qos: .userInitiated).async {
                 autoreleasepool {
-                    var canvasSize: CGSize = .zero
+                    var canvasBounds: CGRect = .zero
                     var drawing: PKDrawing = PKDrawing()
-                    var imageFrame: CGRect = .zero
-                    var zoomScale: CGFloat = 1.0
+                    var scrollViewBounds: CGSize = .zero
                     
                     DispatchQueue.main.sync {
+                        drawing = canvasView.drawing
+                        canvasBounds = canvasView.bounds
                         var parentView: UIView? = canvasView.superview
                         while parentView != nil {
-                            if let scrollView = parentView as? UIScrollView {
-                                canvasSize = scrollView.bounds.size
-                                zoomScale = scrollView.zoomScale
+                            if let sv = parentView as? UIScrollView {
+                                scrollViewBounds = sv.bounds.size
                                 break
                             }
                             parentView = parentView?.superview
                         }
-                        
-                        if parentView == nil {
-                            canvasSize = canvasView.bounds.size
-                        }
-                        
-                        drawing = canvasView.drawing
-                        imageFrame = self.imageViewFrame
-                    }
-                    
-                    guard canvasSize.width > 0 && canvasSize.height > 0 else {
-                        continuation.resume(throwing: NSError(domain: "ImageEditor", code: 1, userInfo: [NSLocalizedDescriptionKey: "Canvas size is invalid"]))
-                        return
                     }
                     
                     var imageSize = image.size
@@ -257,45 +242,26 @@ struct EditingSheetView: View {
                         resizedImage = image
                     }
                     
+                    // 描画座標系は canvasView.bounds（ズームに依存しない）で決まる。
+                    // imageViewFrame/zoomScale を使うと、拡大したまま Done したときに縮尺がずれて編集がずれる。
                     let displaySize: CGSize
                     let displayFrame: CGRect
                     
-                    if imageFrame.width > 0 && imageFrame.height > 0 {
-                        displaySize = CGSize(
-                            width: imageFrame.width / zoomScale,
-                            height: imageFrame.height / zoomScale
-                        )
-                        displayFrame = CGRect(
-                            x: 0,
-                            y: 0,
-                            width: displaySize.width,
-                            height: displaySize.height
-                        )
-                    } else {
-                        let canvasAspect = canvasSize.width / canvasSize.height
+                    if canvasBounds.width > 0 && canvasBounds.height > 0 {
+                        displaySize = canvasBounds.size
+                        displayFrame = CGRect(origin: .zero, size: canvasBounds.size)
+                    } else if scrollViewBounds.width > 0 && scrollViewBounds.height > 0 {
+                        let canvasAspect = scrollViewBounds.width / scrollViewBounds.height
                         let imageAspect = imageSize.width / imageSize.height
-                        
                         if imageAspect > canvasAspect {
-                            let width = canvasSize.width
-                            let height = canvasSize.width / imageAspect
-                            displaySize = CGSize(width: width, height: height)
-                            displayFrame = CGRect(
-                                x: 0,
-                                y: (canvasSize.height - height) / 2,
-                                width: width,
-                                height: height
-                            )
+                            displaySize = CGSize(width: scrollViewBounds.width, height: scrollViewBounds.width / imageAspect)
                         } else {
-                            let width = canvasSize.height * imageAspect
-                            let height = canvasSize.height
-                            displaySize = CGSize(width: width, height: height)
-                            displayFrame = CGRect(
-                                x: (canvasSize.width - width) / 2,
-                                y: 0,
-                                width: width,
-                                height: height
-                            )
+                            displaySize = CGSize(width: scrollViewBounds.height * imageAspect, height: scrollViewBounds.height)
                         }
+                        displayFrame = CGRect(origin: .zero, size: displaySize)
+                    } else {
+                        continuation.resume(throwing: NSError(domain: "ImageEditor", code: 1, userInfo: [NSLocalizedDescriptionKey: "Canvas size is invalid"]))
+                        return
                     }
                     
                     guard displaySize.width > 0 && displaySize.height > 0 else {
