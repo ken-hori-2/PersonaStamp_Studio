@@ -106,7 +106,7 @@ struct BackgroundCompositionView: View {
                 previewImage = nil
             }
         }
-        .navigationTitle("Compose Background")
+        .navigationTitle("Compose Base")
         .navigationBarTitleDisplayMode(.large)
     }
     
@@ -369,7 +369,7 @@ struct BackgroundCompositionView: View {
                                 }
                             }
                             .frame(width: 26, height: 26)
-                            Text(isComposing ? "Composing..." : "Compose Image")
+                            Text(isComposing ? "Composing..." : "Compose")
                                 .font(.headline)
                                 .fontWeight(.semibold)
                                 .opacity(isComposing ? 1.0 : composeButtonTextOpacity)

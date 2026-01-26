@@ -90,7 +90,7 @@ struct ImageEditorView: View {
                 .padding(.bottom, 20)
             }
         }
-        .navigationTitle("Image Editor")
+        .navigationTitle("Edit Sticker")
         .navigationBarTitleDisplayMode(.large)
     }
     

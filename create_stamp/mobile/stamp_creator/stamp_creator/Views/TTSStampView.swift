@@ -45,7 +45,7 @@ struct TTSStampView: View {
             
             VStack(spacing: 0) {
                 ScrollView {
-                    VStack(spacing: 24) {
+                    VStack(spacing: 20) {
                         // 画像表示エリア
                         if let image = selectedImage {
                             VStack(spacing: 12) {
@@ -126,7 +126,7 @@ struct TTSStampView: View {
                                 }
                                 .padding(.horizontal)
                                 
-                                Text("TTS converts your text into spoken audio.")
+                                Text("Converts your text into spoken audio.")
                                     .font(.caption)
                                     .foregroundColor(.white.opacity(0.65))
                                     .padding(.horizontal)
@@ -140,7 +140,7 @@ struct TTSStampView: View {
                                 
                                 ZStack(alignment: .topLeading) {
                                     if textInput.isEmpty {
-                                        Text("Enter text for TTS...")
+                                        Text("Enter text for audio...")
                                             .foregroundColor(.white.opacity(0.4))
                                             .padding(.horizontal, 16)
                                             .padding(.vertical, 20)
@@ -197,11 +197,11 @@ struct TTSStampView: View {
                             actionButtonsAreaInScroll
                         }
                     }
-                    .padding(.vertical, 20)
+                    .padding(.bottom, 20)
                 }
             }
         }
-        .navigationTitle("TTS Sticker")
+        .navigationTitle("Create Audio Sticker")
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
@@ -264,7 +264,7 @@ struct TTSStampView: View {
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                 
-                Text("Select an image to create a TTS sticker")
+                Text("Select an image to create an audio sticker")
                     .font(.subheadline)
                     .foregroundColor(.white.opacity(0.7))
                     .multilineTextAlignment(.center)
@@ -311,7 +311,7 @@ struct TTSStampView: View {
                         }
                     }
                     .frame(width: 26, height: 26)
-                    Text(isGenerating ? "Generating..." : "Generate TTS")
+                    Text(isGenerating ? "Generating..." : "Generate Audio")
                         .font(.headline)
                         .fontWeight(.semibold)
                         .opacity(isGenerating || textInput.isEmpty ? 1.0 : generateButtonTextOpacity)
@@ -436,7 +436,7 @@ struct TTSStampView: View {
                             }
                         }
                         .frame(width: 26, height: 26)
-                        Text(isSaving ? "Saving..." : "Save Sticker")
+                        Text(isSaving ? "Saving..." : "Save")
                             .font(.headline)
                             .fontWeight(.semibold)
                     }
@@ -515,14 +515,14 @@ struct TTSStampView: View {
                     audioURL = url
                     isGenerating = false
                     alertTitle = String(localized: "Success")
-                    alertMessage = String(localized: "TTS audio generated successfully")
+                    alertMessage = String(localized: "Audio generated successfully")
                     showingAlert = true
                 }
             } catch {
                 await MainActor.run {
                     isGenerating = false
                     alertTitle = String(localized: "Error")
-                    alertMessage = String(format: String(localized: "failed_to_generate_tts"), error.localizedDescription)
+                    alertMessage = String(format: String(localized: "failed_to_generate_audio"), error.localizedDescription)
                     showingAlert = true
                 }
             }

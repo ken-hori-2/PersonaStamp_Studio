@@ -59,7 +59,7 @@ struct ContentView: View {
                 }
             }
             .tabItem {
-                Label("Edit", systemImage: "pencil.tip")
+                Label("Edit Sticker", systemImage: "pencil.tip")
             }
             .tag(2)
             
@@ -76,7 +76,7 @@ struct ContentView: View {
                 }
             }
             .tabItem {
-                Label("TTS Sticker", systemImage: "waveform")
+                Label("Audio Sticker", systemImage: "waveform")
             }
             .tag(3)
         }

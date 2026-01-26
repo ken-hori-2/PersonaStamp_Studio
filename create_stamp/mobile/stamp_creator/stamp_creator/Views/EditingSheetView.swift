@@ -54,7 +54,7 @@ struct EditingSheetView: View {
                     editingControlsOverlay
                 }
             }
-            .navigationTitle("Edit Image")
+            .navigationTitle("Edit Sticker")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
