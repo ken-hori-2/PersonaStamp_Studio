@@ -13,10 +13,20 @@ struct stamp_creatorApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if showSplash {
-                SplashView(onFinish: { showSplash = false })
-            } else {
+            ZStack {
+                // メイン画面（常に表示、アニメーションでフェードイン）
                 ContentView()
+                    .opacity(showSplash ? 0 : 1)
+                    .animation(.easeInOut(duration: 0.6), value: showSplash)
+                
+                // スプラッシュ画面（アニメーションで下にスライドアウト + フェードアウト）
+                if showSplash {
+                    SplashView(onFinish: { showSplash = false })
+                        .transition(.asymmetric(
+                            insertion: .opacity,
+                            removal: .move(edge: .bottom).combined(with: .opacity)
+                        ))
+                }
             }
         }
     }
