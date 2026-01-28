@@ -10,6 +10,8 @@ import PencilKit
 import Photos
 
 struct ImageEditorView: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     @State private var selectedImage: UIImage?
     @State private var showingImagePicker = false
     @State private var showingEditingSheet = false
@@ -71,10 +73,15 @@ struct ImageEditorView: View {
     
     private var backgroundView: some View {
         LinearGradient(
-            colors: [
-                Color(red: 0.08, green: 0.08, blue: 0.18),
-                Color(red: 0.15, green: 0.12, blue: 0.28)
-            ],
+            colors: colorScheme == .dark
+                ? [
+                    Color(red: 0.08, green: 0.08, blue: 0.18),
+                    Color(red: 0.15, green: 0.12, blue: 0.28)
+                ]
+                : [
+                    Color(red: 0.95, green: 0.95, blue: 0.97),
+                    Color(red: 0.98, green: 0.98, blue: 1.0)
+                ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -100,11 +107,25 @@ struct ImageEditorView: View {
             VStack(spacing: 16) {
             // 画像プレビュー（タップで編集画面を開く）
                 VStack(spacing: 12) {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFit()
-                .frame(maxHeight: 400)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                    ZStack {
+                        // 背景を明示的に設定（ライトモードでの白い四角の重複を防ぐ）
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color.clear)
+                        
+                        // 透明画像の場合はチェッカーパターンを表示
+                        if imageHasTransparency(image) {
+                            CheckerboardPattern()
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                        }
+                        
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 400)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                    }
+                    .compositingGroup()
+                    .drawingGroup()
                 }
                 .padding()
                 .background(
@@ -140,7 +161,7 @@ struct ImageEditorView: View {
                         Text("Change Image")
                             .fontWeight(.medium)
                     }
-                    .foregroundColor(.white.opacity(0.9))
+                    .foregroundColor(colorScheme == .dark ? .white.opacity(0.9) : .primary.opacity(0.9))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(
@@ -148,7 +169,12 @@ struct ImageEditorView: View {
                             .fill(.ultraThinMaterial)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                    .stroke(
+                                        colorScheme == .dark 
+                                            ? Color.white.opacity(0.2) 
+                                            : Color.black.opacity(0.2),
+                                        lineWidth: 1
+                                    )
                             )
                     )
                 }
@@ -169,7 +195,7 @@ struct ImageEditorView: View {
                                 .font(.headline)
                                 .fontWeight(.semibold)
                         }
-                        .foregroundColor(.white)
+                        .foregroundColor(.white) // ボタン背景が青・シアンのグラデーションのため
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 18)
                         .background(
@@ -209,7 +235,7 @@ struct ImageEditorView: View {
                                 .font(.headline)
                                 .fontWeight(.semibold)
                         }
-                        .foregroundColor(.white)
+                        .foregroundColor(.white) // ボタン背景が青・紫のグラデーションのため
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 18)
                         .background(
@@ -262,11 +288,11 @@ struct ImageEditorView: View {
                 Text("Select Image")
                     .font(.title2)
                     .fontWeight(.semibold)
-                    .foregroundColor(.white)
+                    .foregroundColor(colorScheme == .dark ? .white : .primary)
                 
                 Text("Tap to choose an image and start editing")
                     .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(colorScheme == .dark ? .white.opacity(0.7) : .primary.opacity(0.7))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 20)
             }
@@ -359,6 +385,14 @@ struct ImageEditorView: View {
                 showingSaveAlert = true
             }
         }
+    }
+    
+    // MARK: - Helper Functions
+    
+    private func imageHasTransparency(_ image: UIImage) -> Bool {
+        guard let cgImage = image.cgImage else { return false }
+        let alphaInfo = cgImage.alphaInfo
+        return alphaInfo == .first || alphaInfo == .last || alphaInfo == .premultipliedFirst || alphaInfo == .premultipliedLast || alphaInfo == .alphaOnly
     }
 }
 

@@ -22,6 +22,7 @@ struct ZoomablePencilKitImageView: UIViewRepresentable {
     // var onShowAddMenu: ((CGPoint) -> Void)?
     var onUndoRedoStateChanged: (() -> Void)?
     var onImageViewFrameChanged: ((CGRect) -> Void)?
+    @Environment(\.colorScheme) var colorScheme
     
     func makeUIView(context: Context) -> UIView {
         let containerView = UIView()
@@ -66,6 +67,7 @@ struct ZoomablePencilKitImageView: UIViewRepresentable {
         let borderView = ImageBorderView()
         borderView.isUserInteractionEnabled = false
         borderView.translatesAutoresizingMaskIntoConstraints = true
+        borderView.updateBorderColor(isDarkMode: colorScheme == .dark)
         scrollView.addSubview(borderView)
         context.coordinator.borderView = borderView
         
@@ -222,6 +224,11 @@ struct ZoomablePencilKitImageView: UIViewRepresentable {
               let scrollView = context.coordinator.scrollView,
               let containerView = context.coordinator.containerView else { return }
               // let contentContainer = context.coordinator.contentContainer else { return } // コメントアウト（未使用）
+        
+        // カラースキームが変更されたら枠の色を更新
+        if let borderView = context.coordinator.borderView {
+            borderView.updateBorderColor(isDarkMode: colorScheme == .dark)
+        }
         
         // 画像が変更された場合
         if imageView.image != image {

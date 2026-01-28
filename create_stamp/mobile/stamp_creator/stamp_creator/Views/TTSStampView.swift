@@ -13,6 +13,8 @@ import CoreMedia
 import AVKit
 
 struct TTSStampView: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     @State private var selectedImage: UIImage?
     @State private var textInput: String = ""
     @State private var showingImagePicker = false
@@ -49,11 +51,25 @@ struct TTSStampView: View {
                         // 画像表示エリア
                         if let image = selectedImage {
                             VStack(spacing: 12) {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(maxHeight: 400)
-                                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                                ZStack {
+                                    // 背景を明示的に設定（ライトモードでの白い四角の重複を防ぐ）
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .fill(Color.clear)
+                                    
+                                    // 透明画像の場合はチェッカーパターンを表示
+                                    if imageHasTransparency(image) {
+                                        CheckerboardPattern()
+                                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                                    }
+                                    
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(maxHeight: 400)
+                                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                                }
+                                .compositingGroup()
+                                .drawingGroup()
                             }
                             .padding()
                             .background(
@@ -85,7 +101,7 @@ struct TTSStampView: View {
                                     Text("Change Image")
                                         .fontWeight(.medium)
                                 }
-                                .foregroundColor(.white.opacity(0.9))
+                                .foregroundColor(colorScheme == .dark ? .white.opacity(0.9) : .primary.opacity(0.9))
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
                                 .background(
@@ -93,7 +109,12 @@ struct TTSStampView: View {
                                         .fill(.ultraThinMaterial)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 16)
-                                                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                                .stroke(
+                                                    colorScheme == .dark 
+                                                        ? Color.white.opacity(0.2) 
+                                                        : Color.black.opacity(0.2),
+                                                    lineWidth: 1
+                                                )
                                         )
                                 )
                             }
@@ -112,36 +133,36 @@ struct TTSStampView: View {
                                 HStack {
                                     Image(systemName: "text.bubble")
                                         .font(.title3)
-                                        .foregroundColor(.white.opacity(0.8))
+                                        .foregroundColor(colorScheme == .dark ? .white.opacity(0.8) : .primary.opacity(0.8))
                                     Text("Text Input")
                                         .font(.headline)
                                         .fontWeight(.semibold)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(colorScheme == .dark ? .white : .primary)
                                     Spacer()
                                     if !textInput.isEmpty {
                                         Text("\(textInput.count) \(String(localized: "chars"))")
                                             .font(.caption)
-                                            .foregroundColor(.white.opacity(0.6))
+                                            .foregroundColor(colorScheme == .dark ? .white.opacity(0.6) : .primary.opacity(0.6))
                                     }
                                 }
                                 .padding(.horizontal)
                                 
                                 Text("Converts your text into spoken audio.")
                                     .font(.caption)
-                                    .foregroundColor(.white.opacity(0.65))
+                                    .foregroundColor(colorScheme == .dark ? .white.opacity(0.65) : .primary.opacity(0.65))
                                     .padding(.horizontal)
                                     .padding(.top, 2)
                                 
                                 Text("Detects en/ja from text and reads aloud: alphabets → English; hiragana, katakana, kanji → Japanese.")
                                     .font(.caption)
-                                    .foregroundColor(.white.opacity(0.65))
+                                    .foregroundColor(colorScheme == .dark ? .white.opacity(0.65) : .primary.opacity(0.65))
                                     .padding(.horizontal)
                                     .padding(.top, 2)
                                 
                                 ZStack(alignment: .topLeading) {
                                     if textInput.isEmpty {
                                         Text("Enter text for audio...")
-                                            .foregroundColor(.white.opacity(0.4))
+                                            .foregroundColor(colorScheme == .dark ? .white.opacity(0.4) : .primary.opacity(0.4))
                                             .padding(.horizontal, 16)
                                             .padding(.vertical, 20)
                                     }
@@ -151,7 +172,7 @@ struct TTSStampView: View {
                                         .scrollContentBackground(.hidden)
                                         .padding(12)
                                         .background(Color.clear)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(colorScheme == .dark ? .white : .primary)
                                         .focused($isTextEditorFocused)
                                 }
                                 .background(
@@ -215,6 +236,20 @@ struct TTSStampView: View {
         .sheet(isPresented: $showingImagePicker) {
             ImagePicker(selectedImage: $selectedImage)
         }
+        .onChange(of: selectedImage) { oldValue, newValue in
+            // 画像が変更された時に状態をリセット
+            if newValue != nil {
+                audioURL = nil
+                isGenerating = false
+                isPlaying = false
+                stopPulseAnimation()
+                // 音声再生を停止
+                audioEngine?.stop()
+                audioPlayerNode?.stop()
+                audioEngine = nil
+                audioPlayerNode = nil
+            }
+        }
         .alert(alertTitle, isPresented: $showingAlert) {
             Button("OK") {}
         } message: {
@@ -231,10 +266,15 @@ struct TTSStampView: View {
     
     private var backgroundView: some View {
         LinearGradient(
-            colors: [
-                Color(red: 0.08, green: 0.08, blue: 0.18),
-                Color(red: 0.15, green: 0.12, blue: 0.28)
-            ],
+            colors: colorScheme == .dark
+                ? [
+                    Color(red: 0.08, green: 0.08, blue: 0.18),
+                    Color(red: 0.15, green: 0.12, blue: 0.28)
+                ]
+                : [
+                    Color(red: 0.95, green: 0.95, blue: 0.97),
+                    Color(red: 0.98, green: 0.98, blue: 1.0)
+                ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -262,11 +302,11 @@ struct TTSStampView: View {
                 Text("Select Image")
                     .font(.title2)
                     .fontWeight(.semibold)
-                    .foregroundColor(.white)
+                    .foregroundColor(colorScheme == .dark ? .white : .primary)
                 
                 Text("Select an image to create an audio sticker")
                     .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(colorScheme == .dark ? .white.opacity(0.7) : .primary.opacity(0.7))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 20)
             }
@@ -1188,6 +1228,14 @@ struct TTSStampView: View {
         
         // キーボードを閉じる
         isTextEditorFocused = false
+    }
+    
+    // MARK: - Helper Functions
+    
+    private func imageHasTransparency(_ image: UIImage) -> Bool {
+        guard let cgImage = image.cgImage else { return false }
+        let alphaInfo = cgImage.alphaInfo
+        return alphaInfo == .first || alphaInfo == .last || alphaInfo == .premultipliedFirst || alphaInfo == .premultipliedLast || alphaInfo == .alphaOnly
     }
 }
 

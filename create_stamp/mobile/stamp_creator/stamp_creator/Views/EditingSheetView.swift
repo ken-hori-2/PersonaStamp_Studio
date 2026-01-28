@@ -14,6 +14,7 @@ struct EditingSheetView: View {
     let onSave: (UIImage) -> Void
     
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) var colorScheme
     @State private var canvasView: PKCanvasView?
     @State private var toolPicker: PKToolPicker?
     @State private var isToolPickerVisible = false
@@ -25,14 +26,25 @@ struct EditingSheetView: View {
             ZStack {
                 // 背景
                 LinearGradient(
-                    colors: [
-                        Color(red: 0.08, green: 0.08, blue: 0.18),
-                        Color(red: 0.15, green: 0.12, blue: 0.28)
-                    ],
+                    colors: colorScheme == .dark
+                        ? [
+                            Color(red: 0.08, green: 0.08, blue: 0.18),
+                            Color(red: 0.15, green: 0.12, blue: 0.28)
+                        ]
+                        : [
+                            Color(red: 0.95, green: 0.95, blue: 0.97),
+                            Color(red: 0.98, green: 0.98, blue: 1.0)
+                        ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
                 .ignoresSafeArea()
+                
+                // 透明画像の場合はチェッカーパターンを背景に表示
+                if imageHasTransparency(image) {
+                    CheckerboardPattern()
+                        .ignoresSafeArea()
+                }
                 
                 VStack(spacing: 0) {
                     // 編集エリア
@@ -83,7 +95,9 @@ struct EditingSheetView: View {
                 }) {
                     Image(systemName: "arrow.uturn.backward")
                         .font(.title3)
-                        .foregroundColor(canUndo ? .white : .white.opacity(0.5))
+                        .foregroundColor(canUndo 
+                            ? (colorScheme == .dark ? .white : .primary)
+                            : (colorScheme == .dark ? .white.opacity(0.5) : .primary.opacity(0.5)))
                         .frame(width: 50, height: 50)
                         .background(.ultraThinMaterial)
                         .cornerRadius(25)
@@ -97,7 +111,9 @@ struct EditingSheetView: View {
                 }) {
                     Image(systemName: "arrow.uturn.forward")
                         .font(.title3)
-                        .foregroundColor(canRedo ? .white : .white.opacity(0.5))
+                        .foregroundColor(canRedo 
+                            ? (colorScheme == .dark ? .white : .primary)
+                            : (colorScheme == .dark ? .white.opacity(0.5) : .primary.opacity(0.5)))
                         .frame(width: 50, height: 50)
                         .background(.ultraThinMaterial)
                         .cornerRadius(25)
@@ -300,5 +316,13 @@ struct EditingSheetView: View {
                 }
             }
         }
+    }
+    
+    // MARK: - Helper Functions
+    
+    private func imageHasTransparency(_ image: UIImage) -> Bool {
+        guard let cgImage = image.cgImage else { return false }
+        let alphaInfo = cgImage.alphaInfo
+        return alphaInfo == .first || alphaInfo == .last || alphaInfo == .premultipliedFirst || alphaInfo == .premultipliedLast || alphaInfo == .alphaOnly
     }
 }

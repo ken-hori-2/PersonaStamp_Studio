@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct CheckerboardPattern: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     var body: some View {
         GeometryReader { geometry in
             let tileSize: CGFloat = 20
@@ -18,7 +20,11 @@ struct CheckerboardPattern: View {
                 ForEach(0..<rows, id: \.self) { row in
                     ForEach(0..<cols, id: \.self) { col in
                         Rectangle()
-                            .fill((row + col) % 2 == 0 ? Color.white.opacity(0.1) : Color.gray.opacity(0.1))
+                            .fill(
+                                (row + col) % 2 == 0
+                                    ? (colorScheme == .dark ? Color.white.opacity(0.1) : Color.white.opacity(0.3))
+                                    : (colorScheme == .dark ? Color.gray.opacity(0.1) : Color.gray.opacity(0.2))
+                            )
                             .frame(width: tileSize, height: tileSize)
                             .offset(x: CGFloat(col) * tileSize, y: CGFloat(row) * tileSize)
                     }

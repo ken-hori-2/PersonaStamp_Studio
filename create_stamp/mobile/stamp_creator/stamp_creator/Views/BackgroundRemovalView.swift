@@ -10,6 +10,8 @@ import VisionKit
 import Photos
 
 struct BackgroundRemovalView: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     // 画像関連
     @State private var selectedImage: UIImage?
     @State private var processedImage: UIImage?
@@ -74,10 +76,15 @@ struct BackgroundRemovalView: View {
     
     private var backgroundView: some View {
         LinearGradient(
-            colors: [
-                Color(red: 0.08, green: 0.08, blue: 0.18),
-                Color(red: 0.15, green: 0.12, blue: 0.28)
-            ],
+            colors: colorScheme == .dark
+                ? [
+                    Color(red: 0.08, green: 0.08, blue: 0.18),
+                    Color(red: 0.15, green: 0.12, blue: 0.28)
+                ]
+                : [
+                    Color(red: 0.95, green: 0.95, blue: 0.97),
+                    Color(red: 0.98, green: 0.98, blue: 1.0)
+                ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -117,7 +124,7 @@ struct BackgroundRemovalView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Long press to select subject, tap to deselect")
                 .font(.caption2)
-                .foregroundColor(.white.opacity(0.6))
+                .foregroundColor(colorScheme == .dark ? .white.opacity(0.6) : .primary.opacity(0.6))
                 .padding(.horizontal)
             
             // 拡大縮小可能な画像ビュー（画面全体を最大限活用）
@@ -146,6 +153,10 @@ struct BackgroundRemovalView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 20)
                             .fill(.ultraThinMaterial)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                            )
                             .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
                     )
                     .environmentObject(viewModel)
@@ -169,7 +180,7 @@ struct BackgroundRemovalView: View {
                     Text("Change Image")
                         .fontWeight(.medium)
                 }
-                .foregroundColor(.white.opacity(0.9))
+                .foregroundColor(colorScheme == .dark ? .white.opacity(0.9) : .primary.opacity(0.9))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
                     .background(
@@ -177,7 +188,12 @@ struct BackgroundRemovalView: View {
                             .fill(.ultraThinMaterial)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                    .stroke(
+                                        colorScheme == .dark 
+                                            ? Color.white.opacity(0.2) 
+                                            : Color.black.opacity(0.2),
+                                        lineWidth: 1
+                                    )
                             )
                     )
             }
@@ -246,7 +262,7 @@ struct BackgroundRemovalView: View {
                     .fontWeight(.semibold)
                     .opacity(isProcessing ? 1.0 : removeButtonTextOpacity)
             }
-            .foregroundColor(.white)
+            .foregroundColor(.white) // ボタンは常に白（背景が青・紫のグラデーションのため）
             .padding(.horizontal, 20)
             .padding(.vertical, 14)
             .background(
@@ -325,11 +341,11 @@ struct BackgroundRemovalView: View {
                 Text("Select Image")
                     .font(.title2)
                     .fontWeight(.semibold)
-                    .foregroundColor(.white)
+                    .foregroundColor(colorScheme == .dark ? .white : .primary)
                 
                 Text("Long press to select subject, tap to deselect")
                     .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(colorScheme == .dark ? .white.opacity(0.7) : .primary.opacity(0.7))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 20)
             }

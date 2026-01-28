@@ -9,6 +9,8 @@ import SwiftUI
 import Photos
 
 struct BackgroundCompositionView: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     // 画像関連
     @State private var foregroundImage: UIImage? // 背景除去した画像（透明PNG）
     @State private var composedImage: UIImage? // 合成された画像
@@ -114,10 +116,15 @@ struct BackgroundCompositionView: View {
     
     private var backgroundView: some View {
         LinearGradient(
-            colors: [
-                Color(red: 0.08, green: 0.08, blue: 0.18),
-                Color(red: 0.15, green: 0.12, blue: 0.28)
-            ],
+            colors: colorScheme == .dark
+                ? [
+                    Color(red: 0.08, green: 0.08, blue: 0.18),
+                    Color(red: 0.15, green: 0.12, blue: 0.28)
+                ]
+                : [
+                    Color(red: 0.95, green: 0.95, blue: 0.97),
+                    Color(red: 0.98, green: 0.98, blue: 1.0)
+                ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -151,11 +158,11 @@ struct BackgroundCompositionView: View {
             HStack {
                 Image(systemName: "paintpalette")
                     .font(.title3)
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(colorScheme == .dark ? .white.opacity(0.8) : .primary.opacity(0.8))
             Text("Background Settings")
                 .font(.headline)
                     .fontWeight(.semibold)
-                .foregroundColor(.white)
+                .foregroundColor(colorScheme == .dark ? .white : .primary)
             }
                 .padding(.horizontal)
             
@@ -164,7 +171,7 @@ struct BackgroundCompositionView: View {
                 Text("Background Color")
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(.white.opacity(0.9))
+                    .foregroundColor(colorScheme == .dark ? .white.opacity(0.9) : .primary.opacity(0.9))
                     .padding(.horizontal)
                 
                 Picker("Background Color", selection: $backgroundColor) {
@@ -181,7 +188,7 @@ struct BackgroundCompositionView: View {
                 Text("Square Size")
                     .font(.subheadline)
                     .fontWeight(.medium)
-                    .foregroundColor(.white.opacity(0.9))
+                    .foregroundColor(colorScheme == .dark ? .white.opacity(0.9) : .primary.opacity(0.9))
                     .padding(.horizontal)
                 
                 Picker("サイズ", selection: $squareSize) {
@@ -220,11 +227,11 @@ struct BackgroundCompositionView: View {
             HStack {
                 Image(systemName: "slider.horizontal.3")
                     .font(.title3)
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(colorScheme == .dark ? .white.opacity(0.8) : .primary.opacity(0.8))
             Text("Composition Options")
                 .font(.headline)
                     .fontWeight(.semibold)
-                .foregroundColor(.white)
+                .foregroundColor(colorScheme == .dark ? .white : .primary)
             }
                 .padding(.horizontal)
             
@@ -234,12 +241,12 @@ struct BackgroundCompositionView: View {
                     Text("Image Size")
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundColor(.white.opacity(0.9))
+                        .foregroundColor(colorScheme == .dark ? .white.opacity(0.9) : .primary.opacity(0.9))
                     Spacer()
                     Text("\(Int(foregroundScale * 100))%")
                     .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(.white)
+                        .foregroundColor(.white) // ボタン背景が青・紫のグラデーションのため
                         .padding(.horizontal, 12)
                         .padding(.vertical, 4)
                         .background(
@@ -276,23 +283,31 @@ struct BackgroundCompositionView: View {
                         Text((composedImage != nil || previewImage != nil) ? "Preview" : "Selected Image")
                             .font(.subheadline)
                             .fontWeight(.medium)
-                            .foregroundColor(.white.opacity(0.9))
+                            .foregroundColor(colorScheme == .dark ? .white.opacity(0.9) : .primary.opacity(0.9))
                     .padding(.horizontal)
                 
                         // 固定フレームで揺れを防ぐ（正方形の背景サイズで、Compose/プレビューと同じ見せ方。中央揃えで左寄せを防ぐ）
-                        Group {
-                            if let preview = previewImage {
-                                Image(uiImage: preview)
-                                    .resizable()
-                                    .scaledToFit()
-                            } else if let composed = composedImage {
-                                Image(uiImage: composed)
-                                    .resizable()
-                                    .scaledToFit()
-                            } else {
-                                Image(uiImage: foreground)
-                                    .resizable()
-                                    .scaledToFit()
+                        ZStack {
+                            // 透明背景の場合はチェッカーパターンを表示
+                            if backgroundColor == .transparent {
+                                CheckerboardPattern()
+                                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                            }
+                            
+                            Group {
+                                if let preview = previewImage {
+                                    Image(uiImage: preview)
+                                        .resizable()
+                                        .scaledToFit()
+                                } else if let composed = composedImage {
+                                    Image(uiImage: composed)
+                                        .resizable()
+                                        .scaledToFit()
+                                } else {
+                                    Image(uiImage: foreground)
+                                        .resizable()
+                                        .scaledToFit()
+                                }
                             }
                         }
                         .frame(width: 300, height: 300) // 正方形で、Compose後の表示と揃える
@@ -322,7 +337,7 @@ struct BackgroundCompositionView: View {
                     
                     Text("Adjust with the slider to preview. Press Compose to create the final image, then Save.")
                         .font(.caption)
-                        .foregroundColor(.white.opacity(0.6))
+                        .foregroundColor(colorScheme == .dark ? .white.opacity(0.6) : .primary.opacity(0.6))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                         .padding(.top, 4)
@@ -337,7 +352,7 @@ struct BackgroundCompositionView: View {
                             Text("Change Image")
                                 .fontWeight(.medium)
                         }
-                        .foregroundColor(.white.opacity(0.9))
+                        .foregroundColor(colorScheme == .dark ? .white.opacity(0.9) : .primary.opacity(0.9))
                     .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                     .background(
@@ -345,7 +360,12 @@ struct BackgroundCompositionView: View {
                             .fill(.ultraThinMaterial)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                    .stroke(
+                                        colorScheme == .dark 
+                                            ? Color.white.opacity(0.2) 
+                                            : Color.black.opacity(0.2),
+                                        lineWidth: 1
+                                    )
                             )
                     )
                     }
@@ -530,11 +550,11 @@ struct BackgroundCompositionView: View {
                 Text("Select Image")
                     .font(.title2)
                     .fontWeight(.semibold)
-                    .foregroundColor(.white)
+                    .foregroundColor(colorScheme == .dark ? .white : .primary)
                 
                 Text("Select an extracted image to place on a square background")
                     .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(colorScheme == .dark ? .white.opacity(0.7) : .primary.opacity(0.7))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 20)
             }

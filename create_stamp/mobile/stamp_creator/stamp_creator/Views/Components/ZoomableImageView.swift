@@ -15,6 +15,7 @@ struct ZoomableImageView: UIViewRepresentable {
     var onLongPressInScrollView: ((CGPoint) -> Void)? = nil // ScrollView内の座標（拡大時用）
     var onZoomChanged: ((CGFloat, CGPoint, CGRect) -> Void)? = nil
     @EnvironmentObject var viewModel: ImageAnalysisViewModel
+    @Environment(\.colorScheme) var colorScheme
     
     func makeUIView(context: Context) -> ZoomableScrollView {
         let scrollView = ZoomableScrollView()
@@ -41,6 +42,7 @@ struct ZoomableImageView: UIViewRepresentable {
         // 画像の枠を表示するビュー
         let borderView = ImageBorderView()
         borderView.isUserInteractionEnabled = false
+        borderView.updateBorderColor(isDarkMode: colorScheme == .dark)
         scrollView.addSubview(borderView)
         context.coordinator.borderView = borderView
         context.coordinator.scrollView = scrollView
@@ -111,6 +113,11 @@ struct ZoomableImageView: UIViewRepresentable {
     
     func updateUIView(_ uiView: ZoomableScrollView, context: Context) {
         guard let imageView = uiView.imageView else { return }
+        
+        // カラースキームが変更されたら枠の色を更新
+        if let borderView = context.coordinator.borderView {
+            borderView.updateBorderColor(isDarkMode: colorScheme == .dark)
+        }
         
         if imageView.image != image {
             imageView.image = image
@@ -444,7 +451,7 @@ class ImageBorderView: UIView {
     private func setupBorder() {
         backgroundColor = .clear
         
-        // メインの枠線
+        // メインの枠線（デフォルトはダークモード）
         borderLayer.strokeColor = UIColor.white.withAlphaComponent(0.6).cgColor
         borderLayer.fillColor = UIColor.clear.cgColor
         borderLayer.lineWidth = 2.0
@@ -458,6 +465,20 @@ class ImageBorderView: UIView {
             edgeLayer.fillColor = UIColor.clear.cgColor
             edgeLayer.lineWidth = 1.5
             layer.addSublayer(edgeLayer)
+        }
+    }
+    
+    func updateBorderColor(isDarkMode: Bool) {
+        // メインの枠線
+        borderLayer.strokeColor = isDarkMode 
+            ? UIColor.white.withAlphaComponent(0.6).cgColor
+            : UIColor.black.withAlphaComponent(0.4).cgColor
+        
+        // 境目の線
+        for edgeLayer in edgeLayers {
+            edgeLayer.strokeColor = isDarkMode
+                ? UIColor.white.withAlphaComponent(0.8).cgColor
+                : UIColor.black.withAlphaComponent(0.6).cgColor
         }
     }
     
