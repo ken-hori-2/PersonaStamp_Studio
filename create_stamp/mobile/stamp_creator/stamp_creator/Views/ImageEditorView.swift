@@ -104,29 +104,32 @@ struct ImageEditorView: View {
     @ViewBuilder
     private var imagePreviewArea: some View {
         if let image = selectedImage {
-            VStack(spacing: 16) {
-            // 画像プレビュー（タップで編集画面を開く）
-                VStack(spacing: 12) {
-                    ZStack {
-                        // 背景を明示的に設定（ライトモードでの白い四角の重複を防ぐ）
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.clear)
-                        
-                        // 透明画像の場合はチェッカーパターンを表示
-                        if imageHasTransparency(image) {
-                            CheckerboardPattern()
-                                .clipShape(RoundedRectangle(cornerRadius: 20))
-                        }
-                        
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: 400)
+            VStack(alignment: .leading, spacing: 12) {
+                Text(String(localized: "Tap image or Edit button to start editing"))
+                    .font(.caption2)
+                    .foregroundColor(colorScheme == .dark ? .white.opacity(0.6) : .primary.opacity(0.6))
+                    .padding(.horizontal)
+                
+                // 画像プレビュー（タップで編集画面を開く）
+                ZStack {
+                    // 背景を明示的に設定（ライトモードでの白い四角の重複を防ぐ）
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.clear)
+                    
+                    // 透明画像の場合はチェッカーパターンを表示
+                    if imageHasTransparency(image) {
+                        CheckerboardPattern()
                             .clipShape(RoundedRectangle(cornerRadius: 20))
                     }
-                    .compositingGroup()
-                    .drawingGroup()
+                    
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxHeight: 400)
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
                 }
+                .compositingGroup()
+                .drawingGroup()
                 .padding()
                 .background(
                     RoundedRectangle(cornerRadius: 24)
@@ -285,12 +288,12 @@ struct ImageEditorView: View {
                     )
                     .symbolEffect(.pulse, options: .repeating)
                 
-                Text("Select Image")
+                Text(String(localized: "Select Image"))
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(colorScheme == .dark ? .white : .primary)
                 
-                Text("Tap to choose an image and start editing")
+                Text(String(localized: "Select an image to edit"))
                     .font(.subheadline)
                     .foregroundColor(colorScheme == .dark ? .white.opacity(0.7) : .primary.opacity(0.7))
                     .multilineTextAlignment(.center)

@@ -122,7 +122,7 @@ struct BackgroundRemovalView: View {
     
     private func originalImageView(image: UIImage) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Long press to select subject, tap to deselect")
+            Text(String(localized: "Long press to select subject, tap to deselect"))
                 .font(.caption2)
                 .foregroundColor(colorScheme == .dark ? .white.opacity(0.6) : .primary.opacity(0.6))
                 .padding(.horizontal)
@@ -338,12 +338,12 @@ struct BackgroundRemovalView: View {
                     )
                     .symbolEffect(.pulse, options: .repeating)
                 
-                Text("Select Image")
+                Text(String(localized: "Select Image"))
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(colorScheme == .dark ? .white : .primary)
                 
-                Text("Long press to select subject, tap to deselect")
+                Text(String(localized: "Select an image to remove its background"))
                     .font(.subheadline)
                     .foregroundColor(colorScheme == .dark ? .white.opacity(0.7) : .primary.opacity(0.7))
                     .multilineTextAlignment(.center)

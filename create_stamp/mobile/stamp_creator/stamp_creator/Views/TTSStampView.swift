@@ -50,8 +50,14 @@ struct TTSStampView: View {
                     VStack(spacing: 20) {
                         // 画像表示エリア
                         if let image = selectedImage {
-                            VStack(spacing: 12) {
-                                ZStack {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text(String(localized: "Enter text, press Generate Audio to create audio, play to preview audio, then Save to save the sticker."))
+                                    .font(.caption2)
+                                    .foregroundColor(colorScheme == .dark ? .white.opacity(0.6) : .primary.opacity(0.6))
+                                    .padding(.horizontal)
+                                
+                                VStack(spacing: 12) {
+                                    ZStack {
                                     // 背景を明示的に設定（ライトモードでの白い四角の重複を防ぐ）
                                     RoundedRectangle(cornerRadius: 20)
                                         .fill(Color.clear)
@@ -70,7 +76,7 @@ struct TTSStampView: View {
                                 }
                                 .compositingGroup()
                                 .drawingGroup()
-                            }
+                                }
                             .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 24)
@@ -120,6 +126,7 @@ struct TTSStampView: View {
                             }
                             .buttonStyle(ScaleButtonStyle())
                             .padding(.horizontal)
+                            }
                         } else {
                             placeholderView
                                 .onTapGesture {
@@ -299,12 +306,12 @@ struct TTSStampView: View {
                     )
                     .symbolEffect(.pulse, options: .repeating)
                 
-                Text("Select Image")
+                Text(String(localized: "Select Image"))
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(colorScheme == .dark ? .white : .primary)
                 
-                Text("Select an image to create an audio sticker")
+                Text(String(localized: "Select an image to create an audio sticker"))
                     .font(.subheadline)
                     .foregroundColor(colorScheme == .dark ? .white.opacity(0.7) : .primary.opacity(0.7))
                     .multilineTextAlignment(.center)

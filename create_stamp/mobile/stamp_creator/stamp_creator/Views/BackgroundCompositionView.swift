@@ -139,6 +139,14 @@ struct BackgroundCompositionView: View {
                     if foregroundImage == nil {
                         placeholderView
                     } else {
+                    // 説明文
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(String(localized: "Set background color and size, adjust with the slider to preview. Press Compose to create the final image, then Save."))
+                            .font(.caption2)
+                            .foregroundColor(colorScheme == .dark ? .white.opacity(0.6) : .primary.opacity(0.6))
+                            .padding(.horizontal)
+                    }
+                    
                     // 背景設定エリア
                     backgroundSettingsArea
                     
@@ -288,10 +296,13 @@ struct BackgroundCompositionView: View {
                 
                         // 固定フレームで揺れを防ぐ（正方形の背景サイズで、Compose/プレビューと同じ見せ方。中央揃えで左寄せを防ぐ）
                         ZStack {
-                            // 透明背景の場合はチェッカーパターンを表示
+                            // 背景を表示（透明の場合はチェッカーパターン、白の場合は白背景）
                             if backgroundColor == .transparent {
                                 CheckerboardPattern()
                                     .clipShape(RoundedRectangle(cornerRadius: 16))
+                            } else if backgroundColor == .white {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color.white)
                             }
                             
                             Group {
@@ -334,13 +345,6 @@ struct BackgroundCompositionView: View {
     }
                     .padding(.top, 8)
                     .id(composedImage != nil ? "composed" : previewImage != nil ? "preview" : "selected") // IDを設定してアニメーションを制御
-                    
-                    Text("Adjust with the slider to preview. Press Compose to create the final image, then Save.")
-                        .font(.caption)
-                        .foregroundColor(colorScheme == .dark ? .white.opacity(0.6) : .primary.opacity(0.6))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                        .padding(.top, 4)
                     
                     // Change Imageボタン
                 Button(action: {
@@ -547,12 +551,12 @@ struct BackgroundCompositionView: View {
                     )
                     .symbolEffect(.pulse, options: .repeating)
                 
-                Text("Select Image")
+                Text(String(localized: "Select Image"))
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(colorScheme == .dark ? .white : .primary)
                 
-                Text("Select an extracted image to place on a square background")
+                Text(String(localized: "Select an extracted image to place on a square background"))
                     .font(.subheadline)
                     .foregroundColor(colorScheme == .dark ? .white.opacity(0.7) : .primary.opacity(0.7))
                     .multilineTextAlignment(.center)
