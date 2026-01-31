@@ -32,7 +32,7 @@ struct SplashView: View {
                         .font(.system(size: 42, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
 
-                    Text("Rendezvous with the Moment")
+                    Text("Rendezvous with that Moment")
                         .font(.system(size: 16, weight: .medium, design: .default))
                         .foregroundColor(.white.opacity(0.85))
                         .tracking(1.2)

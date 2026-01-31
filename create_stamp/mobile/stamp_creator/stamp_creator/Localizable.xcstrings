@@ -1,9 +1,9 @@
 {
-  "sourceLanguage" : "en",
+  "sourceLanguage" : "ja",
   "strings" : {
     "%lld %@" : {
       "localizations" : {
-        "en" : {
+        "ja" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$lld %2$@"
@@ -674,7 +674,7 @@
         }
       }
     },
-    "Rendezvous with the Moment" : {
+    "Rendezvous with that Moment" : {
 
     },
     "Save" : {
