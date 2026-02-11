@@ -27,6 +27,10 @@ App Store にて公開中の、写真から「音声付きスタンプ」まで�
 お使いの環境では動画を再生できません。 [動画をダウンロード](create_stamp/portfolio/AXiV-App-Preview.mp4)
 </video>
 
+### GIF プレビュー（GitHub 表示用）
+
+<img src="create_stamp/portfolio/AXiV-App-Preview.gif" width="360" alt="AXiV アプリ GIF プレビュー">
+
 ---
 
 ## コンセプト・メッセージ（App Store プロモーション）
