@@ -28,6 +28,22 @@
 
 ---
 
+## ポートフォリオ用素材
+
+`portfolio/` に、画面プレビュー画像を置いています。
+
+| 素材 | ファイル |
+|------|----------|
+| 画面プレビュー | [IMG_3497.PNG](portfolio/IMG_3497.PNG) ～ [IMG_3501.PNG](portfolio/IMG_3501.PNG) |
+
+### プレビュー画像
+
+<img src="portfolio/IMG_3497.PNG" width="200" alt="RendVu 画面プレビュー 1"> <img src="portfolio/IMG_3498.PNG" width="200" alt="RendVu 画面プレビュー 2"> <img src="portfolio/IMG_3499.PNG" width="200" alt="RendVu 画面プレビュー 3">
+
+<img src="portfolio/IMG_3500.PNG" width="200" alt="RendVu 画面プレビュー 4"> <img src="portfolio/IMG_3501.PNG" width="200" alt="RendVu 画面プレビュー 5">
+
+---
+
 ## プロジェクト構成
 
 ```
@@ -52,6 +68,7 @@ RendVu/
 ├── Models/                 # データモデル
 │   ├── VoiceModel.swift, TTSHistoryItem.swift, EmotionTag.swift
 ├── docs/                   # ドキュメント（セットアップ・APIキー・認証・トラブルシュート等）
+├── portfolio/              # 画面プレビュー画像（README・紹介用）
 ├── Podfile / Podfile.lock  # CocoaPods（FirebaseAuth, FirebaseCore）
 └── RendVu.xcodeproj / RendVu.xcworkspace
 ```
