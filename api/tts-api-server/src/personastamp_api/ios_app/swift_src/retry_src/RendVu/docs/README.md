@@ -50,11 +50,13 @@ Firebase Authentication、Apple Sign Inの設定とトラブルシューティ�
 
 ### 05_development/ - 開発環境
 
-Xcode、Apple Developer、開発ツールの設定
+Xcode、Apple Developer、開発ツールの設定、機能仕様
 
 - `XCODE_SIGNING_SETUP.md` - Xcodeの署名設定
 - `APPLE_DEVELOPER_PROGRAM_SETUP.md` - Apple Developer Programの設定
 - `BACKEND_SERVER_SETUP.md` - バックエンドサーバーの設定
+- `VOICE_CLONE_AND_TTS_SPECIFICATION.md` - 音声クローン・TTS機能の設計仕様書
+- `RENDER_FREE_PLAN_LIMITATIONS.md` - Render.com無料プランの制限と音源分離処理
 
 ### 06_reference/ - 参考資料
 
