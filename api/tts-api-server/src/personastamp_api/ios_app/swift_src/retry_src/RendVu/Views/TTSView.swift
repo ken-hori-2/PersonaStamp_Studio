@@ -23,6 +23,14 @@ struct TTSView: View {
                         .frame(height: 150)
                         .focused($isTextEditorFocused)
                     
+                    // 文字数カウント表示
+                    HStack {
+                        Spacer()
+                        Text("\(viewModel.text.count)/30")
+                            .font(.caption)
+                            .foregroundColor(viewModel.text.count > 30 ? .red : .secondary)
+                    }
+                    
                     // 感情タグ挿入ボタン
                     Button(action: {
                         showEmotionPicker = true

@@ -25,6 +25,8 @@ class VoiceCloneViewModel: ObservableObject {
     @Published var successAlertMessage = ""
     @Published var recordingTimeString = "00:00"
     @Published var autoTranscribeEnabled = true
+    @Published var selectedAudioFile: URL?
+    @Published var showDocumentPicker = false
     
     private var audioRecorder: AVAudioRecorder?
     private var audioURL: URL?
@@ -53,6 +55,12 @@ class VoiceCloneViewModel: ObservableObject {
     }
     
     func startRecording() {
+        // 既存のファイル選択をクリア
+        if let existingURL = audioURL, existingURL.path.contains("selected_audio_") {
+            try? FileManager.default.removeItem(at: existingURL)
+        }
+        selectedAudioFile = nil
+        
         let audioSession = AVAudioSession.sharedInstance()
         
         do {
@@ -191,6 +199,48 @@ class VoiceCloneViewModel: ObservableObject {
         let minutes = Int(elapsed) / 60
         let seconds = Int(elapsed) % 60
         recordingTimeString = String(format: "%02d:%02d", minutes, seconds)
+        
+        // 1分（60秒）を超えたら自動停止
+        if elapsed >= 60.0 {
+            stopRecording()
+            errorMessage = "録音時間は最大1分までです。1分で自動停止しました。"
+        }
+    }
+    
+    func selectAudioFile() {
+        showDocumentPicker = true
+    }
+    
+    func handleSelectedAudioFile(_ url: URL) {
+        // ファイルの長さをチェック（最大1分）
+        do {
+            let audioFile = try AVAudioFile(forReading: url)
+            let duration = Double(audioFile.length) / audioFile.fileFormat.sampleRate
+            
+            if duration > 60.0 {
+                errorMessage = "選択した音声ファイルは1分を超えています（\(String(format: "%.1f", duration))秒）。1分以内の音声ファイルを選択してください。"
+                return
+            }
+            
+            // 既存の録音ファイルをクリア
+            if let existingURL = audioURL, existingURL.path.contains("recording_") {
+                try? FileManager.default.removeItem(at: existingURL)
+            }
+            
+            selectedAudioFile = url
+            audioURL = url
+            hasRecordedAudio = true
+            errorMessage = nil
+            
+            // 自動文字起こしが有効な場合、文字起こしを実行
+            if autoTranscribeEnabled {
+                Task {
+                    await transcribeAudio()
+                }
+            }
+        } catch {
+            errorMessage = "音声ファイルの読み込みに失敗しました: \(error.localizedDescription)"
+        }
     }
     
     func cloneVoice(authManager: AuthManager) async {
@@ -225,9 +275,15 @@ class VoiceCloneViewModel: ObservableObject {
             modelName = ""
             transcription = ""
             hasRecordedAudio = false
+            selectedAudioFile = nil
             
-            // 録音ファイルを削除
-            try? FileManager.default.removeItem(at: audioURL)
+            // 録音ファイルを削除（ファイル選択の場合は削除しない）
+            if let url = self.audioURL {
+                // 録音ファイルの場合のみ削除
+                if url.path.contains("recording_") || url.path.contains("selected_audio_") {
+                    try? FileManager.default.removeItem(at: url)
+                }
+            }
             self.audioURL = nil
             
         } catch {

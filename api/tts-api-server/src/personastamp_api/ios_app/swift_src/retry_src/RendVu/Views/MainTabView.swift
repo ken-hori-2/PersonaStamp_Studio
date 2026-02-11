@@ -17,6 +17,11 @@ struct MainTabView: View {
                     Label("Voice Clone", systemImage: "waveform")
                 }
             
+            AudioProcessingView()
+                .tabItem {
+                    Label("音声処理", systemImage: "wand.and.stars")
+                }
+            
             TTSView()
                 .tabItem {
                     Label("TTS", systemImage: "text.bubble")

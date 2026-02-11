@@ -74,6 +74,13 @@ class TTSViewModel: ObservableObject {
             return
         }
         
+        // 文字数制限チェック（最大30字）
+        let textCount = text.count
+        guard textCount <= 30 else {
+            errorMessage = "テキストは最大30文字まで入力できます（現在: \(textCount)文字）。TTSの時間を5秒以内に制限するためです。"
+            return
+        }
+        
         isGenerating = true
         errorMessage = nil
         

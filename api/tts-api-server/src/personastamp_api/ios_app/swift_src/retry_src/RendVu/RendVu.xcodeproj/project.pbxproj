@@ -17,7 +17,9 @@
 		BEB6E7292ED35BA700A1933B /* ModelsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E7232ED35BA700A1933B /* ModelsViewModel.swift */; };
 		BEB6E72A2ED35BA700A1933B /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E7242ED35BA700A1933B /* ProfileViewModel.swift */; };
 		BEB6E72B2ED35BA700A1933B /* VoiceCloneViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E7262ED35BA700A1933B /* VoiceCloneViewModel.swift */; };
+		0262AF0651EA4447B4D350547296B2A9 /* AudioProcessingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0262AF0651EA4447B4D350547296B2A8 /* AudioProcessingViewModel.swift */; };
 		BEB6E7342ED35BC300A1933B /* VoiceCloneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E7322ED35BC300A1933B /* VoiceCloneView.swift */; };
+		78C16B48CADD4185A252AE6826D5CD01 /* AudioProcessingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78C16B48CADD4185A252AE6826D5CD00 /* AudioProcessingView.swift */; };
 		BEB6E7352ED35BC300A1933B /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E72E2ED35BC300A1933B /* MainTabView.swift */; };
 		BEB6E7362ED35BC300A1933B /* ModelsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E72F2ED35BC300A1933B /* ModelsView.swift */; };
 		BEB6E7372ED35BC300A1933B /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB6E72D2ED35BC300A1933B /* LoginView.swift */; };
@@ -42,7 +44,9 @@
 		BEB6E7242ED35BA700A1933B /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		BEB6E7252ED35BA700A1933B /* TTSViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TTSViewModel.swift; sourceTree = "<group>"; };
 		BEB6E7262ED35BA700A1933B /* VoiceCloneViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceCloneViewModel.swift; sourceTree = "<group>"; };
+		0262AF0651EA4447B4D350547296B2A8 /* AudioProcessingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioProcessingViewModel.swift; sourceTree = "<group>"; };
 		BEB6E72C2ED35BC300A1933B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		78C16B48CADD4185A252AE6826D5CD00 /* AudioProcessingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioProcessingView.swift; sourceTree = "<group>"; };
 		BEB6E72D2ED35BC300A1933B /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		BEB6E72E2ED35BC300A1933B /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		BEB6E72F2ED35BC300A1933B /* ModelsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelsView.swift; sourceTree = "<group>"; };
@@ -141,6 +145,7 @@
 				BEB6E7242ED35BA700A1933B /* ProfileViewModel.swift */,
 				BEB6E7252ED35BA700A1933B /* TTSViewModel.swift */,
 				BEB6E7262ED35BA700A1933B /* VoiceCloneViewModel.swift */,
+				0262AF0651EA4447B4D350547296B2A8 /* AudioProcessingViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -149,6 +154,7 @@
 			isa = PBXGroup;
 			children = (
 				BE8E73F52EED8672006569C6 /* EmotionPickerView.swift */,
+				78C16B48CADD4185A252AE6826D5CD00 /* AudioProcessingView.swift */,
 				BEB6E72C2ED35BC300A1933B /* ContentView.swift */,
 				BEB6E72D2ED35BC300A1933B /* LoginView.swift */,
 				BEB6E72E2ED35BC300A1933B /* MainTabView.swift */,
@@ -309,6 +315,8 @@
 				BEB6E73E2ED35BC300A1933B /* SplashView.swift in Sources */,
 				BEB6E73A2ED35BC300A1933B /* TTSView.swift in Sources */,
 				BEB6E72B2ED35BA700A1933B /* VoiceCloneViewModel.swift in Sources */,
+				0262AF0651EA4447B4D350547296B2A9 /* AudioProcessingViewModel.swift in Sources */,
+				78C16B48CADD4185A252AE6826D5CD01 /* AudioProcessingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

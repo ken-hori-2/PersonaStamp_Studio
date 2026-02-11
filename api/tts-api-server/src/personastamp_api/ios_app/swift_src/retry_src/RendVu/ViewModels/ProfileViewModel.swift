@@ -26,7 +26,14 @@ class ProfileViewModel: ObservableObject {
         do {
             stats = try await APIClient.shared.getUserStats(idToken: idToken)
         } catch {
-            errorMessage = "統計の読み込みに失敗しました: \(error.localizedDescription)"
+            // タイムアウトエラーの場合は特別なメッセージを表示
+            if let urlError = error as? URLError, urlError.code == .timedOut {
+                errorMessage = "統計の読み込みがタイムアウトしました。サーバーが起動中かもしれません。もう一度お試しください。"
+            } else if let apiError = error as? APIError {
+                errorMessage = "統計の読み込みに失敗しました: \(apiError.localizedDescription)"
+            } else {
+                errorMessage = "統計の読み込みに失敗しました: \(error.localizedDescription)"
+            }
         }
         
         isLoading = false
