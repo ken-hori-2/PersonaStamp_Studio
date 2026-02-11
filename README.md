@@ -2,7 +2,7 @@
 
 <img src="create_stamp/portfolio/App_Icon_Template.png" width="64" height="64" alt="AXiV アプリアイコン">
 
-**メインアプリ**: [AXiV — しゃべるスタンプ](#axiv--しゃべるスタンプ)（App Store 公開中の iOS アプリ）  
+**メインアプリ**: [AXiV — しゃべるスタンプ](#axiv--しゃべるスタンプ)（[App Store](https://apps.apple.com/us/app/axiv-%E3%81%97%E3%82%83%E3%81%B9%E3%82%8B%E3%82%B9%E3%82%BF%E3%83%B3%E3%83%97/id6758263589) 公開中の iOS アプリ）  
 このリポジトリでは、音声付きスタンプ作成アプリ AXiV、Fish Audio SDK を用いた音声クローン・TTS の **iOS アプリ [RendVu](#rendvu--音声クローンtts-ios-アプリ)**、および Web UI・CLI・API のツール群を管理しています。
 
 [![Swift](https://img.shields.io/badge/Swift-5.x-orange)](https://swift.org/)
@@ -128,6 +128,7 @@ AXiVは、あなたの写真に新しい命を吹き込む、次世代のスタ�
 
 - アプリ名: **AXiV — しゃべるスタンプ**
 - 対応: iPhone / iPad（iOS 16.0 以上）
+- **ダウンロード**: [App Store で見る](https://apps.apple.com/us/app/axiv-%E3%81%97%E3%82%83%E3%81%B9%E3%82%8B%E3%82%B9%E3%82%BF%E3%83%B3%E3%83%97/id6758263589)
 
 ---
 
