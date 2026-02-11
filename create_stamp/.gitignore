@@ -62,3 +62,8 @@ not_use_*/
 # --- Archive (原理検討・未使用の出力など) ---
 _archive/
 
+# AXiV portfolio assets (allow PNG/MP4 for README)
+!portfolio/*.png
+!portfolio/*.PNG
+!portfolio/*.mp4
+
