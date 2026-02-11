@@ -102,6 +102,7 @@ create_stamp/img/
 !create_stamp/portfolio/*.PNG
 !create_stamp/portfolio/*.jpg
 !create_stamp/portfolio/*.jpeg
+!create_stamp/portfolio/*.gif
 !create_stamp/portfolio/*.mp4
 !create_stamp/portfolio/*.mov
 
