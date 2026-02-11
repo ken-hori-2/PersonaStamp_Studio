@@ -1,7 +1,7 @@
 # PersonaStamp Studio
 
 **メインアプリ**: [AXiV — しゃべるスタンプ](#axiv--しゃべるスタンプ)（App Store 公開中の iOS アプリ）  
-このリポジトリでは、音声付きスタンプ作成アプリ AXiV および、Fish Audio SDK を用いた音声クローン・TTS のツール群を管理しています。
+このリポジトリでは、音声付きスタンプ作成アプリ AXiV、Fish Audio SDK を用いた音声クローン・TTS の **iOS アプリ [RendVu](#rendvu--音声クローンtts-ios-アプリ)**、および Web UI・CLI・API のツール群を管理しています。
 
 [![Swift](https://img.shields.io/badge/Swift-5.x-orange)](https://swift.org/)
 [![SwiftUI](https://img.shields.io/badge/SwiftUI-iOS%2016%2B-blue)](https://developer.apple.com/xcode/swiftui/)
@@ -155,13 +155,45 @@ AXiVは、あなたの写真に新しい命を吹き込む、次世代のスタ�
 
 ---
 
+# RendVu — 音声クローン・TTS iOS アプリ
+
+**RendVu** は、[Fish Audio SDK](https://fish.audio) を活用した**音声クローン（Voice Cloning）**と**テキスト読み上げ（TTS）**の iOS アプリです。本リポジトリの Web 版（Streamlit / CLI）に対応する **iOS 版**として開発されています。
+
+| 項目 | 内容 |
+|------|------|
+| プラットフォーム | iOS 15.0+ |
+| UI | SwiftUI |
+| 認証 | Firebase Authentication（Apple Sign In 対応） |
+| バックエンド | PersonaStamp TTS API サーバー（ローカル／リモート） |
+
+## 主な機能（RendVu）
+
+| タブ | 機能 |
+|------|------|
+| **Voice Clone** | 音声サンプルから声を複製し、Fish Audio 経由で音声クローンモデルを作成 |
+| **音声処理** | 音源分離（ボーカル抽出）、無音区間削除。処理済み音声を Voice Clone で再利用可能 |
+| **TTS** | 作成したモデルでテキストを音声化。感情タグ・文字数制限・フォーマット選択対応 |
+| **Models** | 作成済み音声クローンモデルの一覧・管理 |
+| **Profile** | ログイン／ログアウト、アカウント情報 |
+
+## ソースコード・ドキュメント（RendVu）
+
+- **アプリ本体（Xcode プロジェクト）**: [api/tts-api-server/src/personastamp_api/ios_app/swift_src/retry_src/RendVu/](api/tts-api-server/src/personastamp_api/ios_app/swift_src/retry_src/RendVu/)
+- **詳細 README・セットアップ**: [RendVu/README.md](api/tts-api-server/src/personastamp_api/ios_app/swift_src/retry_src/RendVu/README.md)
+
+## 画面プレビュー（RendVu）
+
+<img src="api/tts-api-server/src/personastamp_api/ios_app/swift_src/retry_src/RendVu/portfolio/IMG_3497.PNG" width="200" alt="RendVu 1"> <img src="api/tts-api-server/src/personastamp_api/ios_app/swift_src/retry_src/RendVu/portfolio/IMG_3498.PNG" width="200" alt="RendVu 2"> <img src="api/tts-api-server/src/personastamp_api/ios_app/swift_src/retry_src/RendVu/portfolio/IMG_3499.PNG" width="200" alt="RendVu 3"> <img src="api/tts-api-server/src/personastamp_api/ios_app/swift_src/retry_src/RendVu/portfolio/IMG_3500.PNG" width="200" alt="RendVu 4"> <img src="api/tts-api-server/src/personastamp_api/ios_app/swift_src/retry_src/RendVu/portfolio/IMG_3501.PNG" width="200" alt="RendVu 5">
+
+---
+
 # PersonaStamp Studio リポジトリ全体（もともとの README）
 
 このリポジトリには、AXiV のほかに Fish Audio SDK を用いた音声クローン・TTS のツール群が含まれます。以下は、もともとの PersonaStamp Studio README の内容です。
 
 ## 📋 概要
 
-PersonaStamp Studioは、Fish Audio SDKを使用した音声クローン（Voice Cloning）とテキスト読み上げ（TTS）の完全なツールキットです。コマンドラインとWeb UIの両方を提供し、音声クローンの作成からTTS生成まで、簡単に実行できます。
+PersonaStamp Studioは、Fish Audio SDKを使用した音声クローン（Voice Cloning）とテキスト読み上げ（TTS）の完全なツールキットです。**iOS アプリ（RendVu）**、コマンドライン、Web UI のいずれからも、音声クローンの作成から TTS 生成まで実行できます。
 
 ## 📁 プロジェクト構造
 
@@ -184,6 +216,7 @@ PersonaStamp_Studio/
 │   │   └── youtube_downloader.py # YouTube音声ダウンロード
 │   └── README.md                 # CLIの詳細ドキュメント
 ├── api/                          # 各種 API サーバー（TTS / スタンプ用など）
+│   └── tts-api-server/.../RendVu/  # 音声クローン・TTS iOS アプリ（Fish Audio SDK）
 ├── docs/                         # ドキュメント
 │   ├── SETUP.md                  # 詳細セットアップガイド
 │   ├── PROJECT_SUMMARY.md        # プロジェクトサマリー
