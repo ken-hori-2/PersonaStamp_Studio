@@ -1,5 +1,7 @@
 # PersonaStamp Studio
 
+<img src="create_stamp/portfolio/App_Icon_Template.png" width="64" height="64" alt="AXiV アプリアイコン">
+
 **メインアプリ**: [AXiV — しゃべるスタンプ](#axiv--しゃべるスタンプ)（App Store 公開中の iOS アプリ）  
 このリポジトリでは、音声付きスタンプ作成アプリ AXiV、Fish Audio SDK を用いた音声クローン・TTS の **iOS アプリ [RendVu](#rendvu--音声クローンtts-ios-アプリ)**、および Web UI・CLI・API のツール群を管理しています。
 
@@ -135,7 +137,7 @@ AXiVは、あなたの写真に新しい命を吹き込む、次世代のスタ�
 
 | 素材 | ファイル |
 |------|----------|
-| アプリアイコン | [App Icon Template.png](create_stamp/portfolio/App%20Icon%20Template.png) |
+| アプリアイコン | [App_Icon_Template.png](create_stamp/portfolio/App_Icon_Template.png) |
 | 紹介動画（App Store 公開） | [AXiV-App-Preview.mp4](create_stamp/portfolio/AXiV-App-Preview.mp4) |
 | 画面プレビュー | [AXiV_1.png](create_stamp/portfolio/AXiV_1.png) ～ [AXiV_6.png](create_stamp/portfolio/AXiV_6.png)、[IMG_3491.PNG](create_stamp/portfolio/IMG_3491.PNG) |
 
