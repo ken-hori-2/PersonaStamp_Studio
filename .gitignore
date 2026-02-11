@@ -96,6 +96,11 @@ create_stamp/img/
 *.tiff
 *.webp
 
+# RendVu portfolio の画面プレビューはリポジトリに含める
+!api/tts-api-server/src/personastamp_api/ios_app/swift_src/retry_src/RendVu/portfolio/
+!api/tts-api-server/src/personastamp_api/ios_app/swift_src/retry_src/RendVu/portfolio/*.png
+!api/tts-api-server/src/personastamp_api/ios_app/swift_src/retry_src/RendVu/portfolio/*.PNG
+
 # テスト出力
 test_output/
 output/
