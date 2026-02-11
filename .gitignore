@@ -105,3 +105,8 @@ output/
 
 # Firebase config (contains secrets)
 GoogleService-Info.plist
+
+# AXiV portfolio assets (allow PNG/MP4 in this folder only)
+!create_stamp/portfolio/*.png
+!create_stamp/portfolio/*.PNG
+!create_stamp/portfolio/*.mp4

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # シミュレータに画像を追加するスクリプト
-# 使い方: ./画像追加コマンド.sh /path/to/image.jpg
+# 使い方: ./Add_Images_Script.sh /path/to/image.jpg
 
 if [ $# -eq 0 ]; then
     echo "使用方法: $0 <画像ファイルのパス>"

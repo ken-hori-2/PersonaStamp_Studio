@@ -1,0 +1,6 @@
+# Backups (exclude from repo)
+*.backup
+*_backup_*/
+
+# Xcode user-specific
+xcuserdata/

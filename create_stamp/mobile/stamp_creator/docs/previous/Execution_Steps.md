@@ -60,7 +60,7 @@ open stamp_creator.xcodeproj
 
 **簡単なスクリプトも用意しています:**
 ```bash
-./画像追加コマンド.sh ~/Desktop/my_photo.jpg
+./Add_Images_Script.sh ~/Desktop/my_photo.jpg
 ```
 
 詳細は `シミュレータで画像をテストする方法.md` を参照してください。
